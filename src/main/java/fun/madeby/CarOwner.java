@@ -4,7 +4,7 @@ package fun.madeby;
  * Created by Gra_m on 2022 06 24
  */
 
-public class Car implements Record{
+public class CarOwner implements DbRecord {
 	private String name;
 	private int age;
 	private String address;
@@ -12,13 +12,22 @@ public class Car implements Record{
 	private String description;
 	private Long length;
 
-	public Car(String name, int age, String address, String carPlateNumber, String description, Long length) {
+	@Override
+	public String toString() {
+		return String.format("Name: %s, Age: %s, Address: %s, reg#: %s, Description: %s",
+				name, age, address, carPlateNumber, description);
+	}
+
+	public CarOwner(String name, int age, String address, String carPlateNumber, String description) {
 		this.name = name;
 		this.age = age;
 		this.address = address;
 		this.carPlateNumber = carPlateNumber;
 		this.description = description;
 		this.length = null;
+	}
+
+	public CarOwner() {
 	}
 
 	public String getName() {
@@ -46,15 +55,15 @@ public class Car implements Record{
 	}
 
 	@Override
-	public Record populateOwnRecordLength(Record record) {
-		this.length = (long) (4 +  // name bytes
+	public DbRecord populateOwnRecordLength(DbRecord dbRecord) {
+		this.length = (long) (4 +  // name int bytes
 						name.length() +
-						4 + //age
-						4 +
+						4 + // age int bytes
+						4 + // address int bytes
 						address.length() +
-						4 +
+						4 + //carPlate int bytes
 						carPlateNumber.length() +
-						4 +
+						4 + //description int bytes
 						description.length());
 
 		return this;
