@@ -5,6 +5,8 @@ package fun.madeby;
  */
 
 public interface DbRecord {
+
+	int INTEGER_LENGTH_IN_BYTES = 4;
 	DbRecord populateOwnRecordLength(DbRecord dbRecord);
 	Long getLength();
 	String getName();

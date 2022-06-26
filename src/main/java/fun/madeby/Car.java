@@ -47,14 +47,14 @@ public class Car implements DbRecord {
 
 	@Override
 	public DbRecord populateOwnRecordLength(DbRecord dbRecord) {
-		this.length = (long) (4 +  // name bytes
+		this.length = (long) (INTEGER_LENGTH_IN_BYTES +  // name bytes
 						name.length() +
-						4 + //age
-						4 +
+						INTEGER_LENGTH_IN_BYTES + //age
+						INTEGER_LENGTH_IN_BYTES +
 						address.length() +
-						4 +
+						INTEGER_LENGTH_IN_BYTES +
 						carPlateNumber.length() +
-						4 +
+						INTEGER_LENGTH_IN_BYTES +
 						description.length());
 
 		return this;
