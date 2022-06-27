@@ -140,6 +140,8 @@ public class FileHandler{
 		long rowNum = 0;
 		int recordLength = 0;
 		long pointer = 0;
+		long deletedRows = 0;
+
 		if(checkForHistoricData()) {
 			try {
 				while (pointer < this.dbFile.length()) {
@@ -148,7 +150,10 @@ public class FileHandler{
 					if (!isDeleted) {
 						Index.getInstance().add(pointer);
 						rowNum++;
-					}
+					} else deletedRows++;
+
+
+					System.out.println("PopulateIndex: Total deletedRows in db = " + deletedRows);
 					pointer += BOOLEAN_LENGTH_IN_BYTES;
 					recordLength = this.dbFile.readInt();
 					pointer += INTEGER_LENGTH_IN_BYTES;
@@ -176,5 +181,18 @@ public class FileHandler{
 
 	public void close() throws IOException {
 		this.dbFile.close();
+	}
+
+	public void deleteRow(Long rowNumber) throws IOException {
+		Index indexInstance = Index.getInstance();
+		long rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
+		if (rowsBytePosition == -1)
+			throw new IOException("Row does not exist in index");
+		this.dbFile.seek(rowsBytePosition);
+		this.dbFile.writeBoolean(true);
+
+		// update the index component.
+		indexInstance.remove(rowNumber);
+
 	}
 }

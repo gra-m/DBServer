@@ -20,7 +20,7 @@ public final class DBServer implements DB{
 	}
 
 	public void close() throws IOException {
-		//Index.getInstance().clear(); unnecessary
+		Index.getInstance().clear();
 		this.fileHandler.close();
 	}
 
@@ -30,12 +30,26 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public DBRecord delete(Long rowNumber) throws IOException {
-		return null;
+	public void delete(Long rowNumber) throws IOException {
+		checkRowNumber(rowNumber);
+		this.fileHandler.deleteRow(rowNumber);
+
 	}
+
+
 
 	@Override
 	public DBRecord read(Long rowNumber) throws IOException {
+		checkRowNumber(rowNumber);
 		return this.fileHandler.readRow(rowNumber);
+	}
+
+	private void checkRowNumber(Long rowNumber) {
+		try {
+			if (rowNumber < 0)
+				throw new IOException("Row number is less than 0");
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

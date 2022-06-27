@@ -1,12 +1,10 @@
 package fun.madeby.testapp;
 
 import fun.madeby.CarOwner;
-import fun.madeby.FileHandler;
 import fun.madeby.DBRecord;
 import fun.madeby.Index;
 import fun.madeby.dbserver.DB;
 import fun.madeby.dbserver.DBServer;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -20,7 +18,7 @@ public class TestApp {
 		DB dbServer = new DBServer(dbFile);
 
 		//Write
-		CarOwner carOwner = new CarOwner("Frank Demian",
+		DBRecord carOwner = new CarOwner("Frank Demian",
 				20,
 				"Herbert Street, Antwerp, 2000",
 				"VJW707S",
@@ -37,14 +35,12 @@ public class TestApp {
 		try {
 			DBRecord carOwner2 = dbServer.read(0L);
 			System.out.println(carOwner2);
-			dbServer.close();
+			System.out.println("TestApp: Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
+			dbServer.delete(0L);
+			System.out.println("Now, after deleting row 0 in db = " + Index.getInstance().getTotalNumberOfRows());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		System.out.println("TestApp: Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
-
-
 
 	}
 }

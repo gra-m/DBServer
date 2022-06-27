@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public interface DB {
 	boolean add(DBRecord dbRecord) throws IOException;
-	DBRecord delete(Long rowNumber) throws IOException;
+	void delete(Long rowNumber) throws IOException;
 	DBRecord read(Long rowNumber) throws IOException;
 	void close() throws IOException;
 }
