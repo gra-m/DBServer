@@ -3,6 +3,7 @@ package fun.madeby.testapp;
 import fun.madeby.CarOwner;
 import fun.madeby.FileHandler;
 import fun.madeby.DbRecord;
+import fun.madeby.Index;
 
 import java.io.IOException;
 
@@ -32,12 +33,14 @@ public class TestApp {
 
 		try {
 			FileHandler fh = new FileHandler("DBServer.db");
-			DbRecord carOwner2 = fh.readRow(0L);
+			DbRecord carOwner2 = fh.readRow(2L);
 			System.out.println(carOwner2);
 			fh.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		System.out.println("Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
 
 
 

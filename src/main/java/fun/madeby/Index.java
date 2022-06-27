@@ -11,7 +11,7 @@ public final class Index {
 	static{indexInstance = new Index();}
 	private static final Index indexInstance;
 	private HashMap<Long, Long> mapRowIndexBytePosition;
-	private Long nextWriteRowIndex = 0L;
+	private Long totalNumberOfRows = 0L;
 
 	private Index() {
 		this.mapRowIndexBytePosition = new HashMap<>();
@@ -22,15 +22,19 @@ public final class Index {
 	}
 
 	public void add(Long bytePosition) {
-		this.mapRowIndexBytePosition.put(this.nextWriteRowIndex++, bytePosition);
+		this.mapRowIndexBytePosition.put(this.totalNumberOfRows++, bytePosition);
 	}
 
 	public void remove(Long rowIndex) {
 		this.mapRowIndexBytePosition.remove(rowIndex);
-		this.nextWriteRowIndex--;
+		this.totalNumberOfRows--;
 	}
 
-	public Long getNextWriteRowIndex() {
-		return this.nextWriteRowIndex;
+	public Long getRowsBytePosition(Long rowNumber) {
+		return this.mapRowIndexBytePosition.getOrDefault(rowNumber, -1L);
+	}
+
+	public Long getTotalNumberOfRows() {
+		return this.totalNumberOfRows;
 	}
 }

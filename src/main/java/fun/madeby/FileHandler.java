@@ -28,7 +28,9 @@ public class FileHandler {
 	 */
 	public boolean add (DbRecord dbRecord) throws IOException {
 		int length = 0;
-		this.dbFile.seek(this.dbFile.length());
+		long currentPositionToInsert = this.dbFile.length();
+		this.dbFile.seek(currentPositionToInsert);
+
 
 		// populate length
 		DbRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
@@ -63,11 +65,21 @@ public class FileHandler {
 		dbFile.writeInt(description.length());
 		dbFile.write(description.getBytes());
 
+		// set the start point of the record just inserted
+		Index.getInstance().add(currentPositionToInsert);
+
+
 		return true;
 	}
 
 	public DbRecord readRow(Long rowNumber) throws IOException {
-		byte[] row = this.readRawRecord(rowNumber);
+
+		// get/check rows byte position
+		Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
+		if (rowsBytePosition == -1L)
+			return null;
+
+		byte[] row = this.readRawRecord(rowsBytePosition);
 
 		DataInputStream stream = new DataInputStream(new ByteArrayInputStream(row));
 
@@ -98,20 +110,20 @@ public class FileHandler {
 
 	/** Reads the raw record, returns record data without storage information.
 	 *
-	 * @param rowNumber Not working with index currently, working if passed 0L.
+	 * @param rowsBytePosition Not working with index currently, working if passed 0L.
 	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 4 bytes representing the name
 	 * length int.
 	 */
-	private byte[] readRawRecord(Long rowNumber) {
+	private byte[] readRawRecord(Long rowsBytePosition) {
 		byte[] data = null;
 
 		try {
-			dbFile.seek(rowNumber);
+			dbFile.seek(rowsBytePosition);
 			if (dbFile.readBoolean())
 				return new byte[0];
-			dbFile.seek(rowNumber + 1); // 1 byte boolean
+			dbFile.seek(rowsBytePosition + 1); // 1 byte boolean
 			int recordLength = dbFile.readInt();
-			dbFile.seek(rowNumber + 5); // 5 bytes boolean + int
+			dbFile.seek(rowsBytePosition + 5); // 5 bytes boolean + int
 			data = new byte[recordLength];
 			this.dbFile.read(data);
 		}catch (IOException e) {
