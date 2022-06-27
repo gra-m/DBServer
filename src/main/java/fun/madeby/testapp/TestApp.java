@@ -2,9 +2,12 @@ package fun.madeby.testapp;
 
 import fun.madeby.CarOwner;
 import fun.madeby.FileHandler;
-import fun.madeby.DbRecord;
+import fun.madeby.DBRecord;
 import fun.madeby.Index;
+import fun.madeby.dbserver.DB;
+import fun.madeby.dbserver.DBServer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -12,7 +15,9 @@ import java.io.IOException;
  */
 
 public class TestApp {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
+		final String dbFile = "DBServer.db";
+		DB dbServer = new DBServer(dbFile);
 
 		//Write
 		CarOwner carOwner = new CarOwner("Frank Demian",
@@ -22,10 +27,7 @@ public class TestApp {
 				"Doesn't know we have a file on him at all");
 
 		try {
-			FileHandler fh = new FileHandler("DBServer.db");
-			fh.populateIndex();
-			fh.add(carOwner);
-			fh.close();
+			dbServer.add(carOwner);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -33,15 +35,14 @@ public class TestApp {
 		//Read
 
 		try {
-			FileHandler fh = new FileHandler("DBServer.db");
-			DbRecord carOwner2 = fh.readRow(0L);
+			DBRecord carOwner2 = dbServer.read(0L);
 			System.out.println(carOwner2);
-			fh.close();
+			dbServer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
+		System.out.println("TestApp: Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
 
 
 

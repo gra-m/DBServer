@@ -4,7 +4,7 @@ package fun.madeby;
  * Created by Gra_m on 2022 06 24
  */
 
-public class CarOwner implements DbRecord {
+public class CarOwner implements DBRecord {
 	private String name;
 	private int age;
 	private String address;
@@ -55,7 +55,7 @@ public class CarOwner implements DbRecord {
 	}
 
 	@Override
-	public DbRecord populateOwnRecordLength(DbRecord dbRecord) {
+	public DBRecord populateOwnRecordLength(DBRecord dbRecord) {
 		this.length = (long) (INTEGER_LENGTH_IN_BYTES +  // name int bytes
 						name.length() +
 						INTEGER_LENGTH_IN_BYTES + // age int bytes

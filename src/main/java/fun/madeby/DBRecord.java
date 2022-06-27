@@ -4,10 +4,10 @@ package fun.madeby;
  * Created by Gra_m on 2022 06 24
  */
 
-public interface DbRecord {
+public interface DBRecord {
 
 	int INTEGER_LENGTH_IN_BYTES = 4;
-	DbRecord populateOwnRecordLength(DbRecord dbRecord);
+	DBRecord populateOwnRecordLength(DBRecord dbRecord);
 	Long getLength();
 	String getName();
 	int getAge();

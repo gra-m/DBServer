@@ -1,5 +1,7 @@
 package fun.madeby;
 
+import fun.madeby.dbserver.DB;
+
 import java.io.*;
 
 import static java.lang.Math.toIntExact;
@@ -9,7 +11,7 @@ import static java.lang.Math.toIntExact;
  * Created by Gra_m on 2022 06 24
  */
 
-public class FileHandler {
+public class FileHandler{
 	private RandomAccessFile dbFile;
 	private static final int INTEGER_LENGTH_IN_BYTES = 4;
 	private static final int BOOLEAN_LENGTH_IN_BYTES = 1;
@@ -28,14 +30,14 @@ public class FileHandler {
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public boolean add (DbRecord dbRecord) throws IOException {
+	public boolean add (DBRecord dbRecord) throws IOException {
 		int length = 0;
 		long currentPositionToInsert = this.dbFile.length();
 		this.dbFile.seek(currentPositionToInsert);
 
 
 		// populate length
-		DbRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
+		DBRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
 		try {
 			length = toIntExact(returnedRec.getLength());
 		if (length <= 0)
@@ -74,7 +76,7 @@ public class FileHandler {
 		return true;
 	}
 
-	public DbRecord readRow(Long rowNumber) throws IOException {
+	public DBRecord readRow(Long rowNumber) throws IOException {
 
 		// get/check rows byte position
 		Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
@@ -151,13 +153,13 @@ public class FileHandler {
 					recordLength = this.dbFile.readInt();
 					pointer += INTEGER_LENGTH_IN_BYTES;
 					pointer += recordLength;
+					System.out.println("Populating Index... rows= " + rowNum);
 				}
 			}catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
-		System.out.println("Total row number in db = " + rowNum);
 	}
 
 	private boolean checkForHistoricData() {

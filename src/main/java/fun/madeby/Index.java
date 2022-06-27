@@ -37,4 +37,10 @@ public final class Index {
 	public Long getTotalNumberOfRows() {
 		return this.totalNumberOfRows;
 	}
+
+	public void clear() {
+		// unnecessary:
+		this.totalNumberOfRows = 0L;
+		this.mapRowIndexBytePosition.clear();
+	}
 }
