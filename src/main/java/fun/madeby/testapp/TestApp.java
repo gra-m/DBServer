@@ -23,6 +23,7 @@ public class TestApp {
 
 		try {
 			FileHandler fh = new FileHandler("DBServer.db");
+			fh.populateIndex();
 			fh.add(carOwner);
 			fh.close();
 		} catch (IOException e) {
@@ -33,7 +34,7 @@ public class TestApp {
 
 		try {
 			FileHandler fh = new FileHandler("DBServer.db");
-			DbRecord carOwner2 = fh.readRow(2L);
+			DbRecord carOwner2 = fh.readRow(0L);
 			System.out.println(carOwner2);
 			fh.close();
 		} catch (IOException e) {

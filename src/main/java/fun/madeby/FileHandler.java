@@ -11,6 +11,8 @@ import static java.lang.Math.toIntExact;
 
 public class FileHandler {
 	private RandomAccessFile dbFile;
+	private static final int INTEGER_LENGTH_IN_BYTES = 4;
+	private static final int BOOLEAN_LENGTH_IN_BYTES = 1;
 
 	public FileHandler(String fileName) throws FileNotFoundException {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
@@ -130,6 +132,44 @@ public class FileHandler {
 			e.printStackTrace();
 		}
 		return data;
+	}
+
+	public void populateIndex() {
+		long rowNum = 0;
+		int recordLength = 0;
+		long pointer = 0;
+		if(checkForHistoricData()) {
+			try {
+				while (pointer < this.dbFile.length()) {
+					this.dbFile.seek(pointer);
+					boolean isDeleted = this.dbFile.readBoolean();
+					if (!isDeleted) {
+						Index.getInstance().add(pointer);
+						rowNum++;
+					}
+					pointer += BOOLEAN_LENGTH_IN_BYTES;
+					recordLength = this.dbFile.readInt();
+					pointer += INTEGER_LENGTH_IN_BYTES;
+					pointer += recordLength;
+				}
+			}catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		System.out.println("Total row number in db = " + rowNum);
+	}
+
+	private boolean checkForHistoricData() {
+		try {
+			if (this.dbFile.length() == 0) {
+				System.out.println("Db file is empty, nothing to index.");
+				return false;
+			}
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		return true;
 	}
 
 	public void close() throws IOException {
