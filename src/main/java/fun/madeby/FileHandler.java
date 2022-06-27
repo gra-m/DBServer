@@ -9,30 +9,32 @@ import static java.lang.Math.toIntExact;
  * Created by Gra_m on 2022 06 24
  */
 
-public class FileHandler implements Serializable {
+public class FileHandler {
 	private RandomAccessFile dbFile;
 
 	public FileHandler(String fileName) throws FileNotFoundException {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
 	}
 
+	/** Writes a DbRecord to the RandomAccessFile dbFile.
+	 *
+	 * <p>First writes boolean isDeleted false, then own length, then actual record data. </p>
+	 *
+	 * <p>This method returns a {@code boolean} true, but testing will be added in the future.</p>
+	 *
+	 * @param dbRecord the record to be written
+	 * @return not testing currently true
+	 * @throws IOException if there is one
+	 */
 	public boolean add (DbRecord dbRecord) throws IOException {
 		int length = 0;
-
-		// seek to the end of the file
 		this.dbFile.seek(this.dbFile.length());
-		// calculate record length record uses int Record future proofed with long
+
+		// populate length
 		DbRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
 		try {
 			length = toIntExact(returnedRec.getLength());
-
-
-
-			System.out.println("Length of Raw Row: " + returnedRec.getLength());
-
-
-
-			if (length <= 0)
+		if (length <= 0)
 				throw new RuntimeException("Record length zero or less");
 		}catch (ArithmeticException e) {
 			e.printStackTrace();
@@ -45,7 +47,6 @@ public class FileHandler implements Serializable {
 		String name = returnedRec.getName();
 		dbFile.writeInt(name.length());
 		dbFile.write(name.getBytes());
-
 
 		int age = returnedRec.getAge();
 		dbFile.writeInt(age);
@@ -62,20 +63,11 @@ public class FileHandler implements Serializable {
 		dbFile.writeInt(description.length());
 		dbFile.write(description.getBytes());
 
-
 		return true;
 	}
 
 	public DbRecord readRow(Long rowNumber) throws IOException {
 		byte[] row = this.readRawRecord(rowNumber);
-
-
-
-
-		System.out.println("Length of retrieved row: " + row.length);
-
-
-
 
 		DataInputStream stream = new DataInputStream(new ByteArrayInputStream(row));
 
@@ -83,7 +75,6 @@ public class FileHandler implements Serializable {
 		byte[] nameBytes = new byte[nameLength];
 		stream.read(nameBytes); // fill array, advance pointer
 		String name = new String(nameBytes);
-
 
 		int age  = stream.readInt();
 
@@ -105,28 +96,22 @@ public class FileHandler implements Serializable {
 	}
 
 
-	/**
-	 * Test version (Will) seek to index of row required
+	/** Reads the raw record, returns record data without storage information.
 	 *
-	 * @param rowNumber pass 0 in testing to be refactored.
+	 * @param rowNumber Not working with index currently, working if passed 0L.
 	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 4 bytes representing the name
 	 * length int.
 	 */
 	private byte[] readRawRecord(Long rowNumber) {
 		byte[] data = null;
 
-		// no index component yet works with test pass 0L
 		try {
 			dbFile.seek(rowNumber);
 			if (dbFile.readBoolean())
 				return new byte[0];
 			dbFile.seek(rowNumber + 1); // 1 byte boolean
-			int recordLength = dbFile.readInt(); //first int found is recordLength??
+			int recordLength = dbFile.readInt();
 			dbFile.seek(rowNumber + 5); // 5 bytes boolean + int
-
-			System.out.println(recordLength);
-
-
 			data = new byte[recordLength];
 			this.dbFile.read(data);
 		}catch (IOException e) {
