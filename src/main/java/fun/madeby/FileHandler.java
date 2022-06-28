@@ -1,7 +1,5 @@
 package fun.madeby;
 
-import fun.madeby.dbserver.DB;
-
 import java.io.*;
 
 import static java.lang.Math.toIntExact;
@@ -40,6 +38,7 @@ public class FileHandler{
 		DBRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
 		try {
 			length = toIntExact(returnedRec.getLength());
+			System.out.println("add DBRecord length added: " + length);
 		if (length <= 0)
 				throw new RuntimeException("Record length zero or less");
 		}catch (ArithmeticException e) {
@@ -121,6 +120,7 @@ public class FileHandler{
 	private byte[] readRawRecord(Long rowsBytePosition) {
 		byte[] data = null;
 
+		if (testRowData(rowsBytePosition)) {
 		try {
 			dbFile.seek(rowsBytePosition);
 			if (dbFile.readBoolean())
@@ -133,7 +133,32 @@ public class FileHandler{
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
+		} else {
+			throw new RuntimeException("testRowData failed");
+		}
 		return data;
+	}
+
+	private boolean testRowData(Long rowsBytePosition) {
+		Boolean rowBoolean = null;
+		Integer recordLength = null;
+		Integer nameLength = null;
+
+		try {
+			dbFile.seek(rowsBytePosition);
+			rowBoolean = dbFile.readBoolean();
+			dbFile.seek(rowsBytePosition + 1);
+			recordLength = dbFile.readInt();
+			dbFile.seek(rowsBytePosition + 5);
+			nameLength = dbFile.readInt();
+			System.out.println("ROW TEST DATA: " + rowBoolean + " " + recordLength + " " + nameLength);
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (Boolean.TRUE.equals(rowBoolean) && recordLength < 1000 && nameLength < 250)
+			return true;
+		return false;
 	}
 
 	public void populateIndex() {
@@ -141,14 +166,20 @@ public class FileHandler{
 		int recordLength = 0;
 		long pointer = 0;
 		long deletedRows = 0;
+		Index index = null;
 
 		if(checkForHistoricData()) {
 			try {
-				while (pointer < this.dbFile.length()) {
+				while (pointer <= this.dbFile.length()) {
 					this.dbFile.seek(pointer);
 					boolean isDeleted = this.dbFile.readBoolean();
 					if (!isDeleted) {
-						Index.getInstance().add(pointer);
+						index = Index.getInstance();
+						index.add(pointer);
+						byte[] recordData = readRawRecord(pointer);
+						String name = getNextName(recordData);
+						index.addNameToIndex(name, rowNum);
+
 						rowNum++;
 					} else deletedRows++;
 
@@ -165,6 +196,31 @@ public class FileHandler{
 			}
 		}
 
+	}
+
+	private String getNextName(byte[] recordData) {
+		String name = null;
+		try {
+			DataInputStream stream = new DataInputStream(new ByteArrayInputStream(recordData));
+
+			int nameLength = stream.readInt();
+			System.out.println("getNextName retrieved nameLength: " + nameLength);
+			byte[] nameBytes = new byte[nameLength];
+			long bytes = stream.read(nameBytes); // fill array, advance pointer
+			if (bytes < 3137) {
+				System.out.println(bytes);
+				name = new String(nameBytes);
+			} else {
+				name = "too big";
+				throw new EOFException ("It throws this anyway..");
+			}
+
+		}catch (IOException e) {
+			System.out.println("FileHandler getNextName(long pointer)");
+			e.printStackTrace();
+		}
+		System.out.println("Name retrieved in getNextName: " + name);
+		return name;
 	}
 
 	private boolean checkForHistoricData() {

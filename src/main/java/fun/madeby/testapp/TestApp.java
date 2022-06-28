@@ -57,14 +57,14 @@ public class TestApp {
 
 			//read update back
 			DBRecord retrievedCarOwner2Updated = dbServer.read(0L);
-			System.out.println(retrievedCarOwner2Updated);
+			System.out.println("Print in update by RowNumber: " + retrievedCarOwner2Updated);
 
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 
 		//Update by name "Frank Demlan"
-		try {
+		/*try {
 			DBRecord carOwner3 = new CarOwner(
 					"Funk Adelic",
 					20,
@@ -80,6 +80,6 @@ public class TestApp {
 
 		} catch(IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
