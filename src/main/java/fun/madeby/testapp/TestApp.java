@@ -36,9 +36,30 @@ public class TestApp {
 			DBRecord carOwner2 = dbServer.read(0L);
 			System.out.println(carOwner2);
 			System.out.println("TestApp: Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
-			dbServer.delete(0L);
-			System.out.println("TestApp: Now, after deleting row 0 in db = " + Index.getInstance().getTotalNumberOfRows());
+			//dbServer.delete(0L);
+			//System.out.println("TestApp: Now, after deleting row 0 in db = " + Index.getInstance().getTotalNumberOfRows());
+			System.out.println("TestApp: No longer deleting row 0 in db, so update can be tested (reset DBServer.db testing this): " + Index.getInstance().getTotalNumberOfRows());
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		//Update
+
+		try {
+			DBRecord carOwner2Updated = new CarOwner(
+					"Frank Demlan",
+					20,
+					"Herbert Street, Antwerp, 2000",
+					"VJW7076",
+					"Doesn't know that we know that he knows we have a file on him"
+			);
+			dbServer.update(0L, carOwner2Updated);
+
+			//read update back
+			DBRecord retrievedCarOwner2Updated = dbServer.read(0L);
+			System.out.println(retrievedCarOwner2Updated);
+
+		} catch(IOException e) {
 			e.printStackTrace();
 		}
 

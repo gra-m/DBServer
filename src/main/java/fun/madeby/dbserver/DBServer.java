@@ -35,8 +35,8 @@ public final class DBServer implements DB{
 	 */
 	@Override
 	public void update(Long rowNumber, final DBRecord dbRecord) throws IOException {
-		if (checkRowNumber(rowNumber));
-			//this.fileHandler.updateByRow(rowNumber, dbRecord);
+		if (checkRowNumber(rowNumber))
+			this.fileHandler.updateByRow(rowNumber, dbRecord);
 
 	}
 

@@ -195,4 +195,13 @@ public class FileHandler{
 		indexInstance.remove(rowNumber);
 
 	}
+
+	public void updateByRow(Long rowNumber, DBRecord dbRecord) {
+		try {
+			this.deleteRow(rowNumber);
+			this.add(dbRecord);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
