@@ -37,7 +37,7 @@ public class TestApp {
 			System.out.println(carOwner2);
 			System.out.println("TestApp: Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
 			dbServer.delete(0L);
-			System.out.println("Now, after deleting row 0 in db = " + Index.getInstance().getTotalNumberOfRows());
+			System.out.println("TestApp: Now, after deleting row 0 in db = " + Index.getInstance().getTotalNumberOfRows());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

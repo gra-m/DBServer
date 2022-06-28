@@ -153,12 +153,12 @@ public class FileHandler{
 					} else deletedRows++;
 
 
-					System.out.println("PopulateIndex: Total deletedRows in db = " + deletedRows);
+					System.out.println("populateIndex: Total deletedRows in db = " + deletedRows);
 					pointer += BOOLEAN_LENGTH_IN_BYTES;
 					recordLength = this.dbFile.readInt();
 					pointer += INTEGER_LENGTH_IN_BYTES;
 					pointer += recordLength;
-					System.out.println("Populating Index... rows= " + rowNum);
+					System.out.println("populateIndex... rows= " + rowNum);
 				}
 			}catch (IOException e) {
 				e.printStackTrace();

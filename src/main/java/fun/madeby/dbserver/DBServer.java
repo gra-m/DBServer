@@ -29,10 +29,21 @@ public final class DBServer implements DB{
 		return this.fileHandler.add(dbRecord);
 	}
 
+	/**
+	 * @param rowNumber
+	 * @throws IOException
+	 */
+	@Override
+	public void update(Long rowNumber, final DBRecord dbRecord) throws IOException {
+		if (checkRowNumber(rowNumber));
+			//this.fileHandler.updateByRow(rowNumber, dbRecord);
+
+	}
+
 	@Override
 	public void delete(Long rowNumber) throws IOException {
-		checkRowNumber(rowNumber);
-		this.fileHandler.deleteRow(rowNumber);
+		if (checkRowNumber(rowNumber))
+			this.fileHandler.deleteRow(rowNumber);
 
 	}
 
@@ -40,16 +51,19 @@ public final class DBServer implements DB{
 
 	@Override
 	public DBRecord read(Long rowNumber) throws IOException {
-		checkRowNumber(rowNumber);
-		return this.fileHandler.readRow(rowNumber);
+		if (checkRowNumber(rowNumber))
+			return this.fileHandler.readRow(rowNumber);
+		return null;
 	}
 
-	private void checkRowNumber(Long rowNumber) {
+	private boolean checkRowNumber(Long rowNumber) {
 		try {
-			if (rowNumber < 0)
+			if (rowNumber < 0) {
 				throw new IOException("Row number is less than 0");
+			}
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
+		return true;
 	}
 }
