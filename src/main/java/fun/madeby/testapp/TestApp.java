@@ -43,7 +43,7 @@ public class TestApp {
 			e.printStackTrace();
 		}
 
-		//Update
+		//Update by row number (once only, update sets row boolean to deleted, deleted rows cannot be update).
 
 		try {
 			DBRecord carOwner2Updated = new CarOwner(
@@ -63,5 +63,23 @@ public class TestApp {
 			e.printStackTrace();
 		}
 
+		//Update by name "Frank Demlan"
+		try {
+			DBRecord carOwner3 = new CarOwner(
+					"Funk Adelic",
+					20,
+					"Herbert Street, Antwerp, 2000",
+					"VJW7076",
+					"Doesn't know that we know that he knows we have a file on him"
+			);
+			dbServer.update( "Frank Demlan", carOwner3);
+
+			//read update back
+			DBRecord retrievedUpdatedByName = dbServer.read(0L);
+			System.out.println(retrievedUpdatedByName);
+
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -10,11 +10,15 @@ public final class Index {
 
 	static{indexInstance = new Index();}
 	private static final Index indexInstance;
-	private HashMap<Long, Long> mapRowIndexBytePosition;
+	private HashMap<Long, Long> mapRowNumberBytePosition;
 	private Long totalNumberOfRows = 0L;
+	private HashMap<String, Long> mapDbRecordNameByRowNumber;
+
+
 
 	private Index() {
-		this.mapRowIndexBytePosition = new HashMap<>();
+		this.mapRowNumberBytePosition = new HashMap<>();
+		this.mapDbRecordNameByRowNumber = new HashMap<>();
 	}
 
 	public static Index getInstance() {
@@ -22,25 +26,39 @@ public final class Index {
 	}
 
 	public void add(Long bytePosition) {
-		this.mapRowIndexBytePosition.put(this.totalNumberOfRows++, bytePosition);
+		this.mapRowNumberBytePosition.put(this.totalNumberOfRows++, bytePosition);
+	}
+
+	public void addNameToIndex(final String name, Long rowIndex) {
+		this.mapDbRecordNameByRowNumber.put(name, rowIndex);
+	}
+
+	public boolean hasNameInIndex(final String name) {
+		return this.mapDbRecordNameByRowNumber.containsKey(name);
+	}
+
+	public Long getRowNumberByName(final String name) {
+		return this.mapDbRecordNameByRowNumber.getOrDefault(name, -1L);
 	}
 
 	public void remove(Long rowIndex) {
-		this.mapRowIndexBytePosition.remove(rowIndex);
+		this.mapRowNumberBytePosition.remove(rowIndex);
 		this.totalNumberOfRows--;
 	}
 
 	public Long getRowsBytePosition(Long rowNumber) {
-		return this.mapRowIndexBytePosition.getOrDefault(rowNumber, -1L);
+		return this.mapRowNumberBytePosition.getOrDefault(rowNumber, -1L);
 	}
 
 	public Long getTotalNumberOfRows() {
 		return this.totalNumberOfRows;
 	}
 
+
+
 	public void clear() {
-		// unnecessary:
 		this.totalNumberOfRows = 0L;
-		this.mapRowIndexBytePosition.clear();
+		this.mapRowNumberBytePosition.clear();
+		this.mapDbRecordNameByRowNumber.clear();
 	}
 }

@@ -41,6 +41,11 @@ public final class DBServer implements DB{
 	}
 
 	@Override
+	public void update(String name, final DBRecord dbRecord) throws IOException {
+
+	}
+
+	@Override
 	public void delete(Long rowNumber) throws IOException {
 		if (checkRowNumber(rowNumber))
 			this.fileHandler.deleteRow(rowNumber);

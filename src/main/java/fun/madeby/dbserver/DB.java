@@ -11,6 +11,7 @@ import java.io.IOException;
 public interface DB {
 	boolean add(DBRecord dbRecord) throws IOException;
 	void update(Long rowNumber, final DBRecord dbRecord) throws IOException;
+	void update(String name, final DBRecord dbRecord) throws IOException;
 	void delete(Long rowNumber) throws IOException;
 	DBRecord read(Long rowNumber) throws IOException;
 	void close() throws IOException;
