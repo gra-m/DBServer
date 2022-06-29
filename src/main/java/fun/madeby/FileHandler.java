@@ -1,6 +1,6 @@
 package fun.madeby;
 
-import fun.madeby.dbserver.DB;
+import fun.madeby.dbserver.exceptions.DuplicateNameException;
 
 import java.io.*;
 
@@ -11,7 +11,7 @@ import static java.lang.Math.toIntExact;
  * Created by Gra_m on 2022 06 24
  */
 
-public class FileHandler{
+public class FileHandler {
 	private RandomAccessFile dbFile;
 	private static final int INTEGER_LENGTH_IN_BYTES = 4;
 	private static final int BOOLEAN_LENGTH_IN_BYTES = 1;
@@ -20,7 +20,8 @@ public class FileHandler{
 		this.dbFile = new RandomAccessFile(fileName, "rw");
 	}
 
-	/** Writes a DbRecord to the RandomAccessFile dbFile.
+	/**
+	 * Writes a DbRecord to the RandomAccessFile dbFile.
 	 *
 	 * <p>First writes boolean isDeleted false, then own length, then actual record data. </p>
 	 *
@@ -30,22 +31,27 @@ public class FileHandler{
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public boolean add (DBRecord dbRecord) throws IOException {
+	public boolean add(DBRecord dbRecord) throws IOException{
+		try {
+			if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
+				throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
+			}
+		}catch (DuplicateNameException e) {
+			e.printStackTrace();
+		}
+
 		int length = 0;
 		long currentPositionToInsert = this.dbFile.length();
 		this.dbFile.seek(currentPositionToInsert);
-
-
 		// populate length
 		DBRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
 		try {
 			length = toIntExact(returnedRec.getLength());
-		if (length <= 0)
+			if (length <= 0)
 				throw new RuntimeException("Record length zero or less");
-		}catch (ArithmeticException e) {
+		} catch (ArithmeticException e) {
 			e.printStackTrace();
 		}
-
 		// write data
 		dbFile.writeBoolean(false);
 		dbFile.writeInt(length);
@@ -71,10 +77,9 @@ public class FileHandler{
 
 		// set the start point of the record just inserted
 		Index.getInstance().add(currentPositionToInsert);
-
-
 		return true;
 	}
+
 
 	public DBRecord readRow(Long rowNumber) throws IOException {
 
@@ -84,15 +89,18 @@ public class FileHandler{
 			return null;
 
 		byte[] row = this.readRawRecord(rowsBytePosition);
-
 		DataInputStream stream = new DataInputStream(new ByteArrayInputStream(row));
+		return readFromByteStream(stream);
+	}
+
+	private DBRecord readFromByteStream(final DataInputStream stream) throws IOException {
 
 		int nameLength = stream.readInt();
 		byte[] nameBytes = new byte[nameLength];
 		stream.read(nameBytes); // fill array, advance pointer
 		String name = new String(nameBytes);
 
-		int age  = stream.readInt();
+		int age = stream.readInt();
 
 		byte[] addressBytes = new byte[stream.readInt()];
 		stream.read(addressBytes); // fill array, advance pointer
@@ -108,11 +116,11 @@ public class FileHandler{
 
 		return new CarOwner(name, age, address, carPlateNumber, description);
 
-
 	}
 
 
-	/** Reads the raw record, returns record data without storage information.
+	/**
+	 * Reads the raw record, returns record data without storage information.
 	 *
 	 * @param rowsBytePosition Not working with index currently, working if passed 0L.
 	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 4 bytes representing the name
@@ -130,7 +138,7 @@ public class FileHandler{
 			dbFile.seek(rowsBytePosition + 5); // 5 bytes boolean + int
 			data = new byte[recordLength];
 			this.dbFile.read(data);
-		}catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return data;
@@ -139,28 +147,35 @@ public class FileHandler{
 	public void populateIndex() {
 		long rowNum = 0;
 		int recordLength = 0;
-		long pointer = 0;
+		long currentPosition = 0;
 		long deletedRows = 0;
 
-		if(checkForHistoricData()) {
+		if (checkForHistoricData()) {
 			try {
-				while (pointer < this.dbFile.length()) {
-					this.dbFile.seek(pointer);
+				while (currentPosition < this.dbFile.length()) {
+					this.dbFile.seek(currentPosition);
 					boolean isDeleted = this.dbFile.readBoolean();
 					if (!isDeleted) {
-						Index.getInstance().add(pointer);
-						rowNum++;
+						Index.getInstance().add(currentPosition);
 					} else deletedRows++;
 
 
 					System.out.println("populateIndex: Total deletedRows in db = " + deletedRows);
-					pointer += BOOLEAN_LENGTH_IN_BYTES;
+					currentPosition += BOOLEAN_LENGTH_IN_BYTES;
 					recordLength = this.dbFile.readInt();
-					pointer += INTEGER_LENGTH_IN_BYTES;
-					pointer += recordLength;
+					currentPosition += INTEGER_LENGTH_IN_BYTES;
+					// retrieve current record
+					if(!isDeleted) {
+						this.dbFile.seek(currentPosition);
+						byte[] retrieveRecord = new byte[recordLength];
+						dbFile.read(retrieveRecord);
+						DBRecord retrievedRecord = readFromByteStream(new DataInputStream(new ByteArrayInputStream(retrieveRecord)));
+						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
+					}
+					currentPosition += recordLength;
 					System.out.println("populateIndex... rows= " + rowNum);
 				}
-			}catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -173,7 +188,7 @@ public class FileHandler{
 				System.out.println("Db file is empty, nothing to index.");
 				return false;
 			}
-		}catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return true;

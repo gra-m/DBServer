@@ -26,6 +26,7 @@ public class TestApp {
 
 		try {
 			dbServer.add(carOwner);
+			dbServer.add(carOwner);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -52,10 +53,10 @@ public class TestApp {
 					"VJW7076",
 					"Doesn't know that we know that he knows we have a file on him"
 			);
-			dbServer.update(2L, carOwner2Updated);
+			dbServer.update(0L, carOwner2Updated);
 
 			//read update back
-			DBRecord retrievedCarOwner2Updated = dbServer.read(2L); //deletes 0L
+			DBRecord retrievedCarOwner2Updated = dbServer.read(0L); //deletes 0L
 			System.out.println("TestApp: printing carOwner2Updated: " + retrievedCarOwner2Updated);
 
 		} catch(IOException e) {
