@@ -26,12 +26,11 @@ public class TestApp {
 
 		try {
 			dbServer.add(carOwner);
-			dbServer.add(carOwner);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		//Read
+		//Delete
 
 		try {
 			DBRecord carOwner2 = dbServer.read(0L);
@@ -56,7 +55,7 @@ public class TestApp {
 			dbServer.update(Index.getInstance().getRowNumberByName("Frank Demian"), carOwner2Updated);
 
 			//read update back
-			DBRecord retrievedCarOwner2Updated = dbServer.read(Index.getInstance().getRowNumberByName("Frank Demlan")); //deletes 0L
+			DBRecord retrievedCarOwner2Updated = dbServer.read(Index.getInstance().getRowNumberByName("Frank Demlan"));
 			System.out.println("TestApp: printing carOwner2Updated: " + retrievedCarOwner2Updated);
 
 		} catch(IOException e) {

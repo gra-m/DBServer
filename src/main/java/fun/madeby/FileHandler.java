@@ -77,6 +77,7 @@ public class FileHandler {
 
 		// set the start point of the record just inserted
 		Index.getInstance().add(currentPositionToInsert);
+		Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows());
 		return true;
 	}
 
