@@ -23,10 +23,27 @@ public class TestApp {
 				"Herbert Street, Antwerp, 2000",
 				"VJW707S",
 				"Doesn't know we have a file on him at all");
+		DBRecord carOwner2 = new CarOwner(
+				"Frank Demlan",
+				20,
+				"Herbert Street, Antwerp, 2000",
+				"VJW7076",
+				"Doesn't know that we know that he knows we have a file on him");
+		DBRecord carOwner3 = new CarOwner(
+				"Funk Adelic",
+				20,
+				"Herbert Street, Antwerp, 2000",
+				"VJW7076",
+				"Doesn't know that we know that he knows we have a file on him"
+		);
 
 		try {
 			dbServer.add(carOwner);
-			dbServer.add(carOwner);
+			dbServer.add(carOwner2);
+			dbServer.add(carOwner3);
+			System.out.println("TestApp: Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
+			System.out.println("TestApp: Total rows in in row index = " + Index.getInstance().getMapRowNumberBytePositionSize());
+			System.out.println("TestApp: Total rows in name index = " + Index.getInstance().getMapDbRecordNameBytePositionSize());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -34,36 +51,30 @@ public class TestApp {
 		//Read
 
 		try {
-			DBRecord carOwner2 = dbServer.read(0L);
-			System.out.println(carOwner2);
-			System.out.println("TestApp: Total rows in db = " + Index.getInstance().getTotalNumberOfRows());
-			//dbServer.delete(0L);
-			//System.out.println("TestApp: Now, after deleting row 0 in db = " + Index.getInstance().getTotalNumberOfRows());
-			System.out.println("TestApp: No longer deleting row 0 in db, so update can be tested (reset DBServer.db testing this): " + Index.getInstance().getTotalNumberOfRows());
+			DBRecord carOwnerReadBack = dbServer.read(Index.getInstance().getRowNumberByName("Frank Demian"));
+			DBRecord carOwnerReadBack1 = dbServer.read(1L);
+			DBRecord carOwnerReadBack2 = dbServer.read(2L);
+			System.out.println("Test App printing read back 'Frank Demian' " + carOwnerReadBack);
+			System.out.println("Test App printing read back '1L' " + carOwnerReadBack1);
+			System.out.println("Test App printing read back '2L' " + carOwnerReadBack2);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		//Update by row number (once only, update sets row boolean to deleted, deleted rows cannot be update).
+		/*//Update by row number (once only, update sets row boolean to deleted, deleted rows cannot be update).
 		try {
-			DBRecord carOwner2Updated = new CarOwner(
-					"Frank Demlan",
-					20,
-					"Herbert Street, Antwerp, 2000",
-					"VJW7076",
-					"Doesn't know that we know that he knows we have a file on him"
-			);
-			dbServer.update(0L, carOwner2Updated);
+
+			dbServer.update(Index.getInstance().getRowNumberByName("Frank Demlan"), carOwner2Updated);
 
 			//read update back
-			DBRecord retrievedCarOwner2Updated = dbServer.read(0L); //deletes 0L
+			DBRecord retrievedCarOwner2Updated = dbServer.read(Index.getInstance().getRowNumberByName("Frank Demlan"));
 			System.out.println("TestApp: printing carOwner2Updated: " + retrievedCarOwner2Updated);
 
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 
-/*		//Update by name "Frank Demlan"
+		//Update by name "Frank Demlan"
 		try {
 			DBRecord carOwner3 = new CarOwner(
 					"Funk Adelic",
@@ -75,11 +86,12 @@ public class TestApp {
 			dbServer.update( "Frank Demlan", carOwner3);
 
 			//read update back
-			DBRecord retrievedUpdatedByName = dbServer.read(0L);
+			DBRecord retrievedUpdatedByName = dbServer.read(Index.getInstance().getRowNumberByName("Funk Adelic"));
 			System.out.println(retrievedUpdatedByName);
 
-		} catch(IOException e) {
+		} catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
+*/
 	}
 }

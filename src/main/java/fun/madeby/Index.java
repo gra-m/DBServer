@@ -25,6 +25,20 @@ public final class Index {
 		return indexInstance;
 	}
 
+	public void printNameIndex(){
+		this.mapDbRecordNameByRowNumber.entrySet().forEach(entry -> {
+			System.out.println("Index().PrintNameIndex(): " + entry.getKey() + " " + entry.getValue());
+		});
+	}
+
+	public int getMapRowNumberBytePositionSize() {
+		return this.mapRowNumberBytePosition.size();
+	}
+
+	public int getMapDbRecordNameBytePositionSize() {
+		return this.mapDbRecordNameByRowNumber.size();
+	}
+
 	public void add(Long bytePosition) {
 		this.mapRowNumberBytePosition.put(this.totalNumberOfRows++, bytePosition);
 	}
@@ -41,8 +55,20 @@ public final class Index {
 		return this.mapDbRecordNameByRowNumber.getOrDefault(name, -1L);
 	}
 
-	public void remove(Long rowIndex) {
+	public Long getUndeletedRowNumberByName(final String name) {
+		// better to create active Name index but all of this is probably coming.
+		return null;
+
+	}
+
+	public void remove(Long rowIndex, DBRecord existingRowNumberRecord) {
 		this.mapRowNumberBytePosition.remove(rowIndex);
+		System.out.println("Existing name to be removed: " + existingRowNumberRecord.getName() + "\n");
+		System.out.println("Before Index.remove");
+		Index.getInstance().printNameIndex();
+		this.mapDbRecordNameByRowNumber.remove(existingRowNumberRecord.getName());
+		System.out.println("After Index.remove");
+		Index.getInstance().printNameIndex();
 		this.totalNumberOfRows--;
 	}
 

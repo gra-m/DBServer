@@ -1,6 +1,7 @@
 package fun.madeby;
 
 import fun.madeby.dbserver.exceptions.DuplicateNameException;
+import fun.madeby.dbserver.exceptions.NameDoesNotExistException;
 
 import java.io.*;
 
@@ -77,6 +78,7 @@ public class FileHandler {
 
 		// set the start point of the record just inserted
 		Index.getInstance().add(currentPositionToInsert);
+		Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows());
 		return true;
 	}
 
@@ -198,7 +200,7 @@ public class FileHandler {
 		this.dbFile.close();
 	}
 
-	public void deleteRow(Long rowNumber) throws IOException {
+	public void deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) throws IOException {
 		Index indexInstance = Index.getInstance();
 		long rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
 		if (rowsBytePosition == -1)
@@ -207,15 +209,29 @@ public class FileHandler {
 		this.dbFile.writeBoolean(true);
 
 		// update the index component.
-		indexInstance.remove(rowNumber);
+		indexInstance.remove(rowNumber, existingRowNumberRecord);
 
 	}
 
-	public void updateByRow(Long rowNumber, DBRecord dbRecord) {
+
+	public void updateByRow(Long rowNumber, DBRecord newRecord, DBRecord existingRowNumberRecord) {
 		try {
-			this.deleteRow(rowNumber);
-			this.add(dbRecord);
+			this.deleteRow(rowNumber, existingRowNumberRecord);
+			this.add(newRecord);
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateByName(String name, DBRecord newRecord, DBRecord existingRowNumberRecord) {
+		long namesRowNumber = Index.getInstance().getRowNumberByName(name);
+		try {
+			if (namesRowNumber == -1)
+				throw new NameDoesNotExistException(String.format("Thread issue, name %s existed @DBServer, but could not be found here", name));
+			else {
+				updateByRow(namesRowNumber, newRecord, existingRowNumberRecord);
+			}
+		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
 		}
 	}
