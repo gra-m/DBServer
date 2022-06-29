@@ -151,13 +151,16 @@ public class FileHandler{
 			recordLength = dbFile.readInt();
 			dbFile.seek(rowsBytePosition + 5);
 			nameLength = dbFile.readInt();
-			System.out.println("ROW TEST DATA: " + rowBoolean + " " + recordLength + " " + nameLength);
+			if (Boolean.FALSE.equals(rowBoolean) && recordLength < 1000 && nameLength < 250) {
+				System.out.println("ROW TEST PASS DATA: " + rowBoolean + " " + recordLength + " " + nameLength);
+				return true;
+			} else throw new RuntimeException("rowDataFailed");
+		}catch (RuntimeException e) {
+			System.out.println("ROW TEST FAIL DATA: " + rowBoolean + " " + recordLength + " " + nameLength);
+			e.printStackTrace();
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		if (Boolean.TRUE.equals(rowBoolean) && recordLength < 1000 && nameLength < 250)
-			return true;
 		return false;
 	}
 
@@ -176,7 +179,7 @@ public class FileHandler{
 					if (!isDeleted) {
 						index = Index.getInstance();
 						index.add(pointer);
-						byte[] recordData = readRawRecord(pointer);
+						byte[] recordData = readRawRecord(index.getRowsBytePosition(rowNum));
 						String name = getNextName(recordData);
 						index.addNameToIndex(name, rowNum);
 
@@ -189,6 +192,7 @@ public class FileHandler{
 					recordLength = this.dbFile.readInt();
 					pointer += INTEGER_LENGTH_IN_BYTES;
 					pointer += recordLength;
+					this.dbFile.seek(pointer);
 					System.out.println("populateIndex... rows= " + rowNum);
 				}
 			}catch (IOException e) {
