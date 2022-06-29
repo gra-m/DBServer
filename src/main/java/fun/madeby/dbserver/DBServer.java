@@ -3,6 +3,7 @@ package fun.madeby.dbserver;
 import fun.madeby.DBRecord;
 import fun.madeby.FileHandler;
 import fun.madeby.Index;
+import fun.madeby.dbserver.exceptions.NameDoesNotExistException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,7 +42,21 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public void update(String name, final DBRecord dbRecord) throws IOException {
+	public void update(String name, final DBRecord dbRecord){
+		// check name exists
+		try {
+			Long existingNameRowNumber = Index.getInstance().getRowNumberByName(name);
+			if (existingNameRowNumber == -1L) {
+				throw new NameDoesNotExistException(String.format("'%s' does not exist in the name index", name));
+			} else {
+				update(existingNameRowNumber, dbRecord);
+			}
+		}catch (NameDoesNotExistException | IOException e) {
+			e.printStackTrace();
+		}
+
+
+		// update using existing row number update
 
 	}
 

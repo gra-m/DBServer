@@ -53,17 +53,17 @@ public class TestApp {
 					"VJW7076",
 					"Doesn't know that we know that he knows we have a file on him"
 			);
-			dbServer.update(0L, carOwner2Updated);
+			dbServer.update(Index.getInstance().getRowNumberByName("Frank Demian"), carOwner2Updated);
 
 			//read update back
-			DBRecord retrievedCarOwner2Updated = dbServer.read(0L); //deletes 0L
+			DBRecord retrievedCarOwner2Updated = dbServer.read(Index.getInstance().getRowNumberByName("Frank Demlan")); //deletes 0L
 			System.out.println("TestApp: printing carOwner2Updated: " + retrievedCarOwner2Updated);
 
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 
-/*		//Update by name "Frank Demlan"
+		//Update by name "Frank Demlan"
 		try {
 			DBRecord carOwner3 = new CarOwner(
 					"Funk Adelic",
@@ -75,11 +75,11 @@ public class TestApp {
 			dbServer.update( "Frank Demlan", carOwner3);
 
 			//read update back
-			DBRecord retrievedUpdatedByName = dbServer.read(0L);
+			DBRecord retrievedUpdatedByName = dbServer.read(Index.getInstance().getRowNumberByName("Funk Adelic"));
 			System.out.println(retrievedUpdatedByName);
 
 		} catch(IOException e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
 }
