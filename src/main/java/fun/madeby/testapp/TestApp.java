@@ -44,7 +44,6 @@ public class TestApp {
 		}
 
 		//Update by row number (once only, update sets row boolean to deleted, deleted rows cannot be update).
-
 		try {
 			DBRecord carOwner2Updated = new CarOwner(
 					"Frank Demlan",
@@ -53,17 +52,17 @@ public class TestApp {
 					"VJW7076",
 					"Doesn't know that we know that he knows we have a file on him"
 			);
-			dbServer.update(0L, carOwner2Updated);
+			dbServer.update(2L, carOwner2Updated);
 
 			//read update back
-			DBRecord retrievedCarOwner2Updated = dbServer.read(0L);
-			System.out.println(retrievedCarOwner2Updated);
+			DBRecord retrievedCarOwner2Updated = dbServer.read(2L); //deletes 0L
+			System.out.println("TestApp: printing carOwner2Updated: " + retrievedCarOwner2Updated);
 
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 
-		//Update by name "Frank Demlan"
+/*		//Update by name "Frank Demlan"
 		try {
 			DBRecord carOwner3 = new CarOwner(
 					"Funk Adelic",
@@ -80,6 +79,6 @@ public class TestApp {
 
 		} catch(IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
