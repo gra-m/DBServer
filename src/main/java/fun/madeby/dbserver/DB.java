@@ -1,7 +1,7 @@
 package fun.madeby.dbserver;
 
 import fun.madeby.DBRecord;
-import fun.madeby.dbserver.exceptions.NameDoesNotExistException;
+import fun.madeby.exceptions.NameDoesNotExistException;
 
 import java.io.IOException;
 

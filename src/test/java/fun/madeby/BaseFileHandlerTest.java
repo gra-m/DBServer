@@ -15,38 +15,32 @@ import java.nio.file.StandardOpenOption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class FileHandlerTest {
+class BaseFileHandlerTest {
 	private RandomAccessFile dbFile;
 	private static final int INTEGER_LENGTH_IN_BYTES = 4;
 	private static final int BOOLEAN_LENGTH_IN_BYTES = 1;
-	private String fileName = "fhTest.db";
+	private String fileName = "bfhTest.db";
 	private DBRecord carOwner;
 	private long fileLength;
-	private Object fileHandler;
+	private Object dataHandler;
 	private Method readRawRecord;
 
 	
 	
 
 	@BeforeEach
-	void setUp() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-		// bring in private method via reflection, this is just for experience:
-		fileHandler = FileHandler.class.getDeclaredConstructor(String.class).newInstance(fileName);
-		readRawRecord = fileHandler.getClass().getDeclaredMethod("readRawRecord", Long.class);
-		readRawRecord.setAccessible(true);
-
-
-
-
-
-
-		// remove existing data
+	void setUp() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+// remove existing data and create dbFile.
 		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of(fileName),
 				StandardOpenOption.TRUNCATE_EXISTING)) {
 			dbFile = new RandomAccessFile(fileName, "rw");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+
+
+
 
 		carOwner = new CarOwner("Rezzi Delamdi",
 				34,
@@ -56,12 +50,18 @@ class FileHandlerTest {
 		
 		addtestDBRecord(carOwner);
 		fileLength = getFileLength();
-		
-		
+
+		dataHandler = BaseFileHandler.class.getDeclaredConstructor(String.class).newInstance(fileName);
+		readRawRecord = dataHandler.getClass().getDeclaredMethod("readRawRecord", Long.class);
+		readRawRecord.setAccessible(true);
+
+		Field field = dataHandler.getClass().getDeclaredField("dbFile");
+		field.setAccessible(true);
+		field.set(dbFile, new RandomAccessFile(fileName, "rw"));
 	}
 
 	private long getFileLength() throws IOException {
-		return this.dbFile.length();
+		return dbFile.length();
 	}
 
 	private void addtestDBRecord(DBRecord carOwner) throws IOException {
@@ -80,7 +80,6 @@ class FileHandlerTest {
 		dbFile.writeInt(age);
 
 		String address = carOwner.getAddress();
-		dbFile.writeInt(address.length());
 		dbFile.write(address.getBytes());
 
 		String carPlateNumber = carOwner.getCarPlateNumber();
@@ -90,21 +89,20 @@ class FileHandlerTest {
 		String description = carOwner.getDescription();
 		dbFile.writeInt(description.length());
 		dbFile.write(description.getBytes());
+
 	}
 
 	@Test
 	void readRowTest() {
 		long extraDataLength = BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES;
 		System.out.println(fileLength);
-
 	}
 
 	@Test
 	void readRawRecordTest() throws InvocationTargetException, IllegalAccessException {
-		// testing of private methods "better at public level" but I read about Reflection and wanted to try:
-		// https://stackoverflow.com/questions/34571/how-do-i-test-a-class-that-has-private-methods-fields-or-inner-classes
-		byte[] data = null;
-		data = (byte[]) readRawRecord.invoke(fileHandler, 0L);
+		byte[] data;
+		data = (byte[]) readRawRecord.invoke(dataHandler, 0L);
+
 		long extraDataLength = BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES;
 		long expectedRawRecordLength = fileLength - extraDataLength;
 		assertEquals(expectedRawRecordLength, data.length);

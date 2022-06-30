@@ -3,7 +3,7 @@ package fun.madeby.dbserver;
 import fun.madeby.DBRecord;
 import fun.madeby.FileHandler;
 import fun.madeby.Index;
-import fun.madeby.dbserver.exceptions.NameDoesNotExistException;
+import fun.madeby.exceptions.NameDoesNotExistException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

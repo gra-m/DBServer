@@ -1,4 +1,4 @@
-package fun.madeby.dbserver.exceptions;
+package fun.madeby.exceptions;
 
 /**
  * Created by Gra_m on 2022 06 29
