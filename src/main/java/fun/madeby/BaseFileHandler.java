@@ -39,6 +39,7 @@ public class BaseFileHandler implements DataHandler {
 
 					System.out.println("populateIndex: Total deletedRows in db = " + deletedRows);
 					currentPosition += BOOLEAN_LENGTH_IN_BYTES;
+					System.out.println("BFH: pI: " + currentPosition);
 					recordLength = this.dbFile.readInt();
 					currentPosition += INTEGER_LENGTH_IN_BYTES;
 					// retrieve current record
@@ -82,11 +83,13 @@ public class BaseFileHandler implements DataHandler {
 
 		try {
 			dbFile.seek(rowsBytePosition);
-			if (dbFile.readBoolean())
+			if (dbFile.readBoolean()) {
+				System.out.println("BFH: DELETE: Marked as deleted");
 				return new byte[-1];
-			dbFile.seek(rowsBytePosition + 0); // 1 byte boolean
+			}
+			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES); // 1 byte boolean
 			int recordLength = dbFile.readInt();
-			dbFile.seek(rowsBytePosition + 4); // 5 bytes boolean + int
+			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 5 bytes boolean + int
 			data = new byte[recordLength];
 			this.dbFile.read(data);
 		} catch (IOException e) {

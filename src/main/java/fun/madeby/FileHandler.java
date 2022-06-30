@@ -87,8 +87,7 @@ public class FileHandler extends BaseFileHandler {
 		Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
 		if (rowsBytePosition == -1L)
 			return null;
-
-		byte[] row = this.readRawRecord(rowsBytePosition);
+		byte[] row = readRawRecord(rowsBytePosition);
 		DataInputStream stream = new DataInputStream(new ByteArrayInputStream(row));
 		return readFromByteStream(stream);
 	}

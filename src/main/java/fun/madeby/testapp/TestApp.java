@@ -51,12 +51,13 @@ public class TestApp {
 		//Read
 
 		try {
-			DBRecord carOwnerReadBack = dbServer.read(Index.getInstance().getRowNumberByName("Frank Demian"));
-			DBRecord carOwnerReadBack1 = dbServer.read(Index.getInstance().getRowNumberByName("Frank Demlan"));
+			DBRecord carOwnerReadBack = dbServer.read(0L);
+			DBRecord carOwnerReadBack1 = dbServer.read(1L);
 			DBRecord carOwnerReadBack2 = dbServer.read(2L);
-			System.out.println("Test App printing read back 'Frank Demian' " + carOwnerReadBack);
+			System.out.println("Test App printing read back '0L' " + carOwnerReadBack);
 			System.out.println("Test App printing read back '1L' " + carOwnerReadBack1);
 			System.out.println("Test App printing read back '2L' " + carOwnerReadBack2);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

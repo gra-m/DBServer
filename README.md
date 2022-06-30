@@ -6,7 +6,7 @@ encapsulating, and
 
 Org: Gra-m
 
-By: Ferenc Tollas 
+By: Ferenc Tollas
 
 On: 26/06/2022
 ### What was new for me? 

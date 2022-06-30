@@ -83,7 +83,7 @@ class DBTest {
 		}
 	}
 
-	/*@Test
+	@Test
 	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field") //shows on fail
 	void readTest(){
 		try {
@@ -102,9 +102,9 @@ class DBTest {
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
-	}*/
+	}
 
-/*	@Test
+	@Test
 	@DisplayName("Sets existing row 0L to deleted in .db file, then creates new row with modified data")
 	void updateByRowTest() {
 		try {
@@ -124,9 +124,9 @@ class DBTest {
 			System.out.println("updateByRowTest:  threw Exception");
 			e.printStackTrace();
 		}
-	}*/
+	}
 
-/*	@Test
+	@Test
 	@DisplayName("Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() {
 		try {
@@ -149,7 +149,7 @@ class DBTest {
 		}catch(IOException e) {
 			System.out.println("updateByRowTest:  threw Exception");
 		}
-	}*/
+	}
 
 
 }
