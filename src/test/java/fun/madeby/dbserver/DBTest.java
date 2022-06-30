@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DBTest {
 	private DB db;
-	File file;
 	private String dbFileName = "testdb.db";
 	private DBRecord carOwner;
 	private DBRecord carOwnerUpdated;
@@ -75,9 +74,9 @@ class DBTest {
 	void deleteTest() {
 		try {
 			this.db.add(carOwner);
-			//assertEquals(1, index.getTotalNumberOfRows());
-			//this.db.delete(0L);
-			//assertEquals(0, index.getTotalNumberOfRows());
+			assertEquals(1, index.getTotalNumberOfRows());
+			this.db.delete(0L);
+			assertEquals(0, index.getTotalNumberOfRows());
 		}catch(IOException e) {
 			System.out.println("deleteTest: threw Exception");
 			e.printStackTrace();
