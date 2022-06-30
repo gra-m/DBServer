@@ -51,7 +51,10 @@ public class CarOwner implements DBRecord {
 	}
 
 	public Long getLength() {
-		return length;
+		if (this.length == null) {
+			this.populateOwnRecordLength(this);
+		}
+		return this.length;
 	}
 
 	@Override

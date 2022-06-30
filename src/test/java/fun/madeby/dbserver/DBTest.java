@@ -3,7 +3,6 @@ package fun.madeby.dbserver;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.Index;
-import fun.madeby.dbserver.exceptions.NameDoesNotExistException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -138,7 +136,7 @@ class DBTest {
 			assertEquals(1, index.getTotalNumberOfRows());
 			System.out.println("Rezzi Delamdi should have been deleted: ");
 			index.printNameIndex();
-			System.out.println("Update has been written in row position 0");
+			System.out.println("Update has been written in row position 0L");
 			DBRecord retrieved = this.db.read(index.getRowNumberByName("Razzgu Dulemdi") - index.getTotalNumberOfRows());
 			assertEquals( "Razzgu Dulemdi", retrieved.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
@@ -149,5 +147,6 @@ class DBTest {
 			System.out.println("updateByRowTest:  threw Exception");
 		}
 	}
+
 
 }

@@ -17,9 +17,12 @@ public class FileHandler {
 	private static final int INTEGER_LENGTH_IN_BYTES = 4;
 	private static final int BOOLEAN_LENGTH_IN_BYTES = 1;
 
+	public FileHandler() {}
+
 	public FileHandler(String fileName) throws FileNotFoundException {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
 	}
+
 
 	/**
 	 * Writes a DbRecord to the RandomAccessFile dbFile.
