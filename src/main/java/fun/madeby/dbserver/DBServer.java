@@ -34,8 +34,13 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public boolean add(DBRecord dbRecord) throws IOException {
-		return this.fileHandler.add(dbRecord);
+	public boolean add(DBRecord dbRecord) {
+		try {
+			return this.fileHandler.add(dbRecord);
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
@@ -55,7 +60,7 @@ public final class DBServer implements DB{
 				} else
 					throw new NameDoesNotExistException(String.format("The row you are trying to update with name ('%s') does not exist in the name index", name));
 			}
-		} catch (NameDoesNotExistException | IOException e) {
+		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
 		}
 
@@ -69,7 +74,7 @@ public final class DBServer implements DB{
 				this.fileHandler.updateByName(name, newRecord, existingRowNumberRecord);
 			} else
 				throw new NameDoesNotExistException(String.format("The name you are trying to update ('%s') does not exist", name));
-		}catch (NameDoesNotExistException | IOException e) {
+		}catch (NameDoesNotExistException e) {
 			e.printStackTrace();
 		}
 
@@ -89,11 +94,16 @@ public final class DBServer implements DB{
 
 
 	@Override
-	public DBRecord read(Long rowNumber) throws IOException {
-		if (checkRowNumber(rowNumber))
-			return this.fileHandler.readRow(rowNumber);
+	public DBRecord read(Long rowNumber) {
+		try {
+			if (checkRowNumber(rowNumber))
+				return this.fileHandler.readRow(rowNumber);
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
+
 
 	private boolean checkRowNumber(Long rowNumber) {
 		try {

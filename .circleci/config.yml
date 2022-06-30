@@ -2,6 +2,8 @@
 # See: https://circleci.com/docs/2.0/language-java/
 version: 2
 
+
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -12,11 +14,17 @@ jobs:
       # specify the version you desire here
       - image: circleci/openjdk:8-jdk
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+      #specify branches to build
+    general:
+      branches:
+        only:
+          - master # list of branches to build
+          - main
 
+        # Specify service dependencies here if necessary
+        # CircleCI maintains a library of pre-built images
+        # documented at https://circleci.com/docs/2.0/circleci-images/
+        # - image: circleci/postgres:9.4
     working_directory: ~/repo
 
     environment:
