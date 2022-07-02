@@ -3,6 +3,8 @@
 version: 2
 
 #specify branches to build --> did not work..
+# git commit -m "#12 #13 last circle ci failed at compileTestJava, this runs fine locally. Only ever used Maven before.."
+
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
