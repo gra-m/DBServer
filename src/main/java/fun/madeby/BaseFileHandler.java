@@ -37,9 +37,9 @@ public class BaseFileHandler implements DataHandler {
 						Index.getInstance().add(currentPosition);
 					} else deletedRows++;
 
-					System.out.println("populateIndex: Total deletedRows in db = " + deletedRows);
+					//System.out.println("populateIndex: Total deletedRows in db = " + deletedRows); todo delete
 					currentPosition += BOOLEAN_LENGTH_IN_BYTES;
-					System.out.println("BFH: pI: " + currentPosition);
+					//System.out.println("BFH: pI: " + currentPosition); todo delete
 					recordLength = this.dbFile.readInt();
 					currentPosition += INTEGER_LENGTH_IN_BYTES;
 					// retrieve current record
@@ -51,7 +51,7 @@ public class BaseFileHandler implements DataHandler {
 						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
 					}
 					currentPosition += recordLength;
-					System.out.println("populateIndex... rows= " + rowNum);
+					//System.out.println("populateIndex... rows= " + rowNum); todo delete
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -62,7 +62,7 @@ public class BaseFileHandler implements DataHandler {
 	public boolean isExistingData() {
 		try {
 			if (this.dbFile.length() == 0) {
-				System.out.println("Db file is empty, nothing to index.");
+				System.out.println("BFH: isExistingData() no existing data, nothing to index.");
 				return false;
 			}
 		} catch (IOException e) {

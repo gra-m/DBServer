@@ -1,6 +1,5 @@
 package fun.madeby;
 
-import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
 
 import java.io.*;
@@ -32,13 +31,14 @@ public class FileHandler extends BaseFileHandler {
 	 * @throws IOException if there is one
 	 */
 	public boolean add(DBRecord dbRecord) throws IOException{
-		try {
+	//	try {
 			if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
-				throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
+				System.out.printf("\nadd hasNameInIndex test: Name '%s' already exists!", dbRecord.getName());
+				//throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
 			}
-		}catch (DuplicateNameException e) {
-			e.printStackTrace();
-		}
+	//	}catch (DuplicateNameException e) {
+	//		e.printStackTrace();
+	//	}
 
 		int length = 0;
 		long currentPositionToInsert = this.dbFile.length();

@@ -2,11 +2,16 @@ package fun.madeby.testapp;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
+import fun.madeby.Index;
 import fun.madeby.dbserver.DBServer;
 import fun.madeby.util.DebugInfo;
 
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
 /**
@@ -14,21 +19,47 @@ import java.util.ArrayList;
  */
 
 public class TestApp {
-	final static int AMOUNT_OF_EACH = 3;
+	final static int AMOUNT_OF_EACH = 1;
 	final static String dbFile = "DBServer.db";
-	public static void main(String[] args) throws IOException {
-		DBServer dbServer = new DBServer(dbFile);
-		dbServer.close();
 
-		new TestApp().performTest();
+	public static void main(String[] args) throws IOException {
+		TestApp testApp = new TestApp();
+
+		//testApp.clearDb();
+		testApp.addOneRecord();
+		testApp.performTest();
+	}
+
+	private void addOneRecord() throws FileNotFoundException {
+		DBServer dbServer = new DBServer(dbFile);
+		DBRecord carOwner = new CarOwner("Frank Demian",
+				20,
+				"Herbert Street, Antwerp, 2000",
+				"VJW707S",
+				"Doesn't know we have a file on him at all");
+		dbServer.add(carOwner);
+
+	}
+
+	private void clearDb() {
+		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of(dbFile),
+				StandardOpenOption.TRUNCATE_EXISTING)) {
+			System.out.println("CLEARING EXISTING RECORDS..");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private void performTest() throws FileNotFoundException {
 		try {
 			fillDB(AMOUNT_OF_EACH);
+	/*		delete("Frank Demian");
+			delete("Frank Demlan");
+			delete("Funk Adelic");*/
+			delete(0);
+			delete(1);
 			delete(2);
-			delete(5);
-			delete(8);
 			listAllFileRecords();
 
 		}catch (IOException e) {
@@ -71,9 +102,14 @@ public class TestApp {
 		dbServer.close();
 	}
 
+	void delete(String name) throws IOException {
+		DBServer dbServer = new DBServer(dbFile);
+		dbServer.delete(Index.getInstance().getRowNumberByName(name));
+		dbServer.close();
+	}
+
 	void fillDB(int amountOfEach) throws IOException {
 		DBServer dbServer = new DBServer(dbFile);
-		dbServer.refreshIndex();
 
 		for(int i=0; i< amountOfEach; i++) {
 			DBRecord carOwner = new CarOwner("Frank Demian",

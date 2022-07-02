@@ -63,11 +63,11 @@ public final class Index {
 
 	public void remove(Long rowIndex, DBRecord existingRowNumberRecord) {
 		this.mapRowNumberBytePosition.remove(rowIndex);
-		System.out.println("Existing name to be removed: " + existingRowNumberRecord.getName() + "\n");
-		System.out.println("Before Index.remove");
+		//System.out.println("Index removing name: " + existingRowNumberRecord.getName() + "\n"); todo delete
+		//System.out.println("printNameIndex() before Index.remove"); todo delete
 		Index.getInstance().printNameIndex();
 		this.mapDbRecordNameByRowNumber.remove(existingRowNumberRecord.getName());
-		System.out.println("After Index.remove");
+		//System.out.println("printNameIndex() After Index.remove"); todo delete
 		Index.getInstance().printNameIndex();
 		this.totalNumberOfRows--;
 	}
