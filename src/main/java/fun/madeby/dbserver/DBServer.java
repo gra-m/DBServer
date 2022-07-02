@@ -4,9 +4,11 @@ import fun.madeby.DBRecord;
 import fun.madeby.FileHandler;
 import fun.madeby.Index;
 import fun.madeby.exceptions.NameDoesNotExistException;
+import fun.madeby.util.DebugInfo;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * Created by Gra_m on 2022 06 27
@@ -33,6 +35,14 @@ public final class DBServer implements DB{
 		this.fileHandler.populateIndex();
 	}
 
+	/**
+	 * @return
+	 */
+	@Override
+	public Collection<DebugInfo> getData() {
+		return this.fileHandler.getCurrentData();
+	}
+
 	@Override
 	public boolean add(DBRecord dbRecord) {
 		try {
@@ -49,7 +59,7 @@ public final class DBServer implements DB{
 	 */
 	@Override
 	public void update(Long rowNumber, final DBRecord newRecord) throws IOException {
-		String name = null;
+		String name;
 		try {
 			if (checkRowNumber(rowNumber)) {
 				DBRecord existingRowNumberRecord = read(rowNumber);

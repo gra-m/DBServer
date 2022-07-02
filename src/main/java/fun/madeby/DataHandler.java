@@ -14,7 +14,7 @@ public interface DataHandler {
 
 	void populateIndex();
 	void close() throws IOException;
-	boolean checkForExistingData();
+	boolean isExistingData();
 	byte[] readRawRecord(Long rowsBytePosition);
 	DBRecord readFromByteStream(final DataInputStream stream) throws IOException;
 	Collection<DebugInfo> getCurrentData();

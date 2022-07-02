@@ -2,8 +2,10 @@ package fun.madeby.dbserver;
 
 import fun.madeby.DBRecord;
 import fun.madeby.exceptions.NameDoesNotExistException;
+import fun.madeby.util.DebugInfo;
 
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * Created by Gra_m on 2022 06 27
@@ -17,4 +19,5 @@ public interface DB {
 	DBRecord read(Long rowNumber) throws IOException;
 	void close() throws IOException;
 	void refreshIndex();
+	Collection<DebugInfo> getData();
 }

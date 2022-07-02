@@ -28,7 +28,7 @@ public class BaseFileHandler implements DataHandler {
 		long currentPosition = 0;
 		long deletedRows = 0;
 
-		if (checkForExistingData()) {
+		if (isExistingData()) {
 			try {
 				while (currentPosition < this.dbFile.length()) {
 					this.dbFile.seek(currentPosition);
@@ -59,7 +59,7 @@ public class BaseFileHandler implements DataHandler {
 		}
 	}
 
-	public boolean checkForExistingData() {
+	public boolean isExistingData() {
 		try {
 			if (this.dbFile.length() == 0) {
 				System.out.println("Db file is empty, nothing to index.");
@@ -163,7 +163,7 @@ public class BaseFileHandler implements DataHandler {
 			e.printStackTrace();
 		}
 
-	return null;
+	return returnArrayList;
 	}
 
 }
