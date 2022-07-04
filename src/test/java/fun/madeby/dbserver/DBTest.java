@@ -27,7 +27,7 @@ class DBTest {
 	@BeforeEach
 	public void setUp() {
 
-		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of(dbFileName),
+		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dbFileName),
 				StandardOpenOption.TRUNCATE_EXISTING)) {
 			this.db = new DBServer(dbFileName);
 		} catch (IOException e) {

@@ -41,8 +41,9 @@ public class TestApp {
 
 	}
 
-	/*private void clearDb() {
-		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of(dbFile),
+/*
+	private void clearDb() {
+		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dbFile),
 				StandardOpenOption.TRUNCATE_EXISTING)) {
 			System.out.println("CLEARING EXISTING RECORDS..");
 		} catch (IOException e) {
@@ -51,6 +52,7 @@ public class TestApp {
 
 	}
 */
+
 	private void performTest() throws FileNotFoundException {
 		try {
 			fillDB(AMOUNT_OF_EACH);
