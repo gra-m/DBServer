@@ -3,6 +3,7 @@ package fun.madeby.testapp;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.Index;
+import fun.madeby.dbserver.DB;
 import fun.madeby.dbserver.DBServer;
 import fun.madeby.util.DebugInfo;
 
@@ -25,24 +26,27 @@ public class TestApp {
 	public static void main(String[] args) throws IOException {
 		TestApp testApp = new TestApp();
 
-		//testApp.clearDb();
+		//testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug.
 		testApp.addOneRecord();
 		testApp.performTest();
 	}
 
 	private void addOneRecord() throws FileNotFoundException {
-		DBServer dbServer = new DBServer(dbFile);
-		DBRecord carOwner = new CarOwner("Frank Demian",
-				20,
-				"Herbert Street, Antwerp, 2000",
-				"VJW707S",
-				"Doesn't know we have a file on him at all");
-		dbServer.add(carOwner);
+
+		try (DB dbServer = new DBServer(dbFile)) {
+			DBRecord carOwner = new CarOwner("Frank Demian",
+					20,
+					"Herbert Street, Antwerp, 2000",
+					"VJW707S",
+					"Doesn't know we have a file on him at all");
+			dbServer.add(carOwner);
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
-/*
-	private void clearDb() {
+	private void clearDataInExistingFile() {
 		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dbFile),
 				StandardOpenOption.TRUNCATE_EXISTING)) {
 			System.out.println("CLEARING EXISTING RECORDS..");
@@ -51,7 +55,6 @@ public class TestApp {
 		}
 
 	}
-*/
 
 	private void performTest() throws FileNotFoundException {
 		try {
@@ -71,16 +74,19 @@ public class TestApp {
 	}
 
 	private void listAllFileRecords() throws IOException {
-		DBServer dbServer = new DBServer(dbFile);
-		long count = 1L;
-		long rowPosition = 0L;
-		ArrayList<DebugInfo> data = (ArrayList<DebugInfo>) dbServer.getData();
-		for (DebugInfo di: data) {
-			prettyPrint(di, count, rowPosition);
-			count++;
-			rowPosition++;
+
+		try (DB dbServer = new DBServer(dbFile)) {
+			long count = 1L;
+			long rowPosition = 0L;
+			ArrayList<DebugInfo> data = (ArrayList<DebugInfo>) dbServer.getData();
+			for (DebugInfo di : data) {
+				prettyPrint(di, count, rowPosition);
+				count++;
+				rowPosition++;
+			}
+		}catch (IOException e) {
+			e.printStackTrace();
 		}
-		dbServer.close();
 	}
 
 	private void prettyPrint(DebugInfo di, long count, long rowPosition) {
@@ -99,44 +105,51 @@ public class TestApp {
 	}
 
 	void delete(long rowNumber) throws IOException {
-		DBServer dbServer = new DBServer(dbFile);
-		dbServer.delete(rowNumber);
-		dbServer.close();
+
+		try (DB dbServer = new DBServer(dbFile)) {
+			dbServer.delete(rowNumber);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	void delete(String name) throws IOException {
-		DBServer dbServer = new DBServer(dbFile);
-		dbServer.delete(Index.getInstance().getRowNumberByName(name));
-		dbServer.close();
+	void delete(String name) {
+		try (DB dbServer = new DBServer(dbFile)) {
+			dbServer.delete(Index.getInstance().getRowNumberByName(name));
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	void fillDB(int amountOfEach) throws IOException {
-		DBServer dbServer = new DBServer(dbFile);
 
-		for(int i=0; i< amountOfEach; i++) {
-			DBRecord carOwner = new CarOwner("Frank Demian",
-					20,
-					"Herbert Street, Antwerp, 2000",
-					"VJW707S",
-					"Doesn't know we have a file on him at all");
-			DBRecord carOwner2 = new CarOwner(
-					"Frank Demlan",
-					20,
-					"Herbert Street, Antwerp, 2000",
-					"VJW7076",
-					"Doesn't know that we know that he knows we have a file on him");
-			DBRecord carOwner3 = new CarOwner(
-					"Funk Adelic",
-					20,
-					"Herbert Street, Antwerp, 2000",
-					"VJW7076",
-					"Doesn't know that we know that he knows we have a file on him"
-			);
+		try (DB dbServer = new DBServer(dbFile)) {
+			for (int i = 0; i < amountOfEach; i++) {
+				DBRecord carOwner = new CarOwner("Frank Demian",
+						20,
+						"Herbert Street, Antwerp, 2000",
+						"VJW707S",
+						"Doesn't know we have a file on him at all");
+				DBRecord carOwner2 = new CarOwner(
+						"Frank Demlan",
+						20,
+						"Herbert Street, Antwerp, 2000",
+						"VJW7076",
+						"Doesn't know that we know that he knows we have a file on him");
+				DBRecord carOwner3 = new CarOwner(
+						"Funk Adelic",
+						20,
+						"Herbert Street, Antwerp, 2000",
+						"VJW7076",
+						"Doesn't know that we know that he knows we have a file on him"
+				);
 
-			dbServer.add(carOwner);
-			dbServer.add(carOwner2);
-			dbServer.add(carOwner3);
+				dbServer.add(carOwner);
+				dbServer.add(carOwner2);
+				dbServer.add(carOwner3);
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
-		dbServer.close();
 	}
 }
