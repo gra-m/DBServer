@@ -26,7 +26,7 @@ public class TestApp {
 	public static void main(String[] args) throws IOException {
 		TestApp testApp = new TestApp();
 
-		//testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug.
+		//testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
 		testApp.addOneRecord();
 		testApp.performTest();
 	}
