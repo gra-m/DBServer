@@ -39,8 +39,13 @@ public final class Index {
 		return this.mapDbRecordNameByRowNumber.size();
 	}
 
+	public void resetTotalNumberOfRows() {
+		this.totalNumberOfRows = 0L;
+	}
+
 	public void add(Long bytePosition) {
-		this.mapRowNumberBytePosition.put(this.totalNumberOfRows++, bytePosition);
+		this.mapRowNumberBytePosition.put(totalNumberOfRows, bytePosition);
+		totalNumberOfRows++;
 	}
 
 	public void addNameToIndex(final String name, Long rowIndex) {
@@ -52,7 +57,7 @@ public final class Index {
 	}
 
 	public Long getRowNumberByName(final String name) {
-		return this.mapDbRecordNameByRowNumber.getOrDefault(name, -1L);
+		return this.mapDbRecordNameByRowNumber.getOrDefault(name, -1L);// -1;  // todo ERROR fixes update by Name test
 	}
 
 	public Long getUndeletedRowNumberByName(final String name) {
@@ -63,11 +68,8 @@ public final class Index {
 
 	public void remove(Long rowIndex, DBRecord existingRowNumberRecord) {
 		this.mapRowNumberBytePosition.remove(rowIndex);
-		//System.out.println("Index removing name: " + existingRowNumberRecord.getName() + "\n"); todo delete
-		//System.out.println("printNameIndex() before Index.remove"); todo delete
 		Index.getInstance().printNameIndex();
 		this.mapDbRecordNameByRowNumber.remove(existingRowNumberRecord.getName());
-		//System.out.println("printNameIndex() After Index.remove"); todo delete
 		Index.getInstance().printNameIndex();
 		this.totalNumberOfRows--;
 	}

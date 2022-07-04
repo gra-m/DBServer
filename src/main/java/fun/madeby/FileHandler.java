@@ -115,7 +115,7 @@ public class FileHandler extends BaseFileHandler {
 	}
 
 	public void updateByName(String name, DBRecord newRecord, DBRecord existingRowNumberRecord) {
-		long namesRowNumber = Index.getInstance().getRowNumberByName(name);
+		Long namesRowNumber = Index.getInstance().getRowNumberByName(name);
 		try {
 			if (namesRowNumber == -1)
 				throw new NameDoesNotExistException(String.format("Thread issue, name %s existed @DBServer, but could not be found here", name));

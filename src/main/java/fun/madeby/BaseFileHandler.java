@@ -30,6 +30,7 @@ public class BaseFileHandler implements DataHandler {
 
 		if (isExistingData()) {
 			try {
+				Index.getInstance().resetTotalNumberOfRows();
 				while (currentPosition < this.dbFile.length()) {
 					this.dbFile.seek(currentPosition);
 					boolean isDeleted = this.dbFile.readBoolean();
@@ -37,12 +38,9 @@ public class BaseFileHandler implements DataHandler {
 						Index.getInstance().add(currentPosition);
 					} else deletedRows++;
 
-					//System.out.println("populateIndex: Total deletedRows in db = " + deletedRows); todo delete
 					currentPosition += BOOLEAN_LENGTH_IN_BYTES;
-					//System.out.println("BFH: pI: " + currentPosition); todo delete
 					recordLength = this.dbFile.readInt();
 					currentPosition += INTEGER_LENGTH_IN_BYTES;
-					// retrieve current record
 					if (!isDeleted) {
 						this.dbFile.seek(currentPosition);
 						byte[] retrieveRecord = new byte[recordLength];
@@ -51,7 +49,6 @@ public class BaseFileHandler implements DataHandler {
 						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
 					}
 					currentPosition += recordLength;
-					//System.out.println("populateIndex... rows= " + rowNum); todo delete
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

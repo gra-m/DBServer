@@ -27,7 +27,7 @@ public class TestApp {
 		TestApp testApp = new TestApp();
 
 		//testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
-		testApp.addOneRecord();
+		//testApp.addOneRecord();
 		testApp.performTest();
 	}
 
@@ -59,12 +59,12 @@ public class TestApp {
 	private void performTest() throws FileNotFoundException {
 		try {
 			fillDB(AMOUNT_OF_EACH);
-	/*		delete("Frank Demian");
-			delete("Frank Demlan");
-			delete("Funk Adelic");*/
-			delete(0);
+			/*delete(0); // todo Never works row numbers change after first delete..
 			delete(1);
-			delete(2);
+			delete(2);*/
+			delete("Frank Demian");
+			delete("Frank Demlan");
+			delete("Funk Adelic");
 			listAllFileRecords();
 
 		}catch (IOException e) {

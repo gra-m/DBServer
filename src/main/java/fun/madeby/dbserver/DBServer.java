@@ -77,7 +77,7 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public void update(String name, final DBRecord newRecord) {
+	public void update(String name, DBRecord newRecord) {
 		try {
 			if (Index.getInstance().hasNameInIndex(name)) {
 				DBRecord existingRowNumberRecord = read(Index.getInstance().getRowNumberByName(name));

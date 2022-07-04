@@ -3,6 +3,7 @@ package fun.madeby.dbserver;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.Index;
+import fun.madeby.exceptions.NameDoesNotExistException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,6 @@ class DBTest {
 				"Repoke Street, Antwerp, 2000",
 				"BAR ANVERS",
 				"The place under the bridge..");
-
 	}
 
 	private void clearDataInExistingFile() {
@@ -128,17 +128,14 @@ class DBTest {
 	@DisplayName("Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() {
 		try (DB db = new DBServer(dbFileName)){
-			// normal
+			// todo ERROR update by Name test
 			db.add(carOwner);
 			assertEquals(1, index.getTotalNumberOfRows());
 			Long retrievedRowNum = index.getRowNumberByName("Rezzi Delamdi");
 			System.out.println("Retrieved row for 'Rezzi Delamdi' " + retrievedRowNum);
-			db.update(retrievedRowNum -1, carOwnerUpdated );
+			db.update("Rezzi Delamdi", carOwnerUpdated );
 			assertEquals(1, index.getTotalNumberOfRows());
-			System.out.println("Rezzi Delamdi should have been deleted: ");
-			index.printNameIndex();
-			System.out.println("Update has been written in row position 0L");
-			DBRecord retrieved = db.read(index.getRowNumberByName("Razzgu Dulemdi") - index.getTotalNumberOfRows());
+			DBRecord retrieved = db.read(index.getRowNumberByName("Razzgu Dulemdi"));
 			assertEquals( "Razzgu Dulemdi", retrieved.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
 			assertEquals("BAR ANVERS", retrieved.getCarPlateNumber());
@@ -146,6 +143,8 @@ class DBTest {
 			assertEquals(34, retrieved.getAge());
 		}catch(IOException e) {
 			System.out.println("updateByRowTest:  threw Exception");
+		} catch (NameDoesNotExistException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
