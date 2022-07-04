@@ -28,6 +28,19 @@ public final class DBServer implements DB{
 	}
 
 	/**
+	 * @param name
+	 */
+	@Override
+	public DBRecord search(String name) {
+		try {
+			return this.fileHandler.search(name);
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
 	 *
 	 */
 	@Override

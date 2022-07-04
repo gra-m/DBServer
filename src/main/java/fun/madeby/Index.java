@@ -26,6 +26,8 @@ public final class Index {
 	}
 
 	public void printNameIndex(){
+		if(this.mapDbRecordNameByRowNumber.size() == 0)
+			System.out.println("It's fucking empty");
 		this.mapDbRecordNameByRowNumber.entrySet().forEach(entry -> {
 			System.out.println("Index().PrintNameIndex(): " + entry.getKey() + " " + entry.getValue());
 		});
@@ -57,7 +59,7 @@ public final class Index {
 	}
 
 	public Long getRowNumberByName(final String name) {
-		return this.mapDbRecordNameByRowNumber.getOrDefault(name, -1L);// -1;  // todo ERROR fixes update by Name test
+		return this.mapDbRecordNameByRowNumber.getOrDefault(name, -1L);
 	}
 
 	public Long getUndeletedRowNumberByName(final String name) {
@@ -68,9 +70,7 @@ public final class Index {
 
 	public void remove(Long rowIndex, DBRecord existingRowNumberRecord) {
 		this.mapRowNumberBytePosition.remove(rowIndex);
-		Index.getInstance().printNameIndex();
 		this.mapDbRecordNameByRowNumber.remove(existingRowNumberRecord.getName());
-		Index.getInstance().printNameIndex();
 		this.totalNumberOfRows--;
 	}
 

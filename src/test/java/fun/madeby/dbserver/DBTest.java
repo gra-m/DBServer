@@ -87,7 +87,7 @@ class DBTest {
 		try (DB db = new DBServer(dbFileName)){
 			db.add(carOwner);
 			assertEquals(index.getTotalNumberOfRows(), 1);
-			DBRecord readCarOwner = db.read(0L);
+			DBRecord readCarOwner = db.read(Index.getInstance().getRowNumberByName("Rezzi Delamdi"));
 			System.out.println(readCarOwner == null);
 			assertEquals("Rezzi Delamdi", readCarOwner.getName() );
 			assertEquals("Repoke Street, Antwerp, 2000", readCarOwner.getAddress());
@@ -128,7 +128,6 @@ class DBTest {
 	@DisplayName("Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() {
 		try (DB db = new DBServer(dbFileName)){
-			// todo ERROR update by Name test
 			db.add(carOwner);
 			assertEquals(1, index.getTotalNumberOfRows());
 			Long retrievedRowNum = index.getRowNumberByName("Rezzi Delamdi");

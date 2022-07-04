@@ -19,6 +19,7 @@ public interface DB extends Closeable {
 	void delete(Long rowNumber) throws IOException;
 	DBRecord read(Long rowNumber) throws IOException;
 	void close() throws IOException;
+	DBRecord search (String name);
 	void refreshIndex();
 	Collection<DebugInfo> getData();
 }

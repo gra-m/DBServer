@@ -31,6 +31,25 @@ public class TestApp {
 		testApp.performTest();
 	}
 
+	private void performTest() throws FileNotFoundException {
+		try {
+			clearDataInExistingFile();
+			fillDB(AMOUNT_OF_EACH);
+			/*delete(0); // todo Never works row numbers change after first delete..
+			delete(1);
+			delete(2);*/
+			delete("Frank Demian");
+			delete("Frank Demlan");
+			delete("Funk Adelic");
+			listAllFileRecords();
+			testSearch("Frank Demian");
+
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	private void addOneRecord() throws FileNotFoundException {
 
 		try (DB dbServer = new DBServer(dbFile)) {
@@ -43,7 +62,20 @@ public class TestApp {
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	private void testSearch(String name) {
+
+		try (DB dbServer = new DBServer(dbFile)) {
+			System.out.println("TEST SEARCH: ");
+			addOneRecord();
+			dbServer.refreshIndex();
+			CarOwner cO = (CarOwner) dbServer.search(name);
+			System.out.println("Found carOwner: " + cO);
+
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void clearDataInExistingFile() {
@@ -56,22 +88,6 @@ public class TestApp {
 
 	}
 
-	private void performTest() throws FileNotFoundException {
-		try {
-			fillDB(AMOUNT_OF_EACH);
-			/*delete(0); // todo Never works row numbers change after first delete..
-			delete(1);
-			delete(2);*/
-			delete("Frank Demian");
-			delete("Frank Demlan");
-			delete("Funk Adelic");
-			listAllFileRecords();
-
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
 
 	private void listAllFileRecords() throws IOException {
 

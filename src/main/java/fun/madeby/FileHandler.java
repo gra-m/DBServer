@@ -1,8 +1,12 @@
 package fun.madeby;
 
+import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.LongStream;
 
 import static java.lang.Math.toIntExact;
 
@@ -31,14 +35,14 @@ public class FileHandler extends BaseFileHandler {
 	 * @throws IOException if there is one
 	 */
 	public boolean add(DBRecord dbRecord) throws IOException{
-	//	try {
+		try {
 			if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
-				System.out.printf("\nadd hasNameInIndex test: Name '%s' already exists!", dbRecord.getName());
-				//throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
+				//System.out.printf("\nadd hasNameInIndex test: Name '%s' already exists!", dbRecord.getName());
+				throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
 			}
-	//	}catch (DuplicateNameException e) {
-	//		e.printStackTrace();
-	//	}
+		}catch (DuplicateNameException e) {
+			e.printStackTrace();
+		}
 
 		int length = 0;
 		long currentPositionToInsert = this.dbFile.length();
@@ -76,8 +80,10 @@ public class FileHandler extends BaseFileHandler {
 		dbFile.write(description.getBytes());
 
 		// set the start point of the record just inserted
-		Index.getInstance().add(currentPositionToInsert);
-		Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows());
+		Index.getInstance().add(currentPositionToInsert); // todo on clean add enters 0:0
+		Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows() -1); // todo on clean add enters Name:1
+		if (Index.getInstance().getMapRowNumberBytePositionSize() == 0)
+			System.out.println("How is that possible");
 		return true;
 	}
 
@@ -125,5 +131,28 @@ public class FileHandler extends BaseFileHandler {
 		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public DBRecord search(String name) throws IOException {
+		Long rowNumber = Index.getInstance().getRowNumberByName(name);
+		Index.getInstance().printNameIndex();
+		if (rowNumber == -1)
+			return null;
+		return this.readRow(rowNumber);
+
+		/*List<DBRecord> result = new ArrayList<>();
+		LongStream.range(0, Index.getInstance().getTotalNumberOfRows()).forEach(i->{
+			DBRecord dbRecord = null;
+			try {
+				dbRecord = this.readRow(i);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			if (dbRecord.equals(name))
+				result.add(dbRecord);
+
+		});
+		return result;*/
+
 	}
 }
