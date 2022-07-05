@@ -1,5 +1,7 @@
 package fun.madeby.util;
 
+import java.util.stream.IntStream;
+
 import static java.util.Objects.isNull;
 
 /**
@@ -8,40 +10,53 @@ import static java.util.Objects.isNull;
 
 public final class Levenshtein {
 
-	public static int levenshteinDistance(final String lhs, final String rhs) {
-		if (lhs.equalsIgnoreCase(rhs)) return 0;
-		if (lhs.isEmpty()) return rhs.length();
-		if (rhs.isEmpty()) return lhs.length();
+	public static int levenshteinDistance(final String original, final String destination) {
+		if (original.equalsIgnoreCase(destination)) return 0;
+		if (original.isEmpty()) return destination.length();
+		if (destination.isEmpty()) return original.length();
 
-		// create matrix
+		// todo FIXED Levenshtein create matrix with extra length on each side so there is somewhere to look back at the data from.
+		int[][] result = new int[original.length() + 1][destination.length() + 1];
 
-		int[][] result = new int[lhs.length()][rhs.length()];
-
-		// initialise old:
-		for (int i = 0; i < lhs.length(); i++)
-			result[i][0] = i;
-		for (int i = 0; i < rhs.length(); i++)
+		// todo FIXED not sure if +1 necessary, or recommended:
+		for (int j = 0; j < original.length() + 1; j++)
+			result[j][0] = j;
+		for (int i = 0; i < destination.length() + 1; i++)
 			result[0][i] = i;
 
 		// initialis new:
 		//static IntStream range(int startInclusive,
 		//int endExclusive)
+	//	IntStream.range(0, original.length() ).forEach(i-> result[i][0] = i);
+	//	IntStream.range(0, destination.length() ).forEach(i-> result[0][i] = i);
 
-		// this version fails as subst (renaming 'edit') is not counted if the difference is at the end. John Johx
-		int subst;
-					for (int j = 1; j < rhs.length(); j++) {
-						for (int i = 1; i < lhs.length(); i++) {
-							if (lhs.charAt(i - 1) == rhs.charAt(j - 1))
-								subst = 0;
+
+
+		int editRequired;
+					for (int o = 1; o <= original.length(); o++) { //todo FIXED Levenshtein now go up to entire length with extra position
+						for (int d = 1; d <= destination.length(); d++) {
+							if (original.charAt(o - 1) == destination.charAt(d - 1))
+								editRequired = 0;
 							else
-								subst = 1;
-							int deletion = result[i - 1][j] + 1;
-							int insertion = result[i][j - 1] + 1;
-							int substitution = result[i - 1][j - 1] + subst;
-							result[i][j] = Math.min(Math.min(deletion, insertion), substitution);
+								editRequired = 1;
+
+							int originalAxis = result[o][d - 1] + editRequired;
+							int destinationAxis = result[o - 1][d] + editRequired;
+							int diagonal = result[o - 1][d - 1] + editRequired;
+							System.out.println("originalAxis: " + originalAxis + "destinationAxis: " + destinationAxis + " currentDiagonalMatrix: " + diagonal);
+							// populate diagonalMatrixResult
+							int min = Math.min(Math.min(destinationAxis, originalAxis), diagonal);
+							if(o==d)
+								System.out.println("o==d " + o  + " DiagonalAxisResult: " + min);
+								
+							result[o][d] = min;
 						}
 					}
-				return result[lhs.length() - 1][rhs.length() - 1];
+
+
+				// todo FIXED Levenshtein, because of the extra space the final diagonal reference has been calculated and can be returned.
+				return result[original.length()][destination.length()];
+
 
 			}
 		}
