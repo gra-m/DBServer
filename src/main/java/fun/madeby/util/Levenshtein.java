@@ -1,8 +1,6 @@
 package fun.madeby.util;
 
-import java.util.stream.IntStream;
 
-import static java.util.Objects.isNull;
 
 /**
  * Created by Gra_m on 2022 07 05
@@ -47,7 +45,7 @@ public final class Levenshtein {
 							// populate diagonalMatrixResult
 							int min = Math.min(Math.min(destinationAxis, originalAxis), diagonal);
 							if(o==d)
-								System.out.println("o==d " + o  + " DiagonalAxisResult: " + min);
+								System.out.println("Useful only for words with same lengths: o==d " + o  + " 'DiagonalAxisResult': " + min);
 								
 							result[o][d] = min;
 						}
