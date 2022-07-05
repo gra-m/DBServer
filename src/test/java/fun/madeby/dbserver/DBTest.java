@@ -82,13 +82,35 @@ class DBTest {
 	}
 
 	@Test
+	@DisplayName("DBServer search, then compare retrieved")
+	void searchTest() {
+		try (DB db = new DBServer(dbFileName)){
+			db.add(carOwner);
+			assertEquals(1, index.getTotalNumberOfRows());
+			CarOwner retrieved = (CarOwner) db.search("Rezzi Delamdi");
+			assertNotNull(retrieved);
+			assertEquals("Rezzi Delamdi", retrieved.getName() );
+			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
+			assertEquals("3AR 4NVERS", retrieved.getCarPlateNumber());
+			assertEquals("The place under the bridge..", retrieved.getDescription());
+			assertEquals(34, retrieved.getAge());
+
+		}catch(IOException e) {
+			System.out.println("searchTest: threw Exception");
+			e.printStackTrace();
+		}
+	}
+
+
+
+	@Test
 	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field") //shows on fail
 	void readTest(){
 		try (DB db = new DBServer(dbFileName)){
 			db.add(carOwner);
 			assertEquals(index.getTotalNumberOfRows(), 1);
 			DBRecord readCarOwner = db.read(Index.getInstance().getRowNumberByName("Rezzi Delamdi"));
-			System.out.println(readCarOwner == null);
+			assertNotNull(readCarOwner);
 			assertEquals("Rezzi Delamdi", readCarOwner.getName() );
 			assertEquals("Repoke Street, Antwerp, 2000", readCarOwner.getAddress());
 			assertEquals("3AR 4NVERS", readCarOwner.getCarPlateNumber());
