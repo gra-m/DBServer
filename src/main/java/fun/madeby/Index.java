@@ -1,5 +1,6 @@
 package fun.madeby;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -88,5 +89,9 @@ public final class Index {
 		this.totalNumberOfRows = 0L;
 		this.mapRowNumberBytePosition.clear();
 		this.mapDbRecordNameByRowNumber.clear();
+	}
+
+	public Collection<String> getNames() {
+		return this.mapDbRecordNameByRowNumber.keySet();
 	}
 }

@@ -2,10 +2,13 @@ package fun.madeby;
 
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
+import fun.madeby.util.Levenshtein;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.LongStream;
 
 import static java.lang.Math.toIntExact;
@@ -154,5 +157,21 @@ public class FileHandler extends BaseFileHandler {
 		});
 		return result;*/
 
+	}
+
+	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) throws IOException {
+		Collection<DBRecord> result = new ArrayList<>();
+		Set<String> names = (Set) Index.getInstance().getNames();
+		Collection<String> exactOrCloseFitNames = new ArrayList<>();
+
+		for(String storedName: names) {
+			if (Levenshtein.levenshteinDistance(storedName, name) <= tolerance)
+				exactOrCloseFitNames.add(storedName);
+		}
+		// get records:
+		for (String exactOrCloseFitName: exactOrCloseFitNames) {
+			result.add(search(exactOrCloseFitName));
+		}
+		return result;
 	}
 }

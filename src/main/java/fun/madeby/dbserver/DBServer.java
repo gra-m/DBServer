@@ -56,6 +56,16 @@ public final class DBServer implements DB{
 		return this.fileHandler.getCurrentData();
 	}
 
+	/**
+	 * @param name
+	 * @param tolerance
+	 * @return
+	 */
+	@Override
+	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) throws IOException {
+		return this.fileHandler.searchWithLevenshtein(name, tolerance);
+	}
+
 	@Override
 	public boolean add(DBRecord dbRecord) {
 		try {

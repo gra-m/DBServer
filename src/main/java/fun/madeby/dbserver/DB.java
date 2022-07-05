@@ -22,4 +22,5 @@ public interface DB extends Closeable {
 	DBRecord search (String name);
 	void refreshIndex();
 	Collection<DebugInfo> getData();
+	Collection<DBRecord> searchWithLevenshtein(final String name, int tolerance) throws IOException;
 }

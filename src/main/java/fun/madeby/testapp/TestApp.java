@@ -43,11 +43,25 @@ public class TestApp {
 			delete("Funk Adelic");
 			listAllFileRecords();
 			testSearch("Frank Demian");
+			testLevenshtein();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void testLevenshtein()throws IOException{
+		try (DB dbServer = new DBServer(dbFile)) {
+			ArrayList<DBRecord> result = (ArrayList) dbServer.searchWithLevenshtein("Frank Demian1", 0);
+			System.out.println("---------Search-----------");
+			for(DBRecord record: result) {
+				System.out.println(record);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void addOneRecord() throws FileNotFoundException {
