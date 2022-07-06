@@ -92,18 +92,18 @@ public final class Levenshtein {
 	}
 
 	private static void printDynamicProgrammingTable() {
-		StringBuilder destinationPrintReady = new StringBuilder (original);
+		StringBuilder destinationPrintReady = new StringBuilder (destination);
 		int originalCharCount = 0;
 		boolean trigger = true;
 		System.out.println("CALLED");
 		printTopRow();
 
-		for (int o = 0; o <= original.length(); o++) {
-			if (originalCharCount < original.length())
+		for (int d = 0; d <= destination.length(); d++) {
+			if (originalCharCount < destination.length())
 				trigger = true;
-			for (int d = 0; d <= destination.length(); d++) {
-				if (d == 0 && trigger) {
-					if (o == 0) {
+			for (int o = 0; o <= original.length(); o++) {
+				if (o == 0 && trigger) {
+					if (d == 0) {
 						System.out.print("| " + "\"\"" + " || 0  |");
 						continue;
 					}
@@ -114,14 +114,14 @@ public final class Levenshtein {
 				}
 				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
 						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
-						d == destination.length() ? "\n" : "");
+						o == original.length() ? "\n" : "");
 
 			}
 		}
 	}
 
 	private static void printTopRow() {
-		StringBuilder originalPrintReady = new StringBuilder (destination);
+		StringBuilder originalPrintReady = new StringBuilder (original);
 		System.out.print("|    || \"\" |");
 		for(int i = 0; i < originalPrintReady.length(); i++) {
 			System.out.printf("| " + "%c" + "  |" + "%s",
