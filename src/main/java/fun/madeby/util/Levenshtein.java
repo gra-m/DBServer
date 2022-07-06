@@ -61,20 +61,31 @@ public final class Levenshtein {
 					Levenshtein.original = original;
 					Levenshtein.destination = destination;
 					Levenshtein.result = result;
-					printBasic();
-					//printDynamicProgrammingTable();
+					//printBasicOriginalTop();
+					printDynamicProgrammingTable();
 				}
 
 				return result[original.length()][destination.length()];
 
 			}
 
-	private static void printBasic() {
+	/*private static void printBasicDestinationTop() {
 		for (int o = 0; o <= original.length(); o++) {
 			for (int d = 0; d <= destination.length(); d++) {
 				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
 						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
 						d == destination.length() ? "\n" : "");
+
+			}
+		}
+	}*/
+
+	private static void printBasicOriginalTop() {
+		for (int d = 0; d <= destination.length(); d++) {
+			for (int o = 0; o <= original.length(); o++) {
+				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
+						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
+						o == original.length() ? "\n" : "");
 
 			}
 		}
@@ -90,7 +101,7 @@ public final class Levenshtein {
 		for (int o = 0; o <= original.length(); o++) {
 			if (originalCharCount < original.length())
 				trigger = true;
-			for (int d = 0; d <= original.length(); d++) {
+			for (int d = 0; d <= destination.length(); d++) {
 				if (d == 0 && trigger) {
 					if (o == 0) {
 						System.out.print("| " + "\"\"" + " || 0  |");
@@ -103,7 +114,7 @@ public final class Levenshtein {
 				}
 				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
 						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
-						d == original.length() ? "\n" : "");
+						d == destination.length() ? "\n" : "");
 
 			}
 		}

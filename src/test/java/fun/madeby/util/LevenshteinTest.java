@@ -31,8 +31,15 @@ class LevenshteinTest {
 	}
 
 	@Test
+	public void testLevensteinTribute() {
+		int result = Levenshtein.levenshteinDistance("benyami", "ephrem", true);
+		assertEquals(6, result);
+	}
+
+
+	@Test
 	public void testLevenstein_different_LengthsA_4() {
-		int result = Levenshtein.levenshteinDistance("John1234", "John", false);
+		int result = Levenshtein.levenshteinDistance("John1234", "John", true);
 		assertEquals(4, result);
 	}
 
