@@ -6,6 +6,7 @@ import fun.madeby.Index;
 import fun.madeby.dbserver.DB;
 import fun.madeby.dbserver.DBServer;
 import fun.madeby.util.DebugInfo;
+import fun.madeby.util.Levenshtein;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -44,11 +45,16 @@ public class TestApp {
 			listAllFileRecords();
 			testSearch("Frank Demian");
 			testLevenshtein();
+			printLevenshtein();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void printLevenshtein() {
+		Levenshtein.levenshteinDistance("ziggy", "zaggys", true);
 	}
 
 	private void testLevenshtein()throws IOException{

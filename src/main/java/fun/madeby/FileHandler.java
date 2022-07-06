@@ -165,7 +165,7 @@ public class FileHandler extends BaseFileHandler {
 		Collection<String> exactOrCloseFitNames = new ArrayList<>();
 
 		for(String storedName: names) {
-			if (Levenshtein.levenshteinDistance(storedName, name) <= tolerance)
+			if (Levenshtein.levenshteinDistance(storedName, name, false) <= tolerance)
 				exactOrCloseFitNames.add(storedName);
 		}
 		// get records:

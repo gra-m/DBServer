@@ -1,17 +1,21 @@
 package fun.madeby.util;
 
 
-
 /**
  * Created by Gra_m on 2022 07 05
  */
 
 public final class Levenshtein {
+	private static String original;
+	private static String destination;
+	private static int [][] result;
 
-	public static int levenshteinDistance(final String original, final String destination) {
+	public static int levenshteinDistance(final String original, final String destination, Boolean print) {
 		if (original.equalsIgnoreCase(destination)) return 0;
 		if (original.isEmpty()) return destination.length();
 		if (destination.isEmpty()) return original.length();
+
+
 
 		// todo FIXED Levenshtein create matrix with extra length on each side so there is somewhere to look back at the data from.
 		int[][] result = new int[original.length() + 1][destination.length() + 1];
@@ -53,8 +57,65 @@ public final class Levenshtein {
 
 
 				// todo FIXED Levenshtein, because of the extra space the final diagonal reference has been calculated and can be returned.
+				if (print) {
+					Levenshtein.original = original;
+					Levenshtein.destination = destination;
+					Levenshtein.result = result;
+					printBasic();
+					//printDynamicProgrammingTable();
+				}
+
 				return result[original.length()][destination.length()];
 
+			}
+
+	private static void printBasic() {
+		for (int o = 0; o <= original.length(); o++) {
+			for (int d = 0; d <= destination.length(); d++) {
+				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
+						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
+						d == destination.length() ? "\n" : "");
 
 			}
 		}
+	}
+
+	private static void printDynamicProgrammingTable() {
+		StringBuilder destinationPrintReady = new StringBuilder (original);
+		int originalCharCount = 0;
+		boolean trigger = true;
+		System.out.println("CALLED");
+		printTopRow();
+
+		for (int o = 0; o <= original.length(); o++) {
+			if (originalCharCount < original.length())
+				trigger = true;
+			for (int d = 0; d <= original.length(); d++) {
+				if (d == 0 && trigger) {
+					if (o == 0) {
+						System.out.print("| " + "\"\"" + " || 0  |");
+						continue;
+					}
+					System.out.printf("| " + "%c" + "  |",
+							destinationPrintReady.charAt(originalCharCount));
+					originalCharCount++;
+					trigger = false;
+				}
+				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
+						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
+						d == original.length() ? "\n" : "");
+
+			}
+		}
+	}
+
+	private static void printTopRow() {
+		StringBuilder originalPrintReady = new StringBuilder (destination);
+		System.out.print("|    || \"\" |");
+		for(int i = 0; i < originalPrintReady.length(); i++) {
+			System.out.printf("| " + "%c" + "  |" + "%s",
+					originalPrintReady.charAt(i),
+					(i != originalPrintReady.length() -1) ? "" : "\n");
+		}
+	}
+}
