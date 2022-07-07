@@ -66,6 +66,15 @@ public final class DBServer implements DB{
 		return this.fileHandler.searchWithLevenshtein(name, tolerance);
 	}
 
+	/**
+	 * @param regEx
+	 * @return
+	 */
+	@Override
+	public Collection<DBRecord> searchWithRegex(String regEx) throws IOException {
+		return this.fileHandler.searchWithRegex(regEx);
+	}
+
 	@Override
 	public boolean add(DBRecord dbRecord) {
 		try {

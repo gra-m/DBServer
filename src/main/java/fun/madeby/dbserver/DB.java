@@ -23,4 +23,5 @@ public interface DB extends Closeable {
 	void refreshIndex();
 	Collection<DebugInfo> getData();
 	Collection<DBRecord> searchWithLevenshtein(final String name, int tolerance) throws IOException;
+	Collection<DBRecord> searchWithRegex(final String regEx) throws IOException;
 }

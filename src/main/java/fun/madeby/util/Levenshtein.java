@@ -26,11 +26,11 @@ public final class Levenshtein {
 		for (int i = 0; i < destination.length() + 1; i++)
 			result[0][i] = i;
 
-		// initialis new:
+		// initialise with IntStream new:
 		//static IntStream range(int startInclusive,
 		//int endExclusive)
-	//	IntStream.range(0, original.length() ).forEach(i-> result[i][0] = i);
-	//	IntStream.range(0, destination.length() ).forEach(i-> result[0][i] = i);
+	//	IntStream.range(0, original.length() + 1 ).forEach(i-> result[i][0] = i);
+	//	IntStream.range(0, destination.length() + 1 ).forEach(i-> result[0][i] = i);
 
 
 
@@ -45,11 +45,11 @@ public final class Levenshtein {
 							int originalAxis = result[o][d - 1] + editRequired;
 							int destinationAxis = result[o - 1][d] + editRequired;
 							int diagonal = result[o - 1][d - 1] + editRequired;
-							System.out.println("originalAxis: " + originalAxis + "destinationAxis: " + destinationAxis + " currentDiagonalMatrix: " + diagonal);
+							//System.out.println("originalAxis: " + originalAxis + " destinationAxis: " + destinationAxis + " currentDiagonalMatrix: " + diagonal); // todo left in for reference
+
 							// populate diagonalMatrixResult
 							int min = Math.min(Math.min(destinationAxis, originalAxis), diagonal);
-							if(o==d)
-								System.out.println("Useful only for words with same lengths: o==d " + o  + " 'DiagonalAxisResult': " + min);
+							//if(o==d) System.out.println("Printing diagonal; describes the Ldistance perfectly when the words have the same lengths: " + o  + " 'DiagonalAxisResult': " + min); // todo left in for reference
 								
 							result[o][d] = min;
 						}
@@ -64,9 +64,7 @@ public final class Levenshtein {
 					//printBasicOriginalTop();
 					printDynamicProgrammingTable();
 				}
-
 				return result[original.length()][destination.length()];
-
 			}
 
 	/*private static void printBasicDestinationTop() {
@@ -75,7 +73,6 @@ public final class Levenshtein {
 				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
 						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
 						d == destination.length() ? "\n" : "");
-
 			}
 		}
 	}*/
@@ -86,7 +83,6 @@ public final class Levenshtein {
 				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
 						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
 						o == original.length() ? "\n" : "");
-
 			}
 		}
 	}
@@ -95,7 +91,7 @@ public final class Levenshtein {
 		StringBuilder destinationPrintReady = new StringBuilder (destination);
 		int originalCharCount = 0;
 		boolean trigger = true;
-		System.out.println("CALLED");
+		System.out.println("printDynamicProgrammingTable():");
 		printTopRow();
 
 		for (int d = 0; d <= destination.length(); d++) {
@@ -115,7 +111,6 @@ public final class Levenshtein {
 				System.out.printf("| " + result[o][d] + "%s" + " |" + "%s",
 						result[o][d] >= 0  && result[o][d] < 10 ? " " : "",
 						o == original.length() ? "\n" : "");
-
 			}
 		}
 	}

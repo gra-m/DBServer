@@ -2,7 +2,7 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/gra-m/DBServer/tree/main.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/gra-m/DBServer/tree/main)
 # DatabaseServer Course 
 Following the course at the same time as reading and implementing Holub on Design, so, at this early stage (first commit)
-encapsulating, and 
+encapsulating, and coding to interfaces. 
 
 Org: Gra-m
 

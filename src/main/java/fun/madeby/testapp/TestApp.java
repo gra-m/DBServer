@@ -46,11 +46,24 @@ public class TestApp {
 			testSearch("Frank Demian");
 			testLevenshtein();
 			printLevenshtein();
+			testRegEx();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void testRegEx() {
+		try (DB dbServer = new DBServer(dbFile)) {
+			ArrayList<DBRecord> result = (ArrayList) dbServer.searchWithRegex("Fra.*");
+			System.out.println("---------searchWithRegEx()-----------");
+			for(DBRecord record: result) {
+				System.out.println(record);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void printLevenshtein() {
@@ -60,11 +73,10 @@ public class TestApp {
 	private void testLevenshtein()throws IOException{
 		try (DB dbServer = new DBServer(dbFile)) {
 			ArrayList<DBRecord> result = (ArrayList) dbServer.searchWithLevenshtein("Frank Demian1", 0);
-			System.out.println("---------Search-----------");
+			System.out.println("---------searchWithLevenshtein()-----------");
 			for(DBRecord record: result) {
 				System.out.println(record);
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

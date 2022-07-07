@@ -5,10 +5,7 @@ import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.Levenshtein;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.LongStream;
 
 import static java.lang.Math.toIntExact;
@@ -171,6 +168,22 @@ public class FileHandler extends BaseFileHandler {
 		// get records:
 		for (String exactOrCloseFitName: exactOrCloseFitNames) {
 			result.add(search(exactOrCloseFitName));
+		}
+		return result;
+	}
+
+	public Collection<DBRecord> searchWithRegex(String regEx) throws IOException {
+		Collection<DBRecord> result = new ArrayList<>();
+		Set<String> names = (Set) Index.getInstance().getNames();
+		Collection<String> matchesRegEx = new ArrayList<>();
+
+		for(String storedName: names) {
+			if (storedName.matches(regEx))
+				matchesRegEx.add(storedName);
+		}
+		// get records:
+		for (String match: matchesRegEx) {
+			result.add(search(match));
 		}
 		return result;
 	}

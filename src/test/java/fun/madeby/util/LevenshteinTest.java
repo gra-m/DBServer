@@ -32,20 +32,20 @@ class LevenshteinTest {
 
 	@Test
 	public void testLevensteinTribute() {
-		int result = Levenshtein.levenshteinDistance("benyam", "ephrem", true);
+		int result = Levenshtein.levenshteinDistance("benyam", "ephrem", false);
 		assertEquals(5, result);
 	}
 
 
 	@Test
 	public void testLevenstein_different_LengthsA_4() {
-		int result = Levenshtein.levenshteinDistance("John1234", "John", true);
+		int result = Levenshtein.levenshteinDistance("John1234", "John", false);
 		assertEquals(4, result);
 	}
 
 	@Test
 	public void testLevenstein_different_LengthsB_4() {
-		int result = Levenshtein.levenshteinDistance("xohnx", "John1234", true);
+		int result = Levenshtein.levenshteinDistance("xohnx", "John1234", false);
 		assertEquals(5, result);
 	}
 
