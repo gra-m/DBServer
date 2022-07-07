@@ -21,6 +21,7 @@ public interface DB extends Closeable {
 	void close() throws IOException;
 	DBRecord search (String name);
 	void refreshIndex();
+	void defragmentDatabase() throws IOException;
 	Collection<DebugInfo> getData();
 	Collection<DBRecord> searchWithLevenshtein(final String name, int tolerance) throws IOException;
 	Collection<DBRecord> searchWithRegex(final String regEx) throws IOException;

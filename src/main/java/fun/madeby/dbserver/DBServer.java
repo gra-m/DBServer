@@ -6,8 +6,13 @@ import fun.madeby.Index;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.DebugInfo;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 
 /**
@@ -19,6 +24,10 @@ public final class DBServer implements DB{
 
 	public DBServer(final String dbFileName) throws FileNotFoundException {
 		this.fileHandler = new FileHandler(dbFileName);
+		this.initialise();
+	}
+
+	private void initialise() {
 		this.fileHandler.populateIndex();
 	}
 
@@ -27,9 +36,53 @@ public final class DBServer implements DB{
 		this.fileHandler.close();
 	}
 
-	/**
-	 * @param name
-	 */
+	@Override
+	public void defragmentDatabase() throws IOException {
+		String prefix = "defrag";
+		String suffix = "dat";
+
+		File tmpFile = File.createTempFile(prefix, suffix);
+		Index.getInstance().clear();
+
+		// open temp file:
+		FileHandler defragFH = new FileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName());
+
+		Collection<DebugInfo> currentFHData = this.fileHandler.getCurrentData();
+
+		for(DebugInfo info: currentFHData) {
+			if (info.isDeleted())
+				continue;
+			DBRecord dbRecord = info.getDbRecord();
+			defragFH.add(dbRecord);
+		}
+
+		replaceOldFileWithNew(tmpFile);
+		defragFH.close();
+		Index.getInstance().clear();
+		this.initialise();
+	}
+
+	private void replaceOldFileWithNew(File tmpFile) throws IOException {
+		String oldDBName = this.fileHandler.getDbFileName();
+		boolean oldFileDeleted = this.fileHandler.deleteFile();
+		try {
+			if (oldFileDeleted) {
+				this.fileHandler.close();
+				Files.copy(tmpFile.toPath(), FileSystems.getDefault().getPath("", oldDBName),
+						StandardCopyOption.REPLACE_EXISTING);
+				this.fileHandler = new FileHandler("oldDBName");
+			} else {
+				tmpFile.delete();
+				this.initialise(); //
+				throw new IOException("Old DB file could not be deleted, defrag failed, check logs");
+			}
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+	}
+
 	@Override
 	public DBRecord search(String name) {
 		try {
@@ -40,13 +93,12 @@ public final class DBServer implements DB{
 		return null;
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public void refreshIndex() {
 		this.fileHandler.populateIndex();
 	}
+
+
 
 	/**
 	 * @return

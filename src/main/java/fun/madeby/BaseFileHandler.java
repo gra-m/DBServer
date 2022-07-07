@@ -12,14 +12,21 @@ import java.util.Collection;
  */
 
 public class BaseFileHandler implements DataHandler {
-	public RandomAccessFile dbFile;
+	RandomAccessFile dbFile;
+	String dbFileName = "";
 	final int INTEGER_LENGTH_IN_BYTES = 4;
 	final int BOOLEAN_LENGTH_IN_BYTES = 1;
 
-
-	public BaseFileHandler(String fileName) throws FileNotFoundException {
+	public BaseFileHandler(final String fileName) throws FileNotFoundException {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
+		this.dbFileName = fileName;
 	}
+
+	public BaseFileHandler(RandomAccessFile randomAccessFile, final String fileName) {
+		this.dbFile = randomAccessFile;
+		this.dbFileName = fileName;
+	}
+
 
 
 	public void populateIndex() {
@@ -163,4 +170,17 @@ public class BaseFileHandler implements DataHandler {
 	return returnArrayList;
 	}
 
+	public String getDbFileName() {
+		return dbFileName;
+	}
+
+	public boolean deleteFile() throws IOException {
+		this.dbFile.close();
+		if(new File(this.dbFileName).delete()) {
+			System.out.println("File successfully deleted");
+			return true;
+		}
+		System.out.println("File deletion failed");
+		return false;
+	}
 }

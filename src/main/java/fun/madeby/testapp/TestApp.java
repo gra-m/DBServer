@@ -39,11 +39,22 @@ public class TestApp {
 			clearDataInExistingFile();
 			fragementDatabase();
 			listAllFileRecords();
+			System.out.println("\n\n-------------------NOW DEFRAGGING----------------------\n\n");
+			defragmentDatabase();
+			listAllFileRecords();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void defragmentDatabase() {
+			try (DB dbServer = new DBServer(dbFile)) {
+				dbServer.defragmentDatabase();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 
 	private void fragementDatabase() throws FileNotFoundException {

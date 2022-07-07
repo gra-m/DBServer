@@ -6,7 +6,6 @@ import fun.madeby.util.Levenshtein;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.LongStream;
 
 import static java.lang.Math.toIntExact;
 
@@ -18,8 +17,13 @@ import static java.lang.Math.toIntExact;
 public class FileHandler extends BaseFileHandler {
 
 
+
 	public FileHandler(String fileName) throws FileNotFoundException {
 		super(fileName);
+	}
+
+	public FileHandler(RandomAccessFile randomAccessFile, String fileName) {
+		super(randomAccessFile, fileName);
 	}
 
 
