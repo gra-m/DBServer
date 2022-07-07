@@ -86,6 +86,36 @@ class DBTest {
 
 	}
 
+	@Test
+	@DisplayName("Test regex 'R.*'")
+	void testRegEx() {
+		try (DB db = new DBServer(dbFileName)){
+			db.add(carOwner);
+			db.add(carOwnerUpdated);
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<DBRecord> returnedMatchesRegex = (ArrayList<DBRecord>) db.searchWithRegex("R.*");
+			assertEquals(2, returnedMatchesRegex.size());
+		}catch(IOException e) {
+			System.out.println("5Tolerance Levenshtein: threw Exception");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	@DisplayName("Test regex 'Re.*'")
+	void testRegEx2() {
+		try (DB db = new DBServer(dbFileName)){
+			db.add(carOwner);
+			db.add(carOwnerUpdated);
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<DBRecord> returnedMatchesRegex = (ArrayList<DBRecord>) db.searchWithRegex("Re.*");
+			assertEquals(1, returnedMatchesRegex.size());
+		}catch(IOException e) {
+			System.out.println("5Tolerance Levenshtein: threw Exception");
+			e.printStackTrace();
+		}
+	}
+
 
 	@Test
 	@DisplayName("DBServer Add, via FileHandler test: 1 == OK")
