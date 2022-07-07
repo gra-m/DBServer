@@ -135,7 +135,7 @@ public class FileHandler extends BaseFileHandler {
 
 	public DBRecord search(String name) throws IOException {
 		Long rowNumber = Index.getInstance().getRowNumberByName(name);
-		Index.getInstance().printNameIndex();
+		// Index.getInstance().printNameIndex(); //todo PRINT INFO
 		if (rowNumber == -1)
 			return null;
 		return this.readRow(rowNumber);
@@ -158,7 +158,7 @@ public class FileHandler extends BaseFileHandler {
 
 	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) throws IOException {
 		Collection<DBRecord> result = new ArrayList<>();
-		Set<String> names = (Set) Index.getInstance().getNames();
+		Set<String> names = (Set<String>) Index.getInstance().getNames();
 		Collection<String> exactOrCloseFitNames = new ArrayList<>();
 
 		for(String storedName: names) {
@@ -174,7 +174,7 @@ public class FileHandler extends BaseFileHandler {
 
 	public Collection<DBRecord> searchWithRegex(String regEx) throws IOException {
 		Collection<DBRecord> result = new ArrayList<>();
-		Set<String> names = (Set) Index.getInstance().getNames();
+		Set<String> names = (Set<String>) Index.getInstance().getNames();
 		Collection<String> matchesRegEx = new ArrayList<>();
 
 		for(String storedName: names) {

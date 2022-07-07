@@ -28,7 +28,7 @@ public final class Index {
 
 	public void printNameIndex(){
 		if(this.mapDbRecordNameByRowNumber.size() == 0)
-			System.out.println("It's fucking empty");
+			System.out.println("'Vicar..' Teacup rattles on saucer. 'I do believe it's empty!'");
 		this.mapDbRecordNameByRowNumber.entrySet().forEach(entry -> {
 			System.out.println("Index().PrintNameIndex(): " + entry.getKey() + " " + entry.getValue());
 		});

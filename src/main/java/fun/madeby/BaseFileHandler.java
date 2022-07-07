@@ -13,8 +13,8 @@ import java.util.Collection;
 
 public class BaseFileHandler implements DataHandler {
 	public RandomAccessFile dbFile;
-	int INTEGER_LENGTH_IN_BYTES = 4;
-	int BOOLEAN_LENGTH_IN_BYTES = 1;
+	final int INTEGER_LENGTH_IN_BYTES = 4;
+	final int BOOLEAN_LENGTH_IN_BYTES = 1;
 
 
 	public BaseFileHandler(String fileName) throws FileNotFoundException {
@@ -82,7 +82,7 @@ public class BaseFileHandler implements DataHandler {
 			dbFile.seek(rowsBytePosition);
 			if (dbFile.readBoolean()) {
 				System.out.println("BFH: DELETE: Marked as deleted");
-				return new byte[-1];
+				return new byte[] {-1};
 			}
 			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES); // 1 byte boolean
 			int recordLength = dbFile.readInt();

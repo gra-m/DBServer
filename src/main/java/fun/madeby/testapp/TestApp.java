@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 /**
  * Created by Gra_m on 2022 06 25
@@ -29,7 +30,41 @@ public class TestApp {
 
 		//testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
 		//testApp.addOneRecord();
-		testApp.performTest();
+		//testApp.performTest();
+		testApp.performDefragTest();
+	}
+
+	private void performDefragTest() throws FileNotFoundException {
+		try {
+			clearDataInExistingFile();
+			fragementDatabase();
+			listAllFileRecords();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void fragementDatabase() throws FileNotFoundException {
+		try (DB dbServer = new DBServer(dbFile)) {
+
+			// create 100 records
+			for (int i : IntStream.range(0, 100).toArray()) {
+				CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
+				dbServer.add(c);
+			}
+			// update half of them
+			for (long i : IntStream.range(0, 100).toArray()) {
+				if (i % 2 == 0) {
+					dbServer.update(i, new CarOwner("Rupert" + i + "__Updated", 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed..."));
+				}
+			}
+
+
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void performTest() throws FileNotFoundException {
@@ -72,7 +107,7 @@ public class TestApp {
 
 	private void testLevenshtein()throws IOException{
 		try (DB dbServer = new DBServer(dbFile)) {
-			ArrayList<DBRecord> result = (ArrayList) dbServer.searchWithLevenshtein("Frank Demian1", 0);
+			ArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithLevenshtein("Frank Demian1", 0);
 			System.out.println("---------searchWithLevenshtein()-----------");
 			for(DBRecord record: result) {
 				System.out.println(record);

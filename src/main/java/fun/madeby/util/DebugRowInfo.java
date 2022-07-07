@@ -10,7 +10,7 @@ public final class DebugRowInfo implements DebugInfo {
 	private DBRecord dbRecord;
 	private boolean isDeleted;
 
-	public DebugRowInfo(){};
+	public DebugRowInfo(){}
 
 	public DebugRowInfo(DBRecord dbRecord, boolean isDeleted){
 		this.dbRecord = dbRecord;

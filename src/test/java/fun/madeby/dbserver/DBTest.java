@@ -13,11 +13,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("SpellCheckingInspection")
 class DBTest {
-	private String dbFileName = "testdb.db";
+	private final String dbFileName = "testdb.db";
 	private DBRecord carOwner;
 	private DBRecord carOwnerUpdated;
 	private Index index;
@@ -195,6 +197,7 @@ class DBTest {
 			db.update(0L, carOwnerUpdated );
 			assertEquals(1, index.getTotalNumberOfRows());
 			DBRecord retrieved = db.read(0L);
+			assert retrieved != null;
 			assertEquals( "Razzgu Dulemdi", retrieved.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
 			assertEquals("BAR ANVERS", retrieved.getCarPlateNumber());
@@ -218,11 +221,13 @@ class DBTest {
 			db.update("Rezzi Delamdi", carOwnerUpdated );
 			assertEquals(1, index.getTotalNumberOfRows());
 			DBRecord retrieved = db.read(index.getRowNumberByName("Razzgu Dulemdi"));
-			assertEquals( "Razzgu Dulemdi", retrieved.getName());
-			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
-			assertEquals("BAR ANVERS", retrieved.getCarPlateNumber());
-			assertEquals("The place under the bridge..", retrieved.getDescription());
-			assertEquals(34, retrieved.getAge());
+			if (retrieved != null){
+				assertEquals("Razzgu Dulemdi", Objects.requireNonNull(retrieved).getName());
+				assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
+				assertEquals("BAR ANVERS", retrieved.getCarPlateNumber());
+				assertEquals("The place under the bridge..", retrieved.getDescription());
+				assertEquals(34, retrieved.getAge());
+			}
 		}catch(IOException e) {
 			System.out.println("updateByRowTest:  threw Exception");
 		} catch (NameDoesNotExistException e) {
