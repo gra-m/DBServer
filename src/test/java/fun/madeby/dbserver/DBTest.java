@@ -12,6 +12,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,6 +55,36 @@ class DBTest {
 		}
 	}
 
+	@Test
+	@DisplayName("Test LevenshteinList 5 tolerance return 2")
+	void testLevenshtein1_2() {
+		try (DB db = new DBServer(dbFileName)){
+			db.add(carOwner);
+			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<DBRecord> returnedMatchesWithinTolerance = (ArrayList<DBRecord>) db.searchWithLevenshtein("Rezzi Delamdi", 5);
+			assertEquals(2, returnedMatchesWithinTolerance.size());
+		}catch(IOException e) {
+			System.out.println("5Tolerance Levenshtein: threw Exception");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	@DisplayName("Test LevenshteinList 4 tolerance return 1")
+	void testLevenshtein4_1() {
+		try (DB db = new DBServer(dbFileName)){
+			db.add(carOwner);
+			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<DBRecord> returnedMatchesWithinTolerance = (ArrayList<DBRecord>) db.searchWithLevenshtein("Rezzi Delamdi", 4);
+			assertEquals(1, returnedMatchesWithinTolerance.size());
+		}catch(IOException e) {
+			System.out.println("5Tolerance Levenshtein: threw Exception");
+			e.printStackTrace();
+		}
+
+	}
 
 
 	@Test
