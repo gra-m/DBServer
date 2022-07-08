@@ -5,6 +5,7 @@ import fun.madeby.DBRecord;
 import fun.madeby.Index;
 import fun.madeby.dbserver.DB;
 import fun.madeby.dbserver.DBServer;
+import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.Levenshtein;
 
@@ -15,6 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
 /**
@@ -31,7 +35,56 @@ public class TestApp {
 		//testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
 		//testApp.addOneRecord();
 		//testApp.performTest();
-		testApp.performDefragTest();
+		//testApp.performDefragTest();
+		testApp.performMultiThreadTest();
+	}
+
+	private void performMultiThreadTest() {
+		Runnable runnableAdd = null;
+		Runnable runnableUpdate = null;
+		Runnable runnableListAll = null;
+		try (DB dbServer = new DBServer(dbFile)) {
+			runnableAdd = () -> {
+				while (true) {
+					int i = new Random().nextInt(0, 4000);
+					CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
+					try {
+						dbServer.add(c);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			};
+
+			 runnableUpdate = () -> {
+				while (true) {
+					int i = new Random().nextInt(0, 4000);
+					CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
+					try {
+						dbServer.update("John" + i, c);
+					} catch (IOException | NameDoesNotExistException e) {
+						e.printStackTrace();
+					}
+				}
+			};
+
+			runnableListAll = () -> {
+				while (true) {
+					try {
+						listAllFileRecords();
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			};
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		ExecutorService executorService = Executors.newFixedThreadPool(3);
+		executorService.submit(runnableAdd);
+		executorService.submit(runnableUpdate);
+		executorService.submit(runnableListAll);
 	}
 
 	private void performDefragTest() throws FileNotFoundException {
