@@ -12,7 +12,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -71,7 +70,7 @@ public final class DBServer implements DB{
 		this.initialise();
 	}
 
-	private void replaceOldFileWithNew(File tmpFile) throws IOException {
+	private void replaceOldFileWithNew(File tmpFile) {
 		String oldDBName = this.fileHandler.getDbFileName();
 		boolean oldFileDeleted = this.fileHandler.deleteFile();
 		try {
@@ -95,12 +94,7 @@ public final class DBServer implements DB{
 	@Override
 	public DBRecord search(String name) {
 		LOGGER.info("@search(String name)" + name);
-		try {
-			return this.fileHandler.search(name);
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return this.fileHandler.search(name);
 	}
 
 	@Override
@@ -134,7 +128,7 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public void update(Long rowNumber, final DBRecord newRecord) throws IOException {
+	public void update(Long rowNumber, final DBRecord newRecord) {
 		LOGGER.info("@update(rowNumberOldRecord, newRecord) " + rowNumber + " "  + newRecord);
 		String name;
 		try {
@@ -170,7 +164,7 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public void delete(Long rowNumber) throws IOException {
+	public void delete(Long rowNumber) {
 		LOGGER.info("@delete(rowNumber) " + rowNumber);
 		if (checkRowNumber(rowNumber)) {
 			// DBRecord necessary to delete name index entry

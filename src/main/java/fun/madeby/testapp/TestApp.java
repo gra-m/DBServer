@@ -5,12 +5,10 @@ import fun.madeby.DBRecord;
 import fun.madeby.Index;
 import fun.madeby.dbserver.DB;
 import fun.madeby.dbserver.DBServer;
-import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.Levenshtein;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,14 +29,14 @@ public class TestApp {
 	final static String dbFile = "DBServer.db";
 
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		TestApp testApp = new TestApp();
 
-		//testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
-		//testApp.addOneRecord();
-		//testApp.performTest();
-		//testApp.performDefragTest();
-		testApp.performMultiThreadTest();
+		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
+		testApp.addOneRecord();
+		testApp.performTest();
+		testApp.performDefragTest();
+		//testApp.performMultiThreadTest();
 	}
 
 	private void performMultiThreadTest() {
@@ -51,11 +49,7 @@ public class TestApp {
 				while (true) {
 					int i = new Random().nextInt(0, 4000);
 					CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
-					try {
-						dbServer.add(c);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					dbServer.add(c);
 				}
 			};
 
@@ -63,21 +57,13 @@ public class TestApp {
 				while (true) {
 					int i = new Random().nextInt(0, 4000);
 					CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
-					try {
-						dbServer.update("John" + i, c);
-					} catch (IOException | NameDoesNotExistException e) {
-						e.printStackTrace();
-					}
+					dbServer.update("John" + i, c);
 				}
 			};
 
 			runnableListAll = () -> {
 				while (true) {
-					try {
-						listAllFileRecords();
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
+					listAllFileRecords();
 				}
 			};
 
@@ -93,18 +79,13 @@ public class TestApp {
 
 
 
-	private void performDefragTest() throws FileNotFoundException {
-		try {
-			clearDataInExistingFile();
-			fragementDatabase();
-			listAllFileRecords();
-			System.out.println("\n\n-------------------NOW DEFRAGGING----------------------\n\n");
-			defragmentDatabase();
-			listAllFileRecords();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private void performDefragTest() {
+		clearDataInExistingFile();
+		fragementDatabase();
+		listAllFileRecords();
+		System.out.println("\n\n-------------------NOW DEFRAGGING----------------------\n\n");
+		defragmentDatabase();
+		listAllFileRecords();
 
 	}
 
@@ -116,7 +97,7 @@ public class TestApp {
 			}
 	}
 
-	private void fragementDatabase() throws FileNotFoundException {
+	private void fragementDatabase() {
 		try (DB dbServer = new DBServer(dbFile)) {
 
 			// create 100 records
@@ -137,31 +118,26 @@ public class TestApp {
 		}
 	}
 
-	private void performTest() throws FileNotFoundException {
-		try {
-			clearDataInExistingFile();
-			fillDB();
+	private void performTest() {
+		clearDataInExistingFile();
+		fillDB();
 			/*delete(0); // todo Never works row numbers change after first delete..
 			delete(1);
 			delete(2);*/
-			delete("Frank Demian");
-			delete("Frank Demlan");
-			delete("Funk Adelic");
-			listAllFileRecords();
-			testSearch("Frank Demian");
-			testLevenshtein();
-			printLevenshtein();
-			testRegEx();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		delete("Frank Demian");
+		delete("Frank Demlan");
+		delete("Funk Adelic");
+		listAllFileRecords();
+		testSearch("Frank Demian");
+		testLevenshtein();
+		printLevenshtein();
+		testRegEx();
 
 	}
 
 	private void testRegEx() {
 		try (DB dbServer = new DBServer(dbFile)) {
-			ArrayList<DBRecord> result = (ArrayList) dbServer.searchWithRegex("Fra.*");
+			ArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithRegex("Fra.*");
 			System.out.println("---------searchWithRegEx()-----------");
 			for(DBRecord record: result) {
 				System.out.println(record);
@@ -175,7 +151,7 @@ public class TestApp {
 		Levenshtein.levenshteinDistance("ziggy", "zaggys", true);
 	}
 
-	private void testLevenshtein()throws IOException{
+	private void testLevenshtein() {
 		try (DB dbServer = new DBServer(dbFile)) {
 			ArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithLevenshtein("Frank Demian1", 0);
 			System.out.println("---------searchWithLevenshtein()-----------");
@@ -187,7 +163,7 @@ public class TestApp {
 		}
 	}
 
-	private void addOneRecord() throws FileNotFoundException {
+	private void addOneRecord() {
 
 		try (DB dbServer = new DBServer(dbFile)) {
 			DBRecord carOwner = new CarOwner("Frank Demian",
@@ -226,7 +202,7 @@ public class TestApp {
 	}
 
 
-	private void listAllFileRecords() throws IOException {
+	private void listAllFileRecords() {
 
 		try (DB dbServer = new DBServer(dbFile)) {
 			long count = 1L;
@@ -257,7 +233,7 @@ public class TestApp {
 		System.out.println(formatted);
 	}
 
-	void delete(long rowNumber) throws IOException {
+	void delete(long rowNumber) {
 
 		try (DB dbServer = new DBServer(dbFile)) {
 			dbServer.delete(rowNumber);
@@ -274,7 +250,7 @@ public class TestApp {
 		}
 	}
 
-	void fillDB() throws IOException {
+	void fillDB() {
 		int count = 0;
 
 

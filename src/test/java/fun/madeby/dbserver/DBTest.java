@@ -3,7 +3,6 @@ package fun.madeby.dbserver;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.Index;
-import fun.madeby.exceptions.NameDoesNotExistException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -179,10 +178,7 @@ class DBTest {
 			assertEquals("3AR 4NVERS", readCarOwner.getCarPlateNumber());
 			assertEquals("The place under the bridge..", readCarOwner.getDescription());
 			assertEquals(34, readCarOwner.getAge());
-		}catch(EOFException e) {
-			System.out.println("readTest: read threw Exception");
-			e.printStackTrace();
-		}catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -230,8 +226,6 @@ class DBTest {
 			}
 		}catch(IOException e) {
 			System.out.println("updateByRowTest:  threw Exception");
-		} catch (NameDoesNotExistException e) {
-			throw new RuntimeException(e);
 		}
 	}
 

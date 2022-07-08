@@ -1,7 +1,6 @@
 package fun.madeby.dbserver;
 
 import fun.madeby.DBRecord;
-import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.DebugInfo;
 
 import java.io.Closeable;
@@ -13,11 +12,11 @@ import java.util.Collection;
  */
 
 public interface DB extends Closeable {
-	boolean add(DBRecord dbRecord) throws IOException;
-	void update(Long rowNumber, final DBRecord dbRecord) throws IOException;
-	void update(String name, final DBRecord dbRecord) throws NameDoesNotExistException, IOException;
-	void delete(Long rowNumber) throws IOException;
-	DBRecord read(Long rowNumber) throws IOException;
+	boolean add(DBRecord dbRecord);
+	void update(Long rowNumber, final DBRecord dbRecord);
+	void update(String name, final DBRecord dbRecord);
+	void delete(Long rowNumber);
+	DBRecord read(Long rowNumber);
 	void close() throws IOException;
 	DBRecord search (String name);
 	void refreshIndex();

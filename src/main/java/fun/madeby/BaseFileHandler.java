@@ -17,9 +17,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BaseFileHandler implements DataHandler {
 	RandomAccessFile dbFile;
 	String dbFileName;
-	ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-	Lock readLock = readWriteLock.readLock();
-	Lock writeLock = readWriteLock.writeLock();
+	final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+	final Lock readLock = readWriteLock.readLock();
+	final Lock writeLock = readWriteLock.writeLock();
 	final int INTEGER_LENGTH_IN_BYTES = 4;
 	final int BOOLEAN_LENGTH_IN_BYTES = 1;
 

@@ -4,6 +4,7 @@ package fun.madeby;
  * Created by Gra_m on 2022 06 24
  */
 
+@SuppressWarnings("CanBeFinal")
 public class Car implements DBRecord {
 	private String name;
 	private int age;
