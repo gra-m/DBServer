@@ -5,15 +5,15 @@ import fun.madeby.FileHandler;
 import fun.madeby.Index;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.DebugInfo;
+import fun.madeby.util.LoggerSetUp;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Gra_m on 2022 06 27
@@ -21,6 +21,14 @@ import java.util.Collection;
 
 public final class DBServer implements DB{
 	private FileHandler fileHandler;
+	private  Logger LOGGER;
+	{
+		try {
+			LOGGER = LoggerSetUp.setUpLogger("DbServer");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public DBServer(final String dbFileName) throws FileNotFoundException {
 		this.fileHandler = new FileHandler(dbFileName);
@@ -38,6 +46,7 @@ public final class DBServer implements DB{
 
 	@Override
 	public void defragmentDatabase() throws IOException {
+		LOGGER.info("@defragmentDatabase()");
 		String prefix = "defrag";
 		String suffix = "dat";
 
@@ -70,10 +79,12 @@ public final class DBServer implements DB{
 				this.fileHandler.close();
 				Files.copy(tmpFile.toPath(), FileSystems.getDefault().getPath("", oldDBName),
 						StandardCopyOption.REPLACE_EXISTING);
-				this.fileHandler = new FileHandler("oldDBName");
+				this.fileHandler = new FileHandler(oldDBName);
 			} else {
-				tmpFile.delete();
-				this.initialise(); //
+				boolean tmpFileDeleted = tmpFile.delete();
+				LOGGER.severe("Database file could not be deleted during defragmentation ||" +
+						" \nOutcome for tmpFile.delete() (necessary on fail) == " + tmpFileDeleted);
+				this.initialise();
 				throw new IOException("Old DB file could not be deleted, defrag failed, check logs");
 			}
 		}catch (IOException e) {
@@ -85,6 +96,7 @@ public final class DBServer implements DB{
 
 	@Override
 	public DBRecord search(String name) {
+		LOGGER.info("@search(String name)" + name);
 		try {
 			return this.fileHandler.search(name);
 		}catch (IOException e) {
@@ -95,40 +107,31 @@ public final class DBServer implements DB{
 
 	@Override
 	public void refreshIndex() {
+		LOGGER.info("@refreshIndex()");
 		this.fileHandler.populateIndex();
 	}
 
-
-
-	/**
-	 * @return
-	 */
 	@Override
 	public Collection<DebugInfo> getData() {
+		LOGGER.info("@getData()");
 		return this.fileHandler.getCurrentData();
 	}
 
-	/**
-	 * @param name
-	 * @param tolerance
-	 * @return
-	 */
 	@Override
 	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) throws IOException {
+		LOGGER.info("@searchWithLevenshtein() " + name + " " + tolerance);
 		return this.fileHandler.searchWithLevenshtein(name, tolerance);
 	}
 
-	/**
-	 * @param regEx
-	 * @return
-	 */
 	@Override
 	public Collection<DBRecord> searchWithRegex(String regEx) throws IOException {
+		LOGGER.info("@searchWithRegex() " + regEx);
 		return this.fileHandler.searchWithRegex(regEx);
 	}
 
 	@Override
 	public boolean add(DBRecord dbRecord) {
+		LOGGER.info("@add(DBRecord), dbRecord: " + dbRecord);
 		try {
 			return this.fileHandler.add(dbRecord);
 		}catch (IOException e) {
@@ -137,12 +140,9 @@ public final class DBServer implements DB{
 		return false;
 	}
 
-	/**
-	 * @param rowNumber
-	 * @throws IOException
-	 */
 	@Override
 	public void update(Long rowNumber, final DBRecord newRecord) throws IOException {
+		LOGGER.info("@update(rowNumberOldRecord, newRecord) " + rowNumber + " "  + newRecord);
 		String name;
 		try {
 			if (checkRowNumber(rowNumber)) {
@@ -162,6 +162,7 @@ public final class DBServer implements DB{
 
 	@Override
 	public void update(String name, DBRecord newRecord) {
+		LOGGER.info("@update(name, newRecord) " + name + " "  + newRecord.getName());
 		try {
 			if (Index.getInstance().hasNameInIndex(name)) {
 				DBRecord existingRowNumberRecord = read(Index.getInstance().getRowNumberByName(name));
@@ -177,6 +178,7 @@ public final class DBServer implements DB{
 
 	@Override
 	public void delete(Long rowNumber) throws IOException {
+		LOGGER.info("@delete(rowNumber) " + rowNumber);
 		if (checkRowNumber(rowNumber)) {
 			// DBRecord necessary to delete name index entry
 			DBRecord existingRowNumberRecord = read(rowNumber);
@@ -185,10 +187,9 @@ public final class DBServer implements DB{
 
 	}
 
-
-
 	@Override
 	public DBRecord read(Long rowNumber) {
+		LOGGER.info("@read(rowNumber) " + rowNumber);
 		try {
 			if (checkRowNumber(rowNumber))
 				return this.fileHandler.readRow(rowNumber);
