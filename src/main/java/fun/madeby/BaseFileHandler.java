@@ -6,6 +6,9 @@ import fun.madeby.util.DebugRowInfo;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by Gra_m on 2022 06 30
@@ -13,7 +16,10 @@ import java.util.Collection;
 
 public class BaseFileHandler implements DataHandler {
 	RandomAccessFile dbFile;
-	String dbFileName = "";
+	String dbFileName;
+	ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+	Lock readLock = readWriteLock.readLock();
+	Lock writeLock = readWriteLock.writeLock();
 	final int INTEGER_LENGTH_IN_BYTES = 4;
 	final int BOOLEAN_LENGTH_IN_BYTES = 1;
 
@@ -28,7 +34,6 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 
-
 	public void populateIndex() {
 		long rowNum = 0;
 		int recordLength = 0;
@@ -36,6 +41,7 @@ public class BaseFileHandler implements DataHandler {
 		long deletedRows = 0;
 
 		if (isExistingData()) {
+			writeLock.lock();
 			try {
 				Index.getInstance().resetTotalNumberOfRows();
 				while (currentPosition < this.dbFile.length()) {
@@ -59,6 +65,8 @@ public class BaseFileHandler implements DataHandler {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				writeLock.unlock();
 			}
 		}
 	}
@@ -66,7 +74,7 @@ public class BaseFileHandler implements DataHandler {
 	public boolean isExistingData() {
 		try {
 			if (this.dbFile.length() == 0) {
-				System.out.println("BFH: isExistingData() no existing data, nothing to index.");
+				System.out.println("BFH: populateIndex -> isExistingData() no existing data, nothing to index.");
 				return false;
 			}
 		} catch (IOException e) {
@@ -85,11 +93,12 @@ public class BaseFileHandler implements DataHandler {
 	public byte[] readRawRecord(Long rowsBytePosition) {
 		byte[] data = null;
 
+		readLock.lock();
 		try {
 			dbFile.seek(rowsBytePosition);
 			if (dbFile.readBoolean()) {
 				System.out.println("BFH: DELETE: Marked as deleted");
-				return new byte[] {-1};
+				return new byte[]{-1};
 			}
 			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES); // 1 byte boolean
 			int recordLength = dbFile.readInt();
@@ -98,6 +107,8 @@ public class BaseFileHandler implements DataHandler {
 			this.dbFile.read(data);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			readLock.unlock();
 		}
 		return data;
 	}
@@ -133,6 +144,7 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 	public Collection<DebugInfo> getCurrentData() {
+		readLock.lock();
 		DataInputStream stream;
 		DebugInfo debugInfo;
 		ArrayList<DebugInfo> returnArrayList = null;
@@ -163,24 +175,35 @@ public class BaseFileHandler implements DataHandler {
 					currentPosition += recordLength + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES;
 				}
 			}
-		}catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			readLock.unlock();
 		}
 
-	return returnArrayList;
+		return returnArrayList;
 	}
 
 	public String getDbFileName() {
 		return dbFileName;
 	}
 
-	public boolean deleteFile() throws IOException {
-		this.dbFile.close();
-		if(new File(this.dbFileName).delete()) {
-			System.out.println("File successfully deleted");
-			return true;
+	public boolean deleteFile() {
+		writeLock.lock();
+		try {
+			this.dbFile.close();
+			if (new File(this.dbFileName).delete()) {
+				System.out.println("File successfully deleted");
+				return true;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			writeLock.unlock();
 		}
+
 		System.out.println("File deletion failed");
 		return false;
 	}
+
 }

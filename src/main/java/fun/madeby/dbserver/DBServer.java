@@ -90,8 +90,6 @@ public final class DBServer implements DB{
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
-
-
 	}
 
 	@Override
@@ -132,12 +130,7 @@ public final class DBServer implements DB{
 	@Override
 	public boolean add(DBRecord dbRecord) {
 		LOGGER.info("@add(DBRecord), dbRecord: " + dbRecord);
-		try {
-			return this.fileHandler.add(dbRecord);
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
-		return false;
+		return this.fileHandler.add(dbRecord);
 	}
 
 	@Override
@@ -190,12 +183,8 @@ public final class DBServer implements DB{
 	@Override
 	public DBRecord read(Long rowNumber) {
 		LOGGER.info("@read(rowNumber) " + rowNumber);
-		try {
-			if (checkRowNumber(rowNumber))
-				return this.fileHandler.readRow(rowNumber);
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
+		if (checkRowNumber(rowNumber))
+			return this.fileHandler.readRow(rowNumber);
 		return null;
 	}
 

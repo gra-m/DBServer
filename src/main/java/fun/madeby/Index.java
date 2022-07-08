@@ -1,7 +1,7 @@
 package fun.madeby;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Gra_m on 2022 06 27
@@ -11,22 +11,22 @@ public final class Index {
 
 	static{indexInstance = new Index();}
 	private static final Index indexInstance;
-	private HashMap<Long, Long> mapRowNumberBytePosition;
+	private ConcurrentHashMap<Long, Long> mapRowNumberBytePosition;
 	private Long totalNumberOfRows = 0L;
-	private HashMap<String, Long> mapDbRecordNameByRowNumber;
+	private ConcurrentHashMap<String, Long> mapDbRecordNameByRowNumber;
 
 
 
 	private Index() {
-		this.mapRowNumberBytePosition = new HashMap<>();
-		this.mapDbRecordNameByRowNumber = new HashMap<>();
+		this.mapRowNumberBytePosition = new ConcurrentHashMap<>();
+		this.mapDbRecordNameByRowNumber = new ConcurrentHashMap<>();
 	}
 
 	public static Index getInstance() {
 		return indexInstance;
 	}
 
-	public void printNameIndex(){
+	public synchronized void printNameIndex(){
 		if(this.mapDbRecordNameByRowNumber.size() == 0)
 			System.out.println("'Vicar..' Teacup rattles on saucer. 'I do believe it's empty!'");
 		this.mapDbRecordNameByRowNumber.entrySet().forEach(entry -> {
@@ -46,12 +46,12 @@ public final class Index {
 		this.totalNumberOfRows = 0L;
 	}
 
-	public void add(Long bytePosition) {
+	public synchronized void add(Long bytePosition) {
 		this.mapRowNumberBytePosition.put(totalNumberOfRows, bytePosition);
 		totalNumberOfRows++;
 	}
 
-	public void addNameToIndex(final String name, Long rowIndex) {
+	public synchronized void addNameToIndex(final String name, Long rowIndex) {
 		this.mapDbRecordNameByRowNumber.put(name, rowIndex);
 	}
 
@@ -61,12 +61,6 @@ public final class Index {
 
 	public Long getRowNumberByName(final String name) {
 		return this.mapDbRecordNameByRowNumber.getOrDefault(name, -1L);
-	}
-
-	public Long getUndeletedRowNumberByName(final String name) {
-		// better to create active Name index but all of this is probably coming.
-		return null;
-
 	}
 
 	public void remove(Long rowIndex, DBRecord existingRowNumberRecord) {
@@ -79,19 +73,19 @@ public final class Index {
 		return this.mapRowNumberBytePosition.getOrDefault(rowNumber, -1L);
 	}
 
-	public Long getTotalNumberOfRows() {
+	public synchronized Long getTotalNumberOfRows() {
 		return this.totalNumberOfRows;
 	}
 
 
 
-	public void clear() {
+	public synchronized void clear() {
 		this.totalNumberOfRows = 0L;
 		this.mapRowNumberBytePosition.clear();
 		this.mapDbRecordNameByRowNumber.clear();
 	}
 
-	public Collection<String> getNames() {
+	public synchronized Collection<String> getNames() {
 		return this.mapDbRecordNameByRowNumber.keySet();
 	}
 }

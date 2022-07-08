@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
@@ -29,6 +30,7 @@ public class TestApp {
 	final static int AMOUNT_OF_EACH = 2;
 	final static String dbFile = "DBServer.db";
 
+
 	public static void main(String[] args) throws IOException {
 		TestApp testApp = new TestApp();
 
@@ -40,6 +42,7 @@ public class TestApp {
 	}
 
 	private void performMultiThreadTest() {
+		CountDownLatch cl = new CountDownLatch(3);
 		Runnable runnableAdd = null;
 		Runnable runnableUpdate = null;
 		Runnable runnableListAll = null;
@@ -56,7 +59,7 @@ public class TestApp {
 				}
 			};
 
-			 runnableUpdate = () -> {
+			runnableUpdate = () -> {
 				while (true) {
 					int i = new Random().nextInt(0, 4000);
 					CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
@@ -77,15 +80,18 @@ public class TestApp {
 					}
 				}
 			};
-		} catch (IOException e) {
+
+			ExecutorService executorService = Executors.newFixedThreadPool(3);
+			executorService.submit(runnableAdd);
+			executorService.submit(runnableUpdate);
+			executorService.submit(runnableListAll);
+			cl.await();
+		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
 		}
-
-		ExecutorService executorService = Executors.newFixedThreadPool(3);
-		executorService.submit(runnableAdd);
-		executorService.submit(runnableUpdate);
-		executorService.submit(runnableListAll);
 	}
+
+
 
 	private void performDefragTest() throws FileNotFoundException {
 		try {

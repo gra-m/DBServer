@@ -38,93 +38,116 @@ public class FileHandler extends BaseFileHandler {
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public boolean add(DBRecord dbRecord) throws IOException{
+	public boolean add(DBRecord dbRecord){
+		writeLock.lock();
 		try {
-			if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
-				//System.out.printf("\nadd hasNameInIndex test: Name '%s' already exists!", dbRecord.getName());
-				throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
+			try {
+				if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
+					throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
+				}
+			} catch (DuplicateNameException e) {
+				e.printStackTrace();
 			}
-		}catch (DuplicateNameException e) {
+
+			int length = 0;
+			long currentPositionToInsert = this.dbFile.length();
+			this.dbFile.seek(currentPositionToInsert);
+			// populate length
+			DBRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
+			try {
+				length = toIntExact(returnedRec.getLength());
+				if (length <= 0)
+					throw new RuntimeException("Record length zero or less");
+			} catch (ArithmeticException e) {
+				e.printStackTrace();
+			}
+			// write data
+			dbFile.writeBoolean(false);
+			dbFile.writeInt(length);
+
+			String name = returnedRec.getName();
+			dbFile.writeInt(name.length());
+			dbFile.write(name.getBytes());
+
+			int age = returnedRec.getAge();
+			dbFile.writeInt(age);
+
+			String address = returnedRec.getAddress();
+			dbFile.writeInt(address.length());
+			dbFile.write(address.getBytes());
+
+			String carPlateNumber = returnedRec.getCarPlateNumber();
+			dbFile.writeInt(carPlateNumber.length());
+			dbFile.write(carPlateNumber.getBytes());
+
+			String description = returnedRec.getDescription();
+			dbFile.writeInt(description.length());
+			dbFile.write(description.getBytes());
+
+			// set the start point of the record just inserted
+			Index.getInstance().add(currentPositionToInsert); // todo on clean add enters 0:0
+			Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows() - 1); // todo on clean add enters Name:1
+			if (Index.getInstance().getMapRowNumberBytePositionSize() == 0)
+				System.out.println("How is that possible");
+		}catch (IOException e) {
 			e.printStackTrace();
+		}finally {
+			writeLock.unlock();
 		}
-
-		int length = 0;
-		long currentPositionToInsert = this.dbFile.length();
-		this.dbFile.seek(currentPositionToInsert);
-		// populate length
-		DBRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
-		try {
-			length = toIntExact(returnedRec.getLength());
-			if (length <= 0)
-				throw new RuntimeException("Record length zero or less");
-		} catch (ArithmeticException e) {
-			e.printStackTrace();
-		}
-		// write data
-		dbFile.writeBoolean(false);
-		dbFile.writeInt(length);
-
-		String name = returnedRec.getName();
-		dbFile.writeInt(name.length());
-		dbFile.write(name.getBytes());
-
-		int age = returnedRec.getAge();
-		dbFile.writeInt(age);
-
-		String address = returnedRec.getAddress();
-		dbFile.writeInt(address.length());
-		dbFile.write(address.getBytes());
-
-		String carPlateNumber = returnedRec.getCarPlateNumber();
-		dbFile.writeInt(carPlateNumber.length());
-		dbFile.write(carPlateNumber.getBytes());
-
-		String description = returnedRec.getDescription();
-		dbFile.writeInt(description.length());
-		dbFile.write(description.getBytes());
-
-		// set the start point of the record just inserted
-		Index.getInstance().add(currentPositionToInsert); // todo on clean add enters 0:0
-		Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows() -1); // todo on clean add enters Name:1
-		if (Index.getInstance().getMapRowNumberBytePositionSize() == 0)
-			System.out.println("How is that possible");
 		return true;
 	}
 
 
-	public DBRecord readRow(Long rowNumber) throws IOException {
-		// get/check rows byte position
-		Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
-		if (rowsBytePosition == -1L)
-			return null;
-		byte[] row = readRawRecord(rowsBytePosition);
-		DataInputStream stream = new DataInputStream(new ByteArrayInputStream(row));
-		return readFromByteStream(stream);
+	public DBRecord readRow(Long rowNumber) {
+		readLock.lock();
+		DBRecord result = null;
+		try {
+			Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
+			if (rowsBytePosition == -1L)
+				return null;
+			byte[] row = readRawRecord(rowsBytePosition);
+			DataInputStream stream = new DataInputStream(new ByteArrayInputStream(row));
+			result = readFromByteStream(stream);
+		}catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			readLock.unlock();
+		}
+		return result;
 	}
 
-	public void deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) throws IOException {
-		Index indexInstance = Index.getInstance();
-		long rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
-		if (rowsBytePosition == -1)
-			throw new IOException("Row does not exist in index");
-		this.dbFile.seek(rowsBytePosition);
-		this.dbFile.writeBoolean(true);
+	public void deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) {
+		writeLock.lock();
+		try {
+			Index indexInstance = Index.getInstance();
+			long rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
+			if (rowsBytePosition == -1)
+				throw new IOException("Row does not exist in index");
+			this.dbFile.seek(rowsBytePosition);
+			this.dbFile.writeBoolean(true);
 
-		// update the index component.
-		indexInstance.remove(rowNumber, existingRowNumberRecord);
+			// update the index component.
+			indexInstance.remove(rowNumber, existingRowNumberRecord);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			writeLock.unlock();
+		}
 
 	}
 
 	public void updateByRow(Long rowNumber, DBRecord newRecord, DBRecord existingRowNumberRecord) {
+		writeLock.lock();
 		try {
 			this.deleteRow(rowNumber, existingRowNumberRecord);
 			this.add(newRecord);
-		} catch (IOException e) {
-			e.printStackTrace();
+		}finally {
+			writeLock.unlock();
 		}
 	}
 
 	public void updateByName(String name, DBRecord newRecord, DBRecord existingRowNumberRecord) {
+		writeLock.lock();
 		Long namesRowNumber = Index.getInstance().getRowNumberByName(name);
 		try {
 			if (namesRowNumber == -1)
@@ -134,6 +157,8 @@ public class FileHandler extends BaseFileHandler {
 			}
 		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
+		} finally {
+			writeLock.unlock();
 		}
 	}
 
