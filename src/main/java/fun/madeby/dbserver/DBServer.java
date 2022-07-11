@@ -4,6 +4,8 @@ import fun.madeby.DBRecord;
 import fun.madeby.FileHandler;
 import fun.madeby.Index;
 import fun.madeby.exceptions.NameDoesNotExistException;
+import fun.madeby.transaction.ITransaction;
+import fun.madeby.transaction.Transaction;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.LoggerSetUp;
 
@@ -12,6 +14,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -21,6 +25,8 @@ import java.util.logging.Logger;
 public final class DBServer implements DB{
 	private FileHandler fileHandler;
 	private  Logger LOGGER;
+	private Map<Long, ITransaction> transactions;
+
 	{
 		try {
 			LOGGER = LoggerSetUp.setUpLogger("DbServer");
@@ -31,11 +37,31 @@ public final class DBServer implements DB{
 
 	public DBServer(final String dbFileName) throws FileNotFoundException {
 		this.fileHandler = new FileHandler(dbFileName);
+		this.transactions = new LinkedHashMap<>();
 		this.initialise();
 	}
 
 	private void initialise() {
 		this.fileHandler.populateIndex();
+	}
+
+	@Override
+	public ITransaction beginTransaction() {
+		long threadId = Thread.currentThread().getId(); // If we know the thread id we can store the transaction
+		ITransaction transaction = new Transaction();
+		this.transactions.put(threadId, transaction); // now DB knows which transactions belong to this thread.. but if multiple wont work.
+		return new Transaction();
+	}
+
+	@Override
+	public void commit() {
+
+	}
+
+
+	@Override
+	public void rollback() {
+
 	}
 
 	public void close() throws IOException {
@@ -120,6 +146,7 @@ public final class DBServer implements DB{
 		LOGGER.info("@searchWithRegex() " + regEx);
 		return this.fileHandler.searchWithRegex(regEx);
 	}
+
 
 	@Override
 	public boolean add(DBRecord dbRecord) {

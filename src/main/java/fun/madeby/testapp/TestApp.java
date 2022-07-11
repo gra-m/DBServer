@@ -5,6 +5,8 @@ import fun.madeby.DBRecord;
 import fun.madeby.Index;
 import fun.madeby.dbserver.DB;
 import fun.madeby.dbserver.DBServer;
+import fun.madeby.transaction.ITransaction;
+import fun.madeby.transaction.Transaction;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.Levenshtein;
 
@@ -33,9 +35,9 @@ public class TestApp {
 		TestApp testApp = new TestApp();
 
 		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
-		//testApp.addOneRecord();
+		testApp.addOneRecord();
 		//testApp.listAllFileRecords();
-		testApp.performTest();
+		//testApp.performTest();
 		//testApp.performDefragTest();
 		//testApp.performMultiThreadTest();
 	}
@@ -167,12 +169,14 @@ public class TestApp {
 	private void addOneRecord() {
 
 		try (DB dbServer = new DBServer(dbFile)) {
+			ITransaction transaction = dbServer.beginTransaction();
 			DBRecord carOwner = new CarOwner("Frank Demian",
 					20,
 					"Herbert Street, Antwerp, 2000",
 					"VJW707S",
 					"Doesn't know we have a file on him at all");
 			dbServer.add(carOwner);
+			dbServer.commit(); // dbServer.rollback();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
