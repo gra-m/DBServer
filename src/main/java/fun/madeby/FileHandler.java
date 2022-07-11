@@ -62,8 +62,9 @@ public class FileHandler extends BaseFileHandler {
 				e.printStackTrace();
 			}
 			// write data
-			dbFile.writeBoolean(false);
-			dbFile.writeInt(length);
+			dbFile.writeBoolean(true); // isTemporary
+			dbFile.writeBoolean(false); // isDeleted
+			dbFile.writeInt(length); // length of record bytes
 
 			String name = returnedRec.getName();
 			dbFile.writeInt(name.length());
@@ -124,10 +125,13 @@ public class FileHandler extends BaseFileHandler {
 			if (rowsBytePosition == -1)
 				throw new IOException("Row does not exist in index");
 			this.dbFile.seek(rowsBytePosition);
-			this.dbFile.writeBoolean(true);
+			this.dbFile.writeBoolean(true); // isTemporary
+			this.dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);
+			this.dbFile.writeBoolean(true); // isDeleted
+
 
 			// update the index component.
-			indexInstance.remove(rowNumber, existingRowNumberRecord);
+			//indexInstance.remove(rowNumber, existingRowNumberRecord); todo update index only when transaction committed
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally {
