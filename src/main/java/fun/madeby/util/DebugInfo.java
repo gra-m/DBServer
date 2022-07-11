@@ -9,5 +9,6 @@ import fun.madeby.DBRecord;
 public interface DebugInfo {
 	DBRecord getDbRecord();
 	boolean isDeleted();
+	boolean isTemporary();
 
 }

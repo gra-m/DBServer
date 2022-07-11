@@ -39,6 +39,7 @@ public class BaseFileHandler implements DataHandler {
 		int recordLength = 0;
 		long currentPosition = 0;
 		long deletedRows = 0;
+		long temporaryRows = 0;
 
 		if (isExistingData()) {
 			writeLock.lock();
@@ -46,12 +47,16 @@ public class BaseFileHandler implements DataHandler {
 				Index.getInstance().resetTotalNumberOfRows();
 				while (currentPosition < this.dbFile.length()) {
 					this.dbFile.seek(currentPosition);
+					boolean isTemporary = this.dbFile.readBoolean(); // new read ifTemporary
+					if(isTemporary)
+						++temporaryRows;
+					this.dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES);
 					boolean isDeleted = this.dbFile.readBoolean();
 					if (!isDeleted) {
 						Index.getInstance().add(currentPosition);
 					} else deletedRows++;
-
-					currentPosition += BOOLEAN_LENGTH_IN_BYTES;
+					// todo added byte for extra temporary boolean
+					currentPosition += BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES;
 					recordLength = this.dbFile.readInt();
 					currentPosition += INTEGER_LENGTH_IN_BYTES;
 					if (!isDeleted) {
@@ -62,6 +67,7 @@ public class BaseFileHandler implements DataHandler {
 						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
 					}
 					currentPosition += recordLength;
+					System.out.printf("Populate/ing/Index(): total rows - %d | total deleted - %d | total - temporary - %d \n", rowNum, deletedRows, temporaryRows);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -95,14 +101,18 @@ public class BaseFileHandler implements DataHandler {
 
 		readLock.lock();
 		try {
+			// todo he made this synch block but I thought belt and braces..
 			dbFile.seek(rowsBytePosition);
+			boolean isTemporary = dbFile.readBoolean();
+			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);
+			boolean isDeleted = dbFile.readBoolean();
 			if (dbFile.readBoolean()) {
 				System.out.println("BFH: DELETE: Marked as deleted");
 				return new byte[]{-1};
 			}
-			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES); // 1 byte boolean
+			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES); // 2 byte = 2* boolean
 			int recordLength = dbFile.readInt();
-			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 5 bytes boolean + int
+			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 5 bytes boolean + int
 			data = new byte[recordLength];
 			this.dbFile.read(data);
 		} catch (IOException e) {
@@ -152,6 +162,7 @@ public class BaseFileHandler implements DataHandler {
 			if (dbFile.length() == 0)
 				return new ArrayList<>();
 			else {
+				boolean isTemporary;
 				boolean isDeleted;
 				DBRecord dbRecord;
 				int recordLength;
@@ -160,19 +171,23 @@ public class BaseFileHandler implements DataHandler {
 				this.dbFile.seek(currentPosition);
 
 				while (currentPosition < this.dbFile.length()) {
-					isDeleted = dbFile.readBoolean();
+					isTemporary = dbFile.readBoolean();
 					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES);
+
+					isDeleted = dbFile.readBoolean();
+					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES);
+
 					recordLength = dbFile.readInt();
-					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES);
+					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES);
 					byte[] rowDataOnly = new byte[recordLength];
 					dbFile.read(rowDataOnly);
 					stream = new DataInputStream(new ByteArrayInputStream(rowDataOnly));
 					dbRecord = readFromByteStream(stream);
 
-					debugInfo = new DebugRowInfo(dbRecord, isDeleted);
+					debugInfo = new DebugRowInfo(dbRecord, isTemporary, isDeleted);
 					returnArrayList.add(debugInfo);
 
-					currentPosition += recordLength + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES;
+					currentPosition += recordLength + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES;
 				}
 			}
 		} catch (IOException e) {

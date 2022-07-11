@@ -33,9 +33,10 @@ public class TestApp {
 		TestApp testApp = new TestApp();
 
 		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
-		testApp.addOneRecord();
+		//testApp.addOneRecord();
+		//testApp.listAllFileRecords();
 		testApp.performTest();
-		testApp.performDefragTest();
+		//testApp.performDefragTest();
 		//testApp.performMultiThreadTest();
 	}
 
@@ -220,11 +221,13 @@ public class TestApp {
 
 	private void prettyPrint(DebugInfo di, long count, long rowPosition) {
 		CarOwner carOwner = (CarOwner) di.getDbRecord();
-		String debugChar = di.isDeleted() ? "-" : "+";
-		String formatted = String.format("%d %d %s name: %s age: %d address: %s carplateNumber %s description %s",
+		String debugCharTemp = di.isTemporary() ? "temp" : "final";
+		String debugCharDeleted = di.isDeleted() ? "-" : "+";
+		String formatted = String.format("%d %d %s %s name: %s age: %d address: %s carplateNumber %s description %s",
 				count,
 				rowPosition,
-				debugChar,
+				debugCharTemp,
+				debugCharDeleted,
 				carOwner.getName(),
 				carOwner.getAge(),
 				carOwner.getAddress(),
