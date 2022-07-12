@@ -38,8 +38,9 @@ public class FileHandler extends BaseFileHandler {
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public boolean add(DBRecord dbRecord){
+	public Long add(DBRecord dbRecord){
 		writeLock.lock();
+		Long currentPositionToInsert = null;
 		try {
 			try {
 				if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
@@ -50,7 +51,7 @@ public class FileHandler extends BaseFileHandler {
 			}
 
 			int length = 0;
-			long currentPositionToInsert = this.dbFile.length();
+			currentPositionToInsert = this.dbFile.length();
 			this.dbFile.seek(currentPositionToInsert);
 			// populate length
 			DBRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
@@ -85,9 +86,9 @@ public class FileHandler extends BaseFileHandler {
 			dbFile.writeInt(description.length());
 			dbFile.write(description.getBytes());
 
-			// first add to name index then add current position
-			Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows()); // todo does not increment num of rows
-			Index.getInstance().add(currentPositionToInsert); // todo does increment
+			// Handled at commit stage todo delete
+		/*	Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows());
+			Index.getInstance().add(currentPositionToInsert); */
 			if (Index.getInstance().getMapRowNumberBytePositionSize() == 0)
 				System.out.println("How is that possible");
 		}catch (IOException e) {
@@ -95,7 +96,7 @@ public class FileHandler extends BaseFileHandler {
 		}finally {
 			writeLock.unlock();
 		}
-		return true;
+		return currentPositionToInsert;
 	}
 
 
@@ -117,11 +118,12 @@ public class FileHandler extends BaseFileHandler {
 		return result;
 	}
 
-	public void deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) {
+	public Long deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) {
 		writeLock.lock();
+		Long rowsBytePosition = null;
 		try {
 			Index indexInstance = Index.getInstance();
-			long rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
+			rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
 			if (rowsBytePosition == -1)
 				throw new IOException("Row does not exist in index");
 			this.dbFile.seek(rowsBytePosition);
@@ -137,7 +139,7 @@ public class FileHandler extends BaseFileHandler {
 		}finally {
 			writeLock.unlock();
 		}
-
+		return rowsBytePosition;
 	}
 
 	public void updateByRow(Long rowNumber, DBRecord newRecord, DBRecord existingRowNumberRecord) {

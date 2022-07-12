@@ -52,9 +52,6 @@ public class BaseFileHandler implements DataHandler {
 			for (Long position : deletedRowsBytePosition) {
 				this.dbFile.seek(position);
 				dbFile.writeBoolean(false); // !isTemporary todo this should already be true @ this point.
-				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);
-				dbFile.writeBoolean(true); // set isDeleted flag
-				// todo
 				Index.getInstance().removeByFilePosition(position);
 
 			}

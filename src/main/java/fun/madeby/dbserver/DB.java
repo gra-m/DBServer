@@ -14,7 +14,7 @@ import java.util.Collection;
 
 public interface DB extends Closeable {
 
-	boolean add(DBRecord dbRecord);
+	void add(DBRecord dbRecord);
 
 	void update(Long rowNumber, final DBRecord dbRecord);
 

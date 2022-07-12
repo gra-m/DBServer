@@ -53,25 +53,25 @@ public final class DBServer implements DB{
 
 	@Override
 	public void commit() {
-		long threadId = Thread.currentThread().getId();
-		ITransaction transaction = transactions.getOrDefault(threadId, null);
+		ITransaction transaction = getTransaction();
 		if (transaction == null)
 			return;
-
 		fileHandler.commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
-
 	}
-
 
 	@Override
 	public void rollback() {
-		long threadId = Thread.currentThread().getId();
-		ITransaction transaction = transactions.getOrDefault(threadId, null);
+		ITransaction transaction = getTransaction();
 		if (transaction == null)
 			return;
 
 		fileHandler.rollback(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
 
+	}
+
+	private ITransaction getTransaction() {
+		long threadId = Thread.currentThread().getId();
+		return transactions.getOrDefault(threadId, null);
 	}
 
 	public void close() throws IOException {
@@ -159,9 +159,10 @@ public final class DBServer implements DB{
 
 
 	@Override
-	public boolean add(DBRecord dbRecord) {
+	public void add(DBRecord dbRecord) {
 		LOGGER.info("@add(DBRecord), dbRecord: " + dbRecord);
-		return this.fileHandler.add(dbRecord);
+		Long position =  this.fileHandler.add(dbRecord);
+		getTransaction().registerAdd(position);
 	}
 
 	@Override
@@ -206,7 +207,8 @@ public final class DBServer implements DB{
 		if (checkRowNumber(rowNumber)) {
 			// DBRecord necessary to delete name index entry
 			DBRecord existingRowNumberRecord = read(rowNumber);
-			this.fileHandler.deleteRow(rowNumber, existingRowNumberRecord);
+			Long position = this.fileHandler.deleteRow(rowNumber, existingRowNumberRecord);
+			this.getTransaction().registerDelete(position);
 		}
 
 	}
