@@ -85,9 +85,9 @@ public class FileHandler extends BaseFileHandler {
 			dbFile.writeInt(description.length());
 			dbFile.write(description.getBytes());
 
-			// set the start point of the record just inserted
-			Index.getInstance().add(currentPositionToInsert); // todo on clean add enters 0:0
-			Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows() - 1); // todo on clean add enters Name:1
+			// first add to name index then add current position
+			Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows()); // todo does not increment num of rows
+			Index.getInstance().add(currentPositionToInsert); // todo does increment
 			if (Index.getInstance().getMapRowNumberBytePositionSize() == 0)
 				System.out.println("How is that possible");
 		}catch (IOException e) {

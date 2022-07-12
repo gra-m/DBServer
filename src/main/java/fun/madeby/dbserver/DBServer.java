@@ -13,9 +13,7 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -55,12 +53,24 @@ public final class DBServer implements DB{
 
 	@Override
 	public void commit() {
+		long threadId = Thread.currentThread().getId();
+		ITransaction transaction = transactions.getOrDefault(threadId, null);
+		if (transaction == null)
+			return;
+
+		fileHandler.commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
 
 	}
 
 
 	@Override
 	public void rollback() {
+		long threadId = Thread.currentThread().getId();
+		ITransaction transaction = transactions.getOrDefault(threadId, null);
+		if (transaction == null)
+			return;
+
+		fileHandler.rollback(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
 
 	}
 

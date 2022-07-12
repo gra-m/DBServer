@@ -33,6 +33,75 @@ public class BaseFileHandler implements DataHandler {
 		this.dbFileName = fileName;
 	}
 
+	@Override
+	public void commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+		writeLock.lock();
+		try {
+			// commit new Rows
+			for (Long position : newRowsBytePosition) {
+				this.dbFile.seek(position);
+				dbFile.writeBoolean(false); //  !isTemporary
+				// re-read the record
+				byte[] b = this.readRawRecord(position);
+				DBRecord record = readFromByteStream( new DataInputStream( new ByteArrayInputStream(b)));
+				// add to index
+				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
+				Index.getInstance().add(position); // todo increments total num of rows
+			}
+			// commit deletedRows
+			for (Long position : deletedRowsBytePosition) {
+				this.dbFile.seek(position);
+				dbFile.writeBoolean(false); // !isTemporary todo this should already be true @ this point.
+				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);
+				dbFile.writeBoolean(true); // set isDeleted flag
+				// todo
+				Index.getInstance().removeByFilePosition(position);
+
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			writeLock.unlock();
+			}
+
+		}
+
+
+
+	@Override
+	public void rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+		writeLock.lock();
+		try {
+			// rollback new Rows
+			for (Long position : newRowsBytePosition) {
+				this.dbFile.seek(position);
+				dbFile.writeBoolean(false); //  !isTemporary
+				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);
+				dbFile.writeBoolean(true); // isDeleted
+
+				Index.getInstance().removeByFilePosition(position);
+			}
+			// rollback deletedRows
+			for (Long position : deletedRowsBytePosition) {
+				this.dbFile.seek(position);
+				dbFile.writeBoolean(false); // !isTemporary
+				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);
+				dbFile.writeBoolean(false); // !isDeleted flag
+				//todo re-read the record
+				byte[] b = this.readRawRecord(position);
+				DBRecord record = readFromByteStream( new DataInputStream( new ByteArrayInputStream(b)));
+				// add to index
+				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
+				Index.getInstance().add(position); // todo increments total num of rows
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			writeLock.unlock();
+		}
+	}
+
+
 
 	public void populateIndex() {
 		long rowNum = 0;
@@ -198,6 +267,7 @@ public class BaseFileHandler implements DataHandler {
 
 		return returnArrayList;
 	}
+
 
 	public String getDbFileName() {
 		return dbFileName;

@@ -1,5 +1,6 @@
 package fun.madeby.transaction;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -43,6 +44,16 @@ public final class Transaction implements ITransaction{
 	@Override
 	public void registerDelete(Long position) {
 		this.deletedRows.add(position);
+	}
+
+	@Override
+	public Collection<Long> getNewRowsBytePosition() {
+		return this.newRows;
+	}
+
+	@Override
+	public Collection<Long> getDeletedRowsBytePosition() {
+		return this.deletedRows;
 	}
 
 	private Double getRandomNumber() {
