@@ -6,7 +6,6 @@ import fun.madeby.Index;
 import fun.madeby.dbserver.DB;
 import fun.madeby.dbserver.DBServer;
 import fun.madeby.transaction.ITransaction;
-import fun.madeby.transaction.Transaction;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.Levenshtein;
 
@@ -35,8 +34,8 @@ public class TestApp {
 		TestApp testApp = new TestApp();
 
 		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
-		testApp.addOneRecord();
-		//testApp.listAllFileRecords();
+		testApp.addOneRecordWithTransaction();
+		testApp.listAllFileRecords();
 		//testApp.performTest();
 		//testApp.performDefragTest();
 		//testApp.performMultiThreadTest();
@@ -166,7 +165,7 @@ public class TestApp {
 		}
 	}
 
-	private void addOneRecord() {
+	private void addOneRecordWithTransaction() {
 
 		try (DB dbServer = new DBServer(dbFile)) {
 			ITransaction transaction = dbServer.beginTransaction();
@@ -186,7 +185,7 @@ public class TestApp {
 
 		try (DB dbServer = new DBServer(dbFile)) {
 			System.out.println("TEST SEARCH: ");
-			addOneRecord();
+			addOneRecordWithTransaction();
 			dbServer.refreshIndex();
 			CarOwner cO = (CarOwner) dbServer.search(name);
 			System.out.println("Found carOwner: " + cO);
