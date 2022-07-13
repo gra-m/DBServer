@@ -2,7 +2,6 @@ package fun.madeby.transaction;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Random;
 
 /**
  * Created by Gra_m on 2022 07 11

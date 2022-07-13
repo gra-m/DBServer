@@ -60,8 +60,10 @@ class DBTest {
 	@DisplayName("Test LevenshteinList 5 tolerance return 2")
 	void testLevenshtein1_2() {
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"
+			db.commit();
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesWithinTolerance = (ArrayList<DBRecord>) db.searchWithLevenshtein("Rezzi Delamdi", 5);
 			assertEquals(2, returnedMatchesWithinTolerance.size());
@@ -75,8 +77,10 @@ class DBTest {
 	@DisplayName("Test LevenshteinList 4 tolerance return 1")
 	void testLevenshtein4_1() {
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"
+			db.commit();
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesWithinTolerance = (ArrayList<DBRecord>) db.searchWithLevenshtein("Rezzi Delamdi", 4);
 			assertEquals(1, returnedMatchesWithinTolerance.size());
@@ -91,8 +95,10 @@ class DBTest {
 	@DisplayName("Test regex 'R.*'")
 	void testRegEx() {
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated);
+			db.commit();
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesRegex = (ArrayList<DBRecord>) db.searchWithRegex("R.*");
 			assertEquals(2, returnedMatchesRegex.size());
@@ -106,8 +112,10 @@ class DBTest {
 	@DisplayName("Test regex 'Re.*'")
 	void testRegEx2() {
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated);
+			db.commit();
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesRegex = (ArrayList<DBRecord>) db.searchWithRegex("Re.*");
 			assertEquals(1, returnedMatchesRegex.size());
@@ -122,7 +130,9 @@ class DBTest {
 	@DisplayName("DBServer Add, via FileHandler test: 1 == OK")
 	void addTest(){
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
+			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 		}catch(IOException e) {
 			System.out.println("addTest: add threw Exception");
@@ -130,12 +140,16 @@ class DBTest {
 	}
 
 	@Test
-	@DisplayName("DBServer Add, then delete 0 == OK")
+	@DisplayName("DBServer Add then delete separate transactions")
 	void deleteTest() {
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
+			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
+			db.beginTransaction();
 			db.delete(0L);
+			db.commit();
 			assertEquals(0, index.getTotalNumberOfRows());
 		}catch(IOException e) {
 			System.out.println("deleteTest: threw Exception");
@@ -147,7 +161,9 @@ class DBTest {
 	@DisplayName("DBServer search, then compare retrieved")
 	void searchTest() {
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
+			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			CarOwner retrieved = (CarOwner) db.search("Rezzi Delamdi");
 			assertNotNull(retrieved);
@@ -169,7 +185,9 @@ class DBTest {
 	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field") //shows on fail
 	void readTest(){
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
+			db.commit();
 			assertEquals(index.getTotalNumberOfRows(), 1);
 			DBRecord readCarOwner = db.read(Index.getInstance().getRowNumberByName("Rezzi Delamdi"));
 			assertNotNull(readCarOwner);
@@ -188,10 +206,16 @@ class DBTest {
 	void updateByRowTest() {
 		try (DB db = new DBServer(dbFileName)){
 			// normal
+			db.beginTransaction();
 			db.add(carOwner);
+			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
+			db.beginTransaction();
 			db.update(0L, carOwnerUpdated );
+			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
+			//DBRecord retrieved1 = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
+			db.defragmentDatabase(); // todo summise that without a defrag this was and stays at position 1.
 			DBRecord retrieved = db.read(0L);
 			assert retrieved != null;
 			assertEquals( "Razzgu Dulemdi", retrieved.getName());
@@ -210,11 +234,15 @@ class DBTest {
 	@DisplayName("Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() {
 		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
 			db.add(carOwner);
+			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			Long retrievedRowNum = index.getRowNumberByName("Rezzi Delamdi");
 			System.out.println("Retrieved row for 'Rezzi Delamdi' " + retrievedRowNum);
+			db.beginTransaction();
 			db.update("Rezzi Delamdi", carOwnerUpdated );
+			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			DBRecord retrieved = db.read(index.getRowNumberByName("Razzgu Dulemdi"));
 			if (retrieved != null){

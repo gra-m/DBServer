@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 public final class DBServer implements DB{
 	private FileHandler fileHandler;
 	private  Logger LOGGER;
-	private Map<Long, ITransaction> transactions;
+	public Map<Long, ITransaction> transactions; // MADE PUBLIC in order to clear new rows in commit If transaction included add and delete. commit newRows
 
 	{
 		try {
@@ -48,7 +48,7 @@ public final class DBServer implements DB{
 	public ITransaction beginTransaction() {
 		long threadId = Thread.currentThread().getId(); // If we know the thread id we can store the transaction
 		ITransaction transaction = new Transaction();
-		this.transactions.put(threadId, transaction); // now DB knows which transactions belong to this thread.. but if multiple wont work.
+		this.transactions.put(threadId, transaction); // DB knows which transactions belong to this thread.. but if multiple wont work.
 		return new Transaction();
 	}
 
@@ -70,7 +70,7 @@ public final class DBServer implements DB{
 
 	}
 
-	private ITransaction getTransaction() {
+	private ITransaction getTransaction() { // todo silly as made transactions temp public
 		long threadId = Thread.currentThread().getId();
 		return transactions.getOrDefault(threadId, null);
 	}

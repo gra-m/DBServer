@@ -2,6 +2,7 @@ package fun.madeby;
 
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
+import fun.madeby.util.LoggerSetUp;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Collection;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
 
 /**
  * Created by Gra_m on 2022 06 30
@@ -22,6 +24,16 @@ public class BaseFileHandler implements DataHandler {
 	final Lock writeLock = readWriteLock.writeLock();
 	final int INTEGER_LENGTH_IN_BYTES = 4;
 	final int BOOLEAN_LENGTH_IN_BYTES = 1;
+	Logger LOGGER;
+
+	{
+		try {
+			LOGGER = LoggerSetUp.setUpLogger("BaseFileHandler/FH");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	public BaseFileHandler(final String fileName) throws FileNotFoundException {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
@@ -45,16 +57,19 @@ public class BaseFileHandler implements DataHandler {
 				byte[] b = this.readRawRecord(position);
 				DBRecord record = readFromByteStream( new DataInputStream( new ByteArrayInputStream(b)));
 				// add to index
-				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
-				Index.getInstance().add(position); // todo increments total num of rows
+
+				Index.getInstance().add(position);
+				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows() -1); // does not increment total num of rows.
 			}
+			//todo newRowsBytePosition reset
+
 			// commit deletedRows
 			for (Long position : deletedRowsBytePosition) {
 				this.dbFile.seek(position);
-				dbFile.writeBoolean(false); // !isTemporary todo this should already be true @ this point.
+				dbFile.writeBoolean(false); // !isTemporary
 				Index.getInstance().removeByFilePosition(position);
-
 			}
+			//todo deleteRowsBytePosition reset.
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -84,11 +99,11 @@ public class BaseFileHandler implements DataHandler {
 				dbFile.writeBoolean(false); // !isTemporary
 				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);
 				dbFile.writeBoolean(false); // !isDeleted flag
-				//todo re-read the record
+
 				byte[] b = this.readRawRecord(position);
 				DBRecord record = readFromByteStream( new DataInputStream( new ByteArrayInputStream(b)));
 				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
-				Index.getInstance().add(position); // todo increments total num of rows
+				Index.getInstance().add(position); //
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -120,7 +135,7 @@ public class BaseFileHandler implements DataHandler {
 					if (!isDeleted) {
 						Index.getInstance().add(currentPosition);
 					} else deletedRows++;
-					// todo added byte for extra temporary boolean
+
 					currentPosition += BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES;
 					recordLength = this.dbFile.readInt();
 					currentPosition += INTEGER_LENGTH_IN_BYTES;
@@ -166,7 +181,7 @@ public class BaseFileHandler implements DataHandler {
 
 		readLock.lock();
 		try {
-			// todo he made this synch block but I thought belt and braces..
+
 			dbFile.seek(rowsBytePosition);
 			boolean isTemporary = dbFile.readBoolean();
 			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);

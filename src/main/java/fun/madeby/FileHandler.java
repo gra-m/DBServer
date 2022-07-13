@@ -104,8 +104,10 @@ public class FileHandler extends BaseFileHandler {
 		DBRecord result = null;
 		try {
 			Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
-			if (rowsBytePosition == -1L)
+			if (rowsBytePosition == -1L) {
+				LOGGER.severe("FH readRow. getRowsBytePosition == -1L");
 				return null;
+			}
 			byte[] row = readRawRecord(rowsBytePosition);
 			DataInputStream stream = new DataInputStream(new ByteArrayInputStream(row));
 			result = readFromByteStream(stream);
@@ -131,7 +133,7 @@ public class FileHandler extends BaseFileHandler {
 			this.dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);
 			this.dbFile.writeBoolean(true); // isDeleted
 
-			//indexInstance.remove(rowNumber, existingRowNumberRecord); todo delete, completed with BFH 'commit()'
+			//indexInstance.remove(rowNumber, existingRowNumberRecord);// todo delete, completed with BFH 'commit()'
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally {

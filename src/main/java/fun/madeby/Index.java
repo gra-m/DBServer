@@ -110,6 +110,7 @@ public final class Index {
 
 		if (rowName != null)
 			remove(rowIndex, rowName);
+		else throw new RuntimeException("INDEX: removeByFilePosition - rowIndex " + rowIndex + " was searched for in mapDbRecordNameByRowNumber, but was not found, was it ever added?");
 
 	}
 }
