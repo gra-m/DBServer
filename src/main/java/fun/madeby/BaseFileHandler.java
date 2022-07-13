@@ -87,7 +87,6 @@ public class BaseFileHandler implements DataHandler {
 				//todo re-read the record
 				byte[] b = this.readRawRecord(position);
 				DBRecord record = readFromByteStream( new DataInputStream( new ByteArrayInputStream(b)));
-				// add to index
 				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
 				Index.getInstance().add(position); // todo increments total num of rows
 			}
@@ -133,7 +132,7 @@ public class BaseFileHandler implements DataHandler {
 						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
 					}
 					currentPosition += recordLength;
-					System.out.printf("Populate/ing/Index(): total rows - %d | total deleted - %d | total - temporary - %d \n", rowNum, deletedRows, temporaryRows);
+					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d \n", rowNum, deletedRows, temporaryRows);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -178,7 +177,7 @@ public class BaseFileHandler implements DataHandler {
 			}
 			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES); // 2 byte = 2* boolean
 			int recordLength = dbFile.readInt();
-			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 5 bytes boolean + int
+			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 6 bytes boolean + int
 			data = new byte[recordLength];
 			this.dbFile.read(data);
 		} catch (IOException e) {

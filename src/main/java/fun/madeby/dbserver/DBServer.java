@@ -8,6 +8,7 @@ import fun.madeby.transaction.ITransaction;
 import fun.madeby.transaction.Transaction;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.LoggerSetUp;
+import fun.madeby.util.OperationUnit;
 
 import java.io.*;
 import java.nio.file.FileSystems;
@@ -146,13 +147,13 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) throws IOException {
+	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) {
 		LOGGER.info("@searchWithLevenshtein() " + name + " " + tolerance);
 		return this.fileHandler.searchWithLevenshtein(name, tolerance);
 	}
 
 	@Override
-	public Collection<DBRecord> searchWithRegex(String regEx) throws IOException {
+	public Collection<DBRecord> searchWithRegex(String regEx)  {
 		LOGGER.info("@searchWithRegex() " + regEx);
 		return this.fileHandler.searchWithRegex(regEx);
 	}
@@ -161,8 +162,8 @@ public final class DBServer implements DB{
 	@Override
 	public void add(DBRecord dbRecord) {
 		LOGGER.info("@add(DBRecord), dbRecord: " + dbRecord);
-		Long position =  this.fileHandler.add(dbRecord);
-		getTransaction().registerAdd(position);
+		OperationUnit operationUnit =  this.fileHandler.add(dbRecord);
+		getTransaction().registerAdd(operationUnit.addedRowBytePosition);
 	}
 
 	@Override
@@ -171,11 +172,14 @@ public final class DBServer implements DB{
 		String name;
 		try {
 			if (checkRowNumber(rowNumber)) {
-				DBRecord existingRowNumberRecord = read(rowNumber);
+				DBRecord existingRowNumberRecord = read(rowNumber); // todo remove existingRowNumberRecord?? once Transactions working?
 				assert existingRowNumberRecord != null;
 				name = existingRowNumberRecord.getName();
 				if (Index.getInstance().hasNameInIndex(name)) {
-					this.fileHandler.updateByRow(rowNumber, newRecord, existingRowNumberRecord);
+					OperationUnit operationUnit = this.fileHandler.updateByRow(rowNumber, newRecord, existingRowNumberRecord);
+					ITransaction transaction = getTransaction();
+					transaction.registerAdd(operationUnit.addedRowBytePosition);
+					transaction.registerDelete(operationUnit.deletedRowBytePosition);
 				} else
 					throw new NameDoesNotExistException(String.format("The row you are trying to update with name ('%s') does not exist in the name index", name));
 			}
@@ -191,7 +195,11 @@ public final class DBServer implements DB{
 		try {
 			if (Index.getInstance().hasNameInIndex(name)) {
 				DBRecord existingRowNumberRecord = read(Index.getInstance().getRowNumberByName(name));
-				this.fileHandler.updateByName(name, newRecord, existingRowNumberRecord);
+				OperationUnit operationUnit = this.fileHandler.updateByName(name, newRecord, existingRowNumberRecord);
+				ITransaction transaction = getTransaction();
+				transaction.registerAdd(operationUnit.addedRowBytePosition);
+				transaction.registerDelete(operationUnit.deletedRowBytePosition);
+
 			} else
 				throw new NameDoesNotExistException(String.format("The name you are trying to update ('%s') does not exist", name));
 		}catch (NameDoesNotExistException e) {
@@ -207,8 +215,8 @@ public final class DBServer implements DB{
 		if (checkRowNumber(rowNumber)) {
 			// DBRecord necessary to delete name index entry
 			DBRecord existingRowNumberRecord = read(rowNumber);
-			Long position = this.fileHandler.deleteRow(rowNumber, existingRowNumberRecord);
-			this.getTransaction().registerDelete(position);
+			OperationUnit operationUnit = this.fileHandler.deleteRow(rowNumber, existingRowNumberRecord);
+			this.getTransaction().registerDelete(operationUnit.deletedRowBytePosition);
 		}
 
 	}

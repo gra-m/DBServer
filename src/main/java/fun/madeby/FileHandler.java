@@ -3,6 +3,7 @@ package fun.madeby;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.Levenshtein;
+import fun.madeby.util.OperationUnit;
 
 import java.io.*;
 import java.util.*;
@@ -38,9 +39,10 @@ public class FileHandler extends BaseFileHandler {
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public Long add(DBRecord dbRecord){
+	public OperationUnit add(DBRecord dbRecord){
 		writeLock.lock();
 		Long currentPositionToInsert = null;
+		OperationUnit operationUnit = new OperationUnit();
 		try {
 			try {
 				if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
@@ -86,17 +88,14 @@ public class FileHandler extends BaseFileHandler {
 			dbFile.writeInt(description.length());
 			dbFile.write(description.getBytes());
 
-			// Handled at commit stage todo delete
-		/*	Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows());
-			Index.getInstance().add(currentPositionToInsert); */
-			if (Index.getInstance().getMapRowNumberBytePositionSize() == 0)
-				System.out.println("How is that possible");
 		}catch (IOException e) {
 			e.printStackTrace();
 		}finally {
 			writeLock.unlock();
 		}
-		return currentPositionToInsert;
+		operationUnit.addedRowBytePosition = currentPositionToInsert;
+		operationUnit.successfulOperation = true;
+		return operationUnit;
 	}
 
 
@@ -118,8 +117,9 @@ public class FileHandler extends BaseFileHandler {
 		return result;
 	}
 
-	public Long deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) {
+	public OperationUnit deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) {
 		writeLock.lock();
+		OperationUnit operationUnit = new OperationUnit();
 		Long rowsBytePosition = null;
 		try {
 			Index indexInstance = Index.getInstance();
@@ -131,41 +131,48 @@ public class FileHandler extends BaseFileHandler {
 			this.dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);
 			this.dbFile.writeBoolean(true); // isDeleted
 
-
-			// update the index component.
-			//indexInstance.remove(rowNumber, existingRowNumberRecord); todo update index only when transaction committed
+			//indexInstance.remove(rowNumber, existingRowNumberRecord); todo delete, completed with BFH 'commit()'
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally {
 			writeLock.unlock();
 		}
-		return rowsBytePosition;
+		operationUnit.successfulOperation = true;
+		operationUnit.deletedRowBytePosition = rowsBytePosition;
+		return operationUnit;
 	}
 
-	public void updateByRow(Long rowNumber, DBRecord newRecord, DBRecord existingRowNumberRecord) {
+	public OperationUnit updateByRow(Long rowNumber, DBRecord newRecord, DBRecord existingRowNumberRecord) {
 		writeLock.lock();
+		OperationUnit operation = new OperationUnit();
 		try {
-			this.deleteRow(rowNumber, existingRowNumberRecord);
-			this.add(newRecord);
+			operation.deletedRowBytePosition  = (this.deleteRow(rowNumber, existingRowNumberRecord)).deletedRowBytePosition;
+			operation.addedRowBytePosition = (this.add(newRecord)).addedRowBytePosition;
+			operation.successfulOperation = true;
+			return operation;
+
 		}finally {
 			writeLock.unlock();
 		}
 	}
 
-	public void updateByName(String name, DBRecord newRecord, DBRecord existingRowNumberRecord) {
+	public OperationUnit updateByName(String name, DBRecord newRecord, DBRecord existingRowNumberRecord) {
 		writeLock.lock();
 		Long namesRowNumber = Index.getInstance().getRowNumberByName(name);
+		OperationUnit operationUnit = new OperationUnit();
+
 		try {
 			if (namesRowNumber == -1)
 				throw new NameDoesNotExistException(String.format("Thread issue, name %s existed @DBServer, but could not be found here", name));
 			else {
-				updateByRow(namesRowNumber, newRecord, existingRowNumberRecord);
+				operationUnit = updateByRow(namesRowNumber, newRecord, existingRowNumberRecord); // todo
 			}
 		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
 		} finally {
 			writeLock.unlock();
 		}
+		return operationUnit;
 	}
 
 	public DBRecord search(String name) {

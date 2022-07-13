@@ -175,7 +175,8 @@ public class TestApp {
 					"VJW707S",
 					"Doesn't know we have a file on him at all");
 			dbServer.add(carOwner);
-			dbServer.commit(); // dbServer.rollback();
+			//dbServer.commit();
+			dbServer.rollback();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
