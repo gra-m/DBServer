@@ -3,6 +3,8 @@ package fun.madeby.dbserver;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.Index;
+import fun.madeby.util.DebugInfo;
+import fun.madeby.util.DebugRowInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -256,6 +259,49 @@ class DBTest {
 			System.out.println("updateByRowTest:  threw Exception");
 		}
 	}
+
+	@Test
+	@DisplayName("Searches for commited DBRecord with regex, confirms List.size() and expected name.")
+	public void transactionTest_COMMIT() {
+
+		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
+			db.add(carOwner);
+			db.commit();
+
+			List<DBRecord> result = (List<DBRecord>) db.searchWithRegex("Re.*");
+			assertEquals(1, result.size());
+			CarOwner carOwner = (CarOwner) result.get(0);
+			assertEquals("Rezzi Delamdi", carOwner.getName());
+
+		}catch (Exception e) {
+			System.out.println("transactionTest_COMMIT():  threw Exception");
+		}
+	}
+
+	@Test
+	@DisplayName("Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info.")
+	public void transactionTest_ROLLBACK() {
+		try(DB db = new DBServer(dbFileName)) {
+			db.beginTransaction();
+			db.add(carOwner);
+			db.rollback();
+
+			List<DBRecord> result = (List<DBRecord>) db.searchWithRegex("Re.*");
+			assertEquals(0, result.size());
+			List<DebugInfo> info = (List<DebugInfo>) db.getRowsWithDebugInfo();
+			assertEquals(1, info.size());
+
+
+			DebugRowInfo dri = (DebugRowInfo) info.get(0);
+			assertFalse(dri.isTemporary());
+			assertTrue(dri.isDeleted());
+
+		}catch (Exception e) {
+			System.out.println("transactionTest_ROLLBACK():  threw Exception");
+		}
+	}
+
 
 
 }

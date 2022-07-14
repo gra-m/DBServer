@@ -92,10 +92,10 @@ public final class DBServer implements DB{
 		// open temp file:
 		FileHandler defragFH = new FileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName());
 
-		Collection<DebugInfo> currentFHData = this.fileHandler.getCurrentData();
+		Collection<DebugInfo> currentDebugInfoRows = this.fileHandler.getCurrentDebugInfoRows();
 
-		for(DebugInfo info: currentFHData) {
-			if (info.isDeleted())
+		for(DebugInfo info: currentDebugInfoRows) {
+			if (info.isDeleted() || info.isTemporary())
 				continue;
 			DBRecord dbRecord = info.getDbRecord();
 			defragFH.add(dbRecord);
@@ -141,9 +141,9 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public Collection<DebugInfo> getData() {
+	public Collection<DebugInfo> getRowsWithDebugInfo() {
 		LOGGER.info("@getData()");
-		return this.fileHandler.getCurrentData();
+		return this.fileHandler.getCurrentDebugInfoRows();
 	}
 
 	@Override

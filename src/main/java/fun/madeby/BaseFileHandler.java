@@ -233,7 +233,7 @@ public class BaseFileHandler implements DataHandler {
 		this.dbFile.close();
 	}
 
-	public Collection<DebugInfo> getCurrentData() {
+	public Collection<DebugInfo> getCurrentDebugInfoRows() {
 		readLock.lock();
 		DataInputStream stream;
 		DebugInfo debugInfo;

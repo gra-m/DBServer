@@ -212,7 +212,7 @@ public class TestApp {
 		try (DB dbServer = new DBServer(dbFile)) {
 			long count = 1L;
 			long rowPosition = 0L;
-			ArrayList<DebugInfo> data = (ArrayList<DebugInfo>) dbServer.getData();
+			ArrayList<DebugInfo> data = (ArrayList<DebugInfo>) dbServer.getRowsWithDebugInfo();
 			for (DebugInfo di : data) {
 				prettyPrint(di, count, rowPosition);
 				count++;

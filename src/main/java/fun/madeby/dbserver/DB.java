@@ -32,7 +32,7 @@ public interface DB extends Closeable {
 
 	void defragmentDatabase() throws IOException;
 
-	Collection<DebugInfo> getData();
+	Collection<DebugInfo> getRowsWithDebugInfo();
 
 	Collection<DBRecord> searchWithLevenshtein(final String name, int tolerance) throws IOException;
 
