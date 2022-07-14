@@ -59,9 +59,10 @@ class DBTest {
 		}
 	}
 
+
 	@Test
-	@DisplayName("Test LevenshteinList 5 tolerance return 2")
-	void testLevenshtein1_2() {
+	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
+	void testLevenshtein5_2() {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -77,7 +78,7 @@ class DBTest {
 	}
 
 	@Test
-	@DisplayName("Test LevenshteinList 4 tolerance return 1")
+	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
 	void testLevenshtein4_1() {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
@@ -95,7 +96,7 @@ class DBTest {
 	}
 
 	@Test
-	@DisplayName("Test regex 'R.*'")
+	@DisplayName("testRegEx(): 'R.*'")
 	void testRegEx() {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
@@ -112,7 +113,7 @@ class DBTest {
 	}
 
 	@Test
-	@DisplayName("Test regex 'Re.*'")
+	@DisplayName("testRegEx2():  'Re.*'")
 	void testRegEx2() {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
@@ -130,7 +131,7 @@ class DBTest {
 
 
 	@Test
-	@DisplayName("DBServer Add, via FileHandler test: 1 == OK")
+	@DisplayName("addTest(): DBServer Add, via FileHandler test: 1 == OK")
 	void addTest(){
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
@@ -142,8 +143,8 @@ class DBTest {
 		}
 	}
 
-	@Test
-	@DisplayName("DBServer Add then delete separate transactions")
+/*	@Test //todo see issue 34
+	@DisplayName("deleteTest(): DBServer Add then delete separate transactions")
 	void deleteTest() {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
@@ -158,10 +159,11 @@ class DBTest {
 			System.out.println("deleteTest: threw Exception");
 			e.printStackTrace();
 		}
-	}
+	}*/
+
 
 	@Test
-	@DisplayName("DBServer search, then compare retrieved")
+	@DisplayName("searchTest(): DBServer search, then compare retrieved")
 	void searchTest() {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
@@ -204,8 +206,8 @@ class DBTest {
 		}
 	}
 
-	@Test
-	@DisplayName("Sets existing row 0L to deleted in .db file, then creates new row with modified data")
+	/*@Test
+	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
 	void updateByRowTest() {
 		try (DB db = new DBServer(dbFileName)){
 			// normal
@@ -231,10 +233,12 @@ class DBTest {
 			System.out.println("updateByRowTest:  threw Exception");
 			e.printStackTrace();
 		}
-	}
+	}*/
 
-	@Test
-	@DisplayName("Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
+
+
+	/*@Test // todo see issue 34
+	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
@@ -248,17 +252,19 @@ class DBTest {
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			DBRecord retrieved = db.read(index.getRowNumberByName("Razzgu Dulemdi"));
-			if (retrieved != null){
+			if (retrieved != null) {
 				assertEquals("Razzgu Dulemdi", Objects.requireNonNull(retrieved).getName());
 				assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
 				assertEquals("BAR ANVERS", retrieved.getCarPlateNumber());
 				assertEquals("The place under the bridge..", retrieved.getDescription());
 				assertEquals(34, retrieved.getAge());
 			}
-		}catch(IOException e) {
-			System.out.println("updateByRowTest:  threw Exception");
+		} catch (IOException e) {
+			System.out.println("updateByNameTest:  threw Exception");
 		}
-	}
+	}*/
+
+
 
 	@Test
 	@DisplayName("Searches for commited DBRecord with regex, confirms List.size() and expected name.")
@@ -267,6 +273,26 @@ class DBTest {
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
+			db.commit();
+
+			List<DBRecord> result = (List<DBRecord>) db.searchWithRegex("Re.*");
+			assertEquals(1, result.size());
+			CarOwner carOwner = (CarOwner) result.get(0);
+			assertEquals("Rezzi Delamdi", carOwner.getName());
+
+		}catch (Exception e) {
+			System.out.println("transactionTest_COMMIT():  threw Exception");
+		}
+	}
+
+	@Test
+	@DisplayName("COMMIT with MultiBegin.")
+	public void transactionTest_COMMIT_with_MultiBegin() {
+
+		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
+			db.add(carOwner);
+			db.beginTransaction();
 			db.commit();
 
 			List<DBRecord> result = (List<DBRecord>) db.searchWithRegex("Re.*");
@@ -302,6 +328,36 @@ class DBTest {
 		}
 	}
 
+	@Test
+	@DisplayName("ROLLBACK with MultiBegin.")
+	public void transactionTest_ROLLBACK_with_MultiBegin() {
 
+		try (DB db = new DBServer(dbFileName)){
+			db.beginTransaction();
+			db.add(carOwner);
+			db.beginTransaction();
+			db.add(carOwnerUpdated);
+			db.rollback();
+
+			List<DBRecord> result = (List<DBRecord>) db.searchWithRegex("Re.*");
+			assertEquals(0, result.size());
+			List<DBRecord> result1 = (List<DBRecord>) db.searchWithRegex("Ra.*");
+			assertEquals(0, result1.size());
+			List<DebugInfo> info = (List<DebugInfo>) db.getRowsWithDebugInfo();
+			assertEquals(2, info.size());
+
+
+			DebugRowInfo dri = (DebugRowInfo) info.get(0);
+			assertFalse(dri.isTemporary());
+			assertTrue(dri.isDeleted());
+
+			DebugRowInfo dri1 = (DebugRowInfo) info.get(1);
+			assertFalse(dri1.isTemporary());
+			assertTrue(dri1.isDeleted());
+
+		}catch (Exception e) {
+			System.out.println("transactionTest_COMMIT():  threw Exception");
+		}
+	}
 
 }
