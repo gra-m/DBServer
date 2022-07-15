@@ -62,21 +62,24 @@ public final class DBServer implements DB{
 
 	@Override
 	public void commit() {
-		LOGGER.finest("@DBServer commit()");
+		LOGGER.finest("@DBServer commit() entered");
 		ITransaction transaction = getTransaction();
-		if (transaction == null)
-			return;
-		Boolean successfullyCommitted = fileHandler.commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
-		if(successfullyCommitted){
+
+		if (transaction != null) {
+		Boolean successfullyCommitted = fileHandler.
+				commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
+		if(successfullyCommitted) {
 			transactions.remove(Thread.currentThread().getId()); // cannot be retrieved..
 			transaction.clear();// clearing data in object that can no longer be retrieved...
+			LOGGER.info("@DBServer commit() completed");
 		}
-
+		} else
+			LOGGER.info("@DBServer commit() transaction could not be found");
 	}
 
 	@Override
 	public void rollback() {
-		LOGGER.finest("@DBServer rollback()");
+		LOGGER.finest("@DBServer rollback() entered");
 		ITransaction transaction = getTransaction();
 		if (transaction == null)
 			return;
@@ -87,7 +90,7 @@ public final class DBServer implements DB{
 			transactions.remove(Thread.currentThread().getId()); // cannot be retrieved..
 			transaction.clear();// clearing data in object that can no longer be retrieved...
 		}
-
+		LOGGER.info("@DBServer rollback() completed");
 	}
 
 	private ITransaction getTransaction() {
@@ -97,6 +100,7 @@ public final class DBServer implements DB{
 	}
 
 	public void close() throws IOException {
+		LOGGER.info("@DBServer close()");
 		Index.getInstance().clear();
 		this.fileHandler.close();
 	}
@@ -129,7 +133,7 @@ public final class DBServer implements DB{
 	}
 
 	private void replaceOldFileWithNew(File tmpFile) {
-		LOGGER.finest("@replaceOldFileWithNew(File tmpFile) = " + tmpFile.getName());
+		LOGGER.finest("@DBServer replaceOldFileWithNew(File tmpFile) = " + tmpFile.getName());
 		String oldDBName = this.fileHandler.getDbFileName();
 		boolean oldFileDeleted = this.fileHandler.deleteFile();
 		try {
@@ -140,7 +144,7 @@ public final class DBServer implements DB{
 				this.fileHandler = new FileHandler(oldDBName);
 			} else {
 				boolean tmpFileDeleted = tmpFile.delete();
-				LOGGER.warning("@replaceOldFileWithNew(File tmpFile)\n->Database file could not be deleted during defragmentation ||" +
+				LOGGER.warning("@DBServer @replaceOldFileWithNew(File tmpFile)\n->Database file could not be deleted during defragmentation ||" +
 						" \nOutcome for tmpFile.delete() (necessary on fail) == " + tmpFileDeleted);
 				this.initialise();
 				throw new IOException("Old DB file could not be deleted, defrag failed, check logs");
@@ -152,45 +156,51 @@ public final class DBServer implements DB{
 
 	@Override
 	public DBRecord search(String name) {
-		LOGGER.finest("@search(String name) = " + name);
-		return this.fileHandler.search(name);
+		LOGGER.finest("@DBServer @search(String name) = " + name);
+		DBRecord dbRecord = this.fileHandler.search(name);
+		LOGGER.info("@DBServer search(String name) return. name = " + name + " " + dbRecord);
+		return dbRecord;
 	}
 
 	@Override
 	public void refreshIndex() {
-		LOGGER.finest("@refreshIndex()");
+		LOGGER.finest("@DBServer @refreshIndex()");
 		this.fileHandler.populateIndex();
 	}
 
 	@Override
 	public Collection<DebugInfo> getRowsWithDebugInfo() {
-		LOGGER.finest("@getData()");
+		LOGGER.finest("@DBServer @getData()");
 		return this.fileHandler.getCurrentDebugInfoRows();
 	}
 
 	@Override
 	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) {
-		LOGGER.finest("@searchWithLevenshtein(String name, int tolerance) = " + name + " " + tolerance);
-		return this.fileHandler.searchWithLevenshtein(name, tolerance);
+		LOGGER.finest("@DBServer @searchWithLevenshtein(String name, int tolerance) = " + name + " " + tolerance);
+		Collection<DBRecord> recordCollection =  this.fileHandler.searchWithLevenshtein(name, tolerance);
+		LOGGER.info("@DBServer @searchWithLevenshtein(String name, int tolerance) + returned Collection<DBRecord> = " + name + " " + tolerance + "\n" + getCollectionContents(recordCollection));
+		return recordCollection;
 	}
 
 	@Override
 	public Collection<DBRecord> searchWithRegex(String regEx)  {
-		LOGGER.finest("@searchWithRegex(String regEx) = " + regEx);
-		return this.fileHandler.searchWithRegex(regEx);
+		LOGGER.finest("@DBServer @searchWithRegex(String regEx) = " + regEx);
+		Collection<DBRecord> recordCollection = fileHandler.searchWithRegex(regEx);
+		LOGGER.info("@DBServer @searchWithRegex(String regEx) + returned Collection<DBRecord> = " + regEx  + "\n" + getCollectionContents(recordCollection));
+		return recordCollection;
 	}
 
 
 	@Override
 	public void add(DBRecord dbRecord) {
-		LOGGER.finest("@add(DBRecord) = " + dbRecord);
+		LOGGER.finest("@DBServer @add(DBRecord) = " + dbRecord);
 		OperationUnit operationUnit =  this.fileHandler.add(dbRecord);
 		getTransaction().registerAdd(operationUnit.addedRowBytePosition);
 	}
 
 	@Override
 	public void update(Long rowNumber, final DBRecord newRecord) {
-		LOGGER.finest("@update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " "  + newRecord);
+		LOGGER.finest("@DBServer @update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " "  + newRecord);
 		String name;
 		try {
 			if (checkRowNumber(rowNumber)) {
@@ -213,7 +223,7 @@ public final class DBServer implements DB{
 
 	@Override
 	public void update(String name, DBRecord newRecord) {
-		LOGGER.finest("@update(name, newRecord) " + name + " "  + newRecord.getName());
+		LOGGER.finest("@DBServer @update(name, newRecord) " + name + " "  + newRecord.getName());
 		try {
 			if (Index.getInstance().hasNameInIndex(name)) {
 				DBRecord existingRowNumberRecord = read(Index.getInstance().getRowNumberByName(name));
@@ -233,7 +243,7 @@ public final class DBServer implements DB{
 
 	@Override
 	public void delete(Long rowNumber) {
-		LOGGER.finest("@delete(rowNumber) = " + rowNumber);
+		LOGGER.finest("@DBServer @delete(rowNumber) = " + rowNumber);
 		if (checkRowNumber(rowNumber)) {
 			DBRecord existingRowNumberRecord = read(rowNumber); // todo necessary to delete name index entry explore
 			OperationUnit operationUnit = this.fileHandler.deleteRow(rowNumber, existingRowNumberRecord);
@@ -244,15 +254,19 @@ public final class DBServer implements DB{
 
 	@Override
 	public DBRecord read(Long rowNumber) {
-		LOGGER.finest("@read(rowNumber) = " + rowNumber);
-		if (checkRowNumber(rowNumber))
-			return this.fileHandler.readRow(rowNumber);
-		return null;
+		LOGGER.finest("@DBServer @read(rowNumber) = " + rowNumber);
+		DBRecord dbRecord = null;
+		if (checkRowNumber(rowNumber)) {
+			dbRecord = this.fileHandler.readRow(rowNumber);
+			LOGGER.info("@DBServer read(Long rowNumber) return. rowNumber = " + rowNumber + " " + dbRecord);
+			return dbRecord;
+		}
+		return dbRecord;
 	}
 
 
 	private boolean checkRowNumber(Long rowNumber) {
-		LOGGER.finest("@checkRowNumber(rowNumber) >0 = " + rowNumber);
+		LOGGER.finest("@DBServer @checkRowNumber(rowNumber) >0 = " + rowNumber);
 		try {
 			if (rowNumber < 0) {
 				throw new IOException("Row number is less than 0");
@@ -261,5 +275,16 @@ public final class DBServer implements DB{
 			e.printStackTrace();
 		}
 		return true;
+	}
+
+	private StringBuilder getCollectionContents(final Collection<DBRecord> recordCollection) {
+		StringBuilder sb = new StringBuilder();
+
+		for(DBRecord dbr: recordCollection) {
+			sb.append(dbr.toString());
+			sb.append(System.getProperty("line.separator"));
+		}
+
+		return sb;
 	}
 }
