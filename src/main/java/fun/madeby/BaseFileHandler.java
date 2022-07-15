@@ -181,20 +181,23 @@ public class BaseFileHandler implements DataHandler {
 
 		readLock.lock();
 		try {
-
 			dbFile.seek(rowsBytePosition);
 			boolean isTemporary = dbFile.readBoolean();
 			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);
 			boolean isDeleted = dbFile.readBoolean();
-			if (dbFile.readBoolean()) {
-				System.out.println("BFH: DELETE: Marked as deleted");
+			if (isTemporary) {
+				LOGGER.severe("@BaseFileHandler readRawRecord(Long rowsBytePosition) attempting to read isTemporary row");
 				return new byte[]{-1};
+			} else if(isDeleted) {
+				LOGGER.severe("@BaseFileHandler readRawRecord(Long rowsBytePosition) attempting to read isDeleted row");
+				return new byte[]{-1};
+			} else {
+				dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES); // 2 byte = 2* boolean
+				int recordLength = dbFile.readInt();
+				dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 6 bytes boolean + int
+				data = new byte[recordLength];
+				this.dbFile.read(data);
 			}
-			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES); // 2 byte = 2* boolean
-			int recordLength = dbFile.readInt();
-			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 6 bytes boolean + int
-			data = new byte[recordLength];
-			this.dbFile.read(data);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

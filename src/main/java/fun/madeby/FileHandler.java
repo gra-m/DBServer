@@ -179,25 +179,9 @@ public class FileHandler extends BaseFileHandler {
 
 	public DBRecord search(String name) {
 		Long rowNumber = Index.getInstance().getRowNumberByName(name);
-		// Index.getInstance().printNameIndex(); //todo PRINT INFO
 		if (rowNumber == -1)
 			return null;
 		return this.readRow(rowNumber);
-
-		/*List<DBRecord> result = new ArrayList<>();
-		LongStream.range(0, Index.getInstance().getTotalNumberOfRows()).forEach(i->{
-			DBRecord dbRecord = null;
-			try {
-				dbRecord = this.readRow(i);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			if (dbRecord.equals(name))
-				result.add(dbRecord);
-
-		});
-		return result;*/
-
 	}
 
 	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) {

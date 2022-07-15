@@ -19,20 +19,14 @@ public final class Transaction implements ITransaction{
 		deletedRows = new LinkedList<>();
 	}
 
-
-	@Override
-	public void commit() {
-
-	}
-
-	@Override
-	public void rollback() {
-
+	public void clear() {
+		this.newRows.clear();
+		this.deletedRows.clear();
 	}
 
 	@Override
 	public double getUid() {
-		return 0;
+		return this.uId;
 	}
 
 	@Override

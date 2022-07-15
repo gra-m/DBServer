@@ -51,7 +51,7 @@ class LevenshteinTest {
 
 	@Test
 	public void testLevenstein_Long_Words() {
-		int result = Levenshtein.levenshteinDistance("Jsdfwefweasdfasdfasdf", "Jxdfxefweaxdfasxfaxdf", false);
+		int result = Levenshtein.levenshteinDistance("Jsdfwefweasdfasdfasdf", "Jxdfxefweaxdfasxfaxdf", true);
 		assertEquals(5, result);
 	}
 

@@ -24,18 +24,18 @@ public final class LoggerSetUp {
 		if (hasLogLevel) {
 			logLevel = (logProperties.getProperty(LOG_LEVEL).trim());
 			switch (logLevel.toUpperCase()) {
-				case "SEVERE" -> LOGGER.setLevel(Level.SEVERE);
-				case "WARNING" -> LOGGER.setLevel(Level.WARNING);
-				case "INFO" -> LOGGER.setLevel(Level.INFO);
-				case "CONFIG" -> LOGGER.setLevel(Level.CONFIG);
-				case "FINE" -> LOGGER.setLevel(Level.FINE);
-				case "FINER" -> LOGGER.setLevel(Level.FINER);
-				case "FINEST" -> LOGGER.setLevel(Level.FINEST);
+				case "SEVERE" -> LOGGER.setLevel(Level.SEVERE); // shows when all
+				case "WARNING" -> LOGGER.setLevel(Level.WARNING); // shows when all
+				case "INFO" -> LOGGER.setLevel(Level.INFO); // shows when all
+				case "CONFIG" -> LOGGER.setLevel(Level.CONFIG); // xx
+				case "FINE" -> LOGGER.setLevel(Level.FINE); // xx
+				case "FINER" -> LOGGER.setLevel(Level.FINER); // xx
+				case "FINEST" -> LOGGER.setLevel(Level.FINEST); // xx
 				case "OFF" -> LOGGER.setLevel(Level.OFF);
 				case "ALL" -> LOGGER.setLevel(Level.ALL);
 			}
 		} else LOGGER.setLevel(Level.SEVERE);
-		LOGGER.info("@setUpLogger(name): Set logger name: " + name + " to level " + logLevel);
+		LOGGER.finest("@setUpLogger(name): Set logger name: " + name + " to level " + logLevel);
 		return LOGGER;
 	}
 }

@@ -34,9 +34,9 @@ public interface DB extends Closeable {
 
 	Collection<DebugInfo> getRowsWithDebugInfo();
 
-	Collection<DBRecord> searchWithLevenshtein(final String name, int tolerance) throws IOException;
+	Collection<DBRecord> searchWithLevenshtein(final String name, int tolerance);
 
-	Collection<DBRecord> searchWithRegex(final String regEx) throws IOException;
+	Collection<DBRecord> searchWithRegex(final String regEx);
 
 	ITransaction beginTransaction();
 
