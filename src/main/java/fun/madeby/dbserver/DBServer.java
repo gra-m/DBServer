@@ -35,7 +35,7 @@ public final class DBServer implements DB{
 	}
 
 	public DBServer(final String dbFileName) throws FileNotFoundException {
-		LOGGER.severe("@DBServer(String dbFileName) = " + dbFileName);
+		LOGGER.finest("@DBServer(String dbFileName) = " + dbFileName);
 		this.fileHandler = new FileHandler(dbFileName);
 		this.transactions = new LinkedHashMap<>();
 		this.initialise();
@@ -66,7 +66,12 @@ public final class DBServer implements DB{
 		ITransaction transaction = getTransaction();
 		if (transaction == null)
 			return;
-		fileHandler.commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
+		Boolean successfullyCommitted = fileHandler.commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
+		if(successfullyCommitted){
+			transactions.remove(Thread.currentThread().getId()); // cannot be retrieved..
+			transaction.clear();// clearing data in object that can no longer be retrieved...
+		}
+
 	}
 
 	@Override
@@ -76,7 +81,12 @@ public final class DBServer implements DB{
 		if (transaction == null)
 			return;
 
-		fileHandler.rollback(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
+		Boolean successfullyRolledBack = fileHandler.rollback(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
+
+		if(successfullyRolledBack){
+			transactions.remove(Thread.currentThread().getId()); // cannot be retrieved..
+			transaction.clear();// clearing data in object that can no longer be retrieved...
+		}
 
 	}
 

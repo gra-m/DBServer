@@ -46,7 +46,7 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 	@Override
-	public void commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+	public Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
 		writeLock.lock();
 		try {
 			// commit new Rows
@@ -61,7 +61,6 @@ public class BaseFileHandler implements DataHandler {
 				Index.getInstance().add(position);
 				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows() -1); // does not increment total num of rows.
 			}
-			//todo newRowsBytePosition reset
 
 			// commit deletedRows
 			for (Long position : deletedRowsBytePosition) {
@@ -69,19 +68,18 @@ public class BaseFileHandler implements DataHandler {
 				dbFile.writeBoolean(false); // !isTemporary
 				Index.getInstance().removeByFilePosition(position);
 			}
-			//todo deleteRowsBytePosition reset.
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			writeLock.unlock();
 			}
-
+		return true;
 		}
 
 
 
 	@Override
-	public void rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+	public Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
 		writeLock.lock();
 		try {
 			// rollback new Rows
@@ -110,6 +108,7 @@ public class BaseFileHandler implements DataHandler {
 		} finally {
 			writeLock.unlock();
 		}
+		return true;
 	}
 
 
@@ -207,6 +206,7 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public DBRecord readFromByteStream(final DataInputStream stream) throws IOException {
 
 		int nameLength = stream.readInt();
@@ -217,14 +217,17 @@ public class BaseFileHandler implements DataHandler {
 		int age = stream.readInt();
 
 		byte[] addressBytes = new byte[stream.readInt()];
+		//noinspection ResultOfMethodCallIgnored
 		stream.read(addressBytes); // fill array, advance pointer
 		String address = new String(addressBytes);
 
 		byte[] carPlateBytes = new byte[stream.readInt()];
+		//noinspection ResultOfMethodCallIgnored
 		stream.read(carPlateBytes); // fill array, advance pointer
 		String carPlateNumber = new String(carPlateBytes);
 
 		byte[] descriptionBytes = new byte[stream.readInt()];
+		//noinspection ResultOfMethodCallIgnored
 		stream.read(descriptionBytes); // fill array, advance pointer
 		String description = new String(descriptionBytes);
 

@@ -25,6 +25,7 @@ import java.util.stream.IntStream;
  * Created by Gra_m on 2022 06 25
  */
 
+@SuppressWarnings("InfiniteLoopStatement")
 public class TestApp {
 	final static int AMOUNT_OF_EACH = 2;
 	final static String dbFile = "DBServer.db";

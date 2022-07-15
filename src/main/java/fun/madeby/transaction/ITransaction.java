@@ -10,6 +10,7 @@ public interface ITransaction {
 	double getUid();
 	void registerAdd(Long position); // to easily update temporary flag
 	void registerDelete(Long position); // to easily update deleted flag
+	void clear();
 	Collection<Long> getNewRowsBytePosition();
 	Collection<Long> getDeletedRowsBytePosition();
 

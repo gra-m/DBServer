@@ -51,6 +51,7 @@ class DBTest {
 				"The place under the bridge..");
 	}
 
+	@SuppressWarnings("EmptyTryBlock")
 	private void clearDataInExistingFile() {
 		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dbFileName),
 				StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -206,7 +207,7 @@ class DBTest {
 		}
 	}
 
-	/*@Test
+	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
 	void updateByRowTest() {
 		try (DB db = new DBServer(dbFileName)){
@@ -219,9 +220,9 @@ class DBTest {
 			db.update(0L, carOwnerUpdated );
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
-			//DBRecord retrieved1 = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
-			db.defragmentDatabase(); // todo summise that without a defrag this was and stays at position 1.
-			DBRecord retrieved = db.read(0L);
+			//db.defragmentDatabase(); // todo defrag breaks this test (adding as bug @issue 35) retrieved == null
+			//DBRecord retrieved = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
+			DBRecord retrieved = db.read(1L);
 			assert retrieved != null;
 			assertEquals( "Razzgu Dulemdi", retrieved.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
@@ -233,11 +234,11 @@ class DBTest {
 			System.out.println("updateByRowTest:  threw Exception");
 			e.printStackTrace();
 		}
-	}*/
+	}
 
 
 
-	/*@Test // todo see issue 34
+	@Test // todo see issue 34
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() {
 		try (DB db = new DBServer(dbFileName)){
@@ -262,7 +263,7 @@ class DBTest {
 		} catch (IOException e) {
 			System.out.println("updateByNameTest:  threw Exception");
 		}
-	}*/
+	}
 
 
 
