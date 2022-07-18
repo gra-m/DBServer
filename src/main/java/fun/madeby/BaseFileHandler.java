@@ -19,10 +19,13 @@ import java.util.logging.Logger;
 public class BaseFileHandler implements DataHandler {
 	RandomAccessFile dbFile;
 	String dbFileName;
+	private final String VERSION = "0.1";
+	private static final int START_OF_FILE = 0;
+	private static final int HEADER_INFO_SPACE = 100;
 	final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 	final Lock readLock = readWriteLock.readLock();
 	final Lock writeLock = readWriteLock.writeLock();
-	final int INTEGER_LENGTH_IN_BYTES = 4;
+	private final int INTEGER_LENGTH_IN_BYTES = 4;
 	final int BOOLEAN_LENGTH_IN_BYTES = 1;
 	Logger LOGGER;
 
@@ -38,6 +41,20 @@ public class BaseFileHandler implements DataHandler {
 	public BaseFileHandler(final String fileName) throws FileNotFoundException {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
 		this.dbFileName = fileName;
+		writeVersionInfoIfNewFile();
+	}
+
+	public void writeVersionInfoIfNewFile() {
+		try {
+			if (dbFile.length() == 0) {
+				this.setDBVersion();
+			} else {
+				LOGGER.severe("@BFH writeVersionInfoIfNewFile() and dbFile.length() > 0 DBVersion is: " + VERSION);
+			}
+
+		}catch (IOException e) {
+	e.printStackTrace();
+		}
 	}
 
 	public BaseFileHandler(RandomAccessFile randomAccessFile, final String fileName) {
@@ -116,7 +133,7 @@ public class BaseFileHandler implements DataHandler {
 	public void populateIndex() {
 		long rowNum = 0;
 		int recordLength = 0;
-		long currentPosition = 0;
+		long currentPosition = HEADER_INFO_SPACE;
 		long deletedRows = 0;
 		long temporaryRows = 0;
 
@@ -252,7 +269,7 @@ public class BaseFileHandler implements DataHandler {
 				boolean isDeleted;
 				DBRecord dbRecord;
 				int recordLength;
-				long currentPosition = 0;
+				long currentPosition = HEADER_INFO_SPACE;
 				returnArrayList = new ArrayList<>();
 				this.dbFile.seek(currentPosition);
 
@@ -306,6 +323,34 @@ public class BaseFileHandler implements DataHandler {
 
 		System.out.println("File deletion failed");
 		return false;
+	}
+
+	protected void setDBVersion() {
+		writeLock.lock();
+		try {
+			this.dbFile.seek(START_OF_FILE);
+			this.dbFile.writeBytes(VERSION);
+			//this.dbFile.write(VERSION.getBytes());
+		}catch(IOException e) {
+			e.printStackTrace();
+		}finally {
+			writeLock.unlock();
+		}
+	}
+
+	protected String getDBVersion() {
+		readLock.lock();
+		try {
+			this.dbFile.seek(START_OF_FILE);
+			byte[] bytes = new byte[HEADER_INFO_SPACE];
+			this.dbFile.read(bytes);
+			return new String(bytes).trim();
+		}catch(IOException e) {
+			e.printStackTrace();
+		}finally {
+			readLock.unlock();
+		}
+		return "Read Fail @ getDBVersion";
 	}
 
 }

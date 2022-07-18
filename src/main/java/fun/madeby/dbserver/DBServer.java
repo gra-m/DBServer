@@ -43,6 +43,7 @@ public final class DBServer implements DB{
 
 	private void initialise() {
 		LOGGER.finest("@DBServer intialise()");
+		this.fileHandler.writeVersionInfoIfNewFile();
 		this.fileHandler.populateIndex();
 	}
 
