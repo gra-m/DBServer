@@ -6,6 +6,7 @@ import fun.madeby.util.LoggerSetUp;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -49,7 +50,7 @@ public class BaseFileHandler implements DataHandler {
 			if (dbFile.length() == 0) {
 				this.setDBVersion();
 			} else {
-				LOGGER.severe("@BFH writeVersionInfoIfNewFile() and dbFile.length() > 0 DBVersion is: " + VERSION);
+				LOGGER.finest("@BFH writeVersionInfoIfNewFile() and dbFile.length() > 0 DBVersion is: " + VERSION);
 			}
 
 		}catch (IOException e) {
@@ -325,20 +326,20 @@ public class BaseFileHandler implements DataHandler {
 		return false;
 	}
 
-	protected void setDBVersion() {
-		writeLock.lock();
+	private void setDBVersion() {
 		try {
 			this.dbFile.seek(START_OF_FILE);
 			this.dbFile.writeBytes(VERSION);
 			//this.dbFile.write(VERSION.getBytes());
-		}catch(IOException e) {
+			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
+			Arrays.fill(characterFiller, ' ');
+			this.dbFile.write(new String(characterFiller).getBytes());
+		} catch (IOException e) {
 			e.printStackTrace();
-		}finally {
-			writeLock.unlock();
 		}
 	}
 
-	protected String getDBVersion() {
+	private String  getDBVersion() {
 		readLock.lock();
 		try {
 			this.dbFile.seek(START_OF_FILE);
