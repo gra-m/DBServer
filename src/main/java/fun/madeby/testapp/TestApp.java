@@ -35,9 +35,9 @@ public class TestApp {
 		TestApp testApp = new TestApp();
 
 		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
-		testApp.addOneRecordWithTransaction();
-		testApp.listAllFileRecords();
-		//testApp.performTest();
+		//testApp.addOneRecordWithTransaction();
+		//testApp.listAllFileRecords();
+		testApp.performTest();
 		//testApp.performDefragTest();
 		//testApp.performMultiThreadTest();
 	}
@@ -86,9 +86,9 @@ public class TestApp {
 		clearDataInExistingFile();
 		fragementDatabase();
 		listAllFileRecords();
-		System.out.println("\n\n-------------------NOW DEFRAGGING----------------------\n\n");
+		System.out.println("\n\n-------------------NOW  DEFRAGGING----------------------\n\n");
 		defragmentDatabase();
-		listAllFileRecords();
+		//listAllFileRecords();
 
 	}
 
@@ -104,18 +104,23 @@ public class TestApp {
 		try (DB dbServer = new DBServer(dbFile)) {
 
 			// create 100 records
-			for (int i : IntStream.range(0, 100).toArray()) {
+			dbServer.beginTransaction();
+			for (int i : IntStream.range(0, 2).toArray()) {
 				CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
 				dbServer.add(c);
 			}
+			dbServer.commit();
+
+			//listAllFileRecords();
+
 			// update half of them
-			for (long i : IntStream.range(0, 100).toArray()) {
+			dbServer.beginTransaction();
+			for (long i : IntStream.range(0, 2).toArray()) {
 				if (i % 2 == 0) {
 					dbServer.update(i, new CarOwner("Rupert" + i + "__Updated", 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed..."));
 				}
 			}
-
-
+			dbServer.commit();
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -176,8 +181,8 @@ public class TestApp {
 					"VJW707S",
 					"Doesn't know we have a file on him at all");
 			dbServer.add(carOwner);
-			//dbServer.commit();
-			dbServer.rollback();
+			dbServer.commit();
+			//dbServer.rollback();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -252,7 +257,9 @@ public class TestApp {
 
 	void delete(String name) {
 		try (DB dbServer = new DBServer(dbFile)) {
+			dbServer.beginTransaction();
 			dbServer.delete(Index.getInstance().getRowNumberByName(name));
+			dbServer.commit();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -283,9 +290,11 @@ public class TestApp {
 							"Doesn't know that we know that he knows we have a file on him"
 					);
 
+					dbServer.beginTransaction();
 					dbServer.add(carOwner);
 					dbServer.add(carOwner2);
 					dbServer.add(carOwner3);
+					dbServer.commit();
 					count++;
 			}
 			for (int i = 0; i < AMOUNT_OF_EACH; i++) {
@@ -309,9 +318,11 @@ public class TestApp {
 						"Doesn't know that we know that he knows we have a file on him"
 				);
 
+				dbServer.beginTransaction();
 				dbServer.add(carOwner);
 				dbServer.add(carOwner2);
 				dbServer.add(carOwner3);
+				dbServer.commit();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

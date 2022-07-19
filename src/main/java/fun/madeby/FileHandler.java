@@ -100,6 +100,7 @@ public class FileHandler extends BaseFileHandler {
 
 
 	public DBRecord readRow(Long rowNumber) {
+		LOGGER.severe("@FH readRow(rowNumber) " + rowNumber);
 		readLock.lock();
 		DBRecord result = null;
 		try {

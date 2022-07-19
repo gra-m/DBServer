@@ -132,6 +132,7 @@ public class BaseFileHandler implements DataHandler {
 
 
 	public void populateIndex() {
+		LOGGER.severe("@BFH PopulateIndex()");
 		long rowNum = 0;
 		int recordLength = 0;
 		long currentPosition = HEADER_INFO_SPACE;
@@ -258,6 +259,7 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 	public Collection<DebugInfo> getCurrentDebugInfoRows() {
+		LOGGER.finest("@BFH getCurrentDebugInfoRows()");
 		readLock.lock();
 		DataInputStream stream;
 		DebugInfo debugInfo;
@@ -275,6 +277,7 @@ public class BaseFileHandler implements DataHandler {
 				this.dbFile.seek(currentPosition);
 
 				while (currentPosition < this.dbFile.length()) {
+					LOGGER.finest("@BFH getCurrentDebugInfoRows() while loop file length is: "  + this.dbFile.length() + " current position is: " + currentPosition);
 					isTemporary = dbFile.readBoolean();
 					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES);
 

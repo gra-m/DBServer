@@ -30,9 +30,7 @@ public final class Index {
 	public synchronized void printNameIndex(){
 		if(this.mapDbRecordNameByRowNumber.size() == 0)
 			System.out.println("'Vicar..' Teacup rattles on saucer. 'I do believe it's empty!'");
-		this.mapDbRecordNameByRowNumber.entrySet().forEach(entry -> {
-			System.out.println("Index().PrintNameIndex(): " + entry.getKey() + " " + entry.getValue());
-		});
+		this.mapDbRecordNameByRowNumber.forEach((key, value) -> System.out.println("Index().PrintNameIndex(): " + key + " " + value));
 	}
 
 	public int getMapRowNumberBytePositionSize() {

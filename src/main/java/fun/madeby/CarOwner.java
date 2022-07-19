@@ -1,5 +1,9 @@
 package fun.madeby;
 
+import com.google.gson.JsonObject;
+import org.eclipse.jetty.util.ajax.JSON;
+import org.eclipse.jetty.util.ajax.JSONPojoConvertor;
+
 /**
  * Created by Gra_m on 2022 06 24
  */
@@ -48,6 +52,18 @@ public class CarOwner implements DBRecord {
 
 	public String getDescription() {
 		return description;
+	}
+
+	@Override
+	public String toJSON() {
+		JsonObject jsonObject = new JsonObject();
+		jsonObject.addProperty("name", name);
+		jsonObject.addProperty("age", age);
+		jsonObject.addProperty("address", address);
+		jsonObject.addProperty("carPlateNumber", carPlateNumber);
+		jsonObject.addProperty("description", description);
+
+		return jsonObject.toString();
 	}
 
 	public Long getLength() {

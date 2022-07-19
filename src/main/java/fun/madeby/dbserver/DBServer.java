@@ -94,6 +94,7 @@ public final class DBServer implements DB{
 		LOGGER.info("@DBServer rollback() completed");
 	}
 
+
 	private ITransaction getTransaction() {
 		LOGGER.finest("@DBServer getTransaction()");
 		long threadId = Thread.currentThread().getId();
@@ -287,5 +288,9 @@ public final class DBServer implements DB{
 		}
 
 		return sb;
+	}
+	@Override
+	public Long getTotalRecordAmount() {
+		return Index.getInstance().getTotalNumberOfRows();
 	}
 }

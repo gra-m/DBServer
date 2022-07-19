@@ -43,4 +43,6 @@ public interface DB extends Closeable {
 	void commit();
 
 	void rollback();
+
+	Long getTotalRecordAmount();
 }
