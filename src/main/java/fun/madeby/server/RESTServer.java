@@ -10,11 +10,10 @@ import io.javalin.Javalin;
 public final class RESTServer {
 
 	public static void main(String[] args) {
-		try (Javalin app = Javalin.create().start(7001)) {
+		Javalin app = Javalin.create().start(7001);
+
 			app.get("/listall", DBController.fetchAllRecords);
-			app.get("/add", DBController.addDBRecord);
-		}
-
-
+			app.get("/add", DBController.addCarOwner);
+			app.get("/searchlevenshtein", DBController.searchLevenshtein);
 	}
 }
