@@ -37,7 +37,7 @@ public final class DBController {
 	 ctx.json(allRecordList);
 	};
 
-	// add?name=test&age=45&address=somewheretest&carplate=qqq-123&description=testEntry
+	// localhost:7001/add?name=test&age=45&address=somewheretest&carplate=qqq-123&description=testEntry
 	public static Handler addCarOwner = ctx -> {
 		String name = ctx.queryParam("name");
 		int age = Integer.parseInt(ctx.queryParam("age"));
