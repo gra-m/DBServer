@@ -11,6 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import static java.lang.Thread.currentThread;
@@ -30,19 +33,14 @@ public class RESTTestApp {
 		}
 	}
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 		RESTTestApp app = new RESTTestApp();
-		while(true) {
 			app.performTest();
-			try{
-				Thread.sleep(50);
-			} catch(InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
-	private void performTest() throws InterruptedException {
+	private void performTest() {
+		CountDownLatch latch = new CountDownLatch(3);
+		ExecutorService executorService = Executors.newFixedThreadPool(3);
 		
 		Thread searchTest = new Thread(() -> {
 		while(true)	 {
@@ -77,9 +75,15 @@ public class RESTTestApp {
 			}
 		});
 
-		//searchTest.start();
-		//returnAllRecordsTest.start();
-		addRecordTest.start();
+		executorService.submit(searchTest);
+		executorService.submit(returnAllRecordsTest);
+		executorService.submit(addRecordTest);
+
+		try {
+			latch.await(); // no thread goes past the await call until all three could
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -99,10 +103,10 @@ public class RESTTestApp {
 
 			//read & log response
 			int responseCode = con.getResponseCode();
-			LOGGER.info("con.getResponseCode() on currentThread.getName() =  " + responseCode +  " " + currentThread().getName());
+			LOGGER.severe("con.getResponseCode() on currentThread.getName() =  " + responseCode +  " " + currentThread().getName());
 			if (responseCode == 200){
 				String responseResult = readResponseStream(con.getInputStream());
-				LOGGER.info("readResponseStream(con.getInputStream() returned: \n" + responseResult);
+				LOGGER.severe("readResponseStream(con.getInputStream() responseResult== " + responseResult);
 			}
 
 			con.disconnect();
