@@ -205,12 +205,12 @@ public final class DBServer implements DB{
 		LOGGER.finest("@DBServer @update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " "  + newRecord);
 		String name;
 		try {
-			if (checkRowNumber(rowNumber)) {
-				DBRecord existingRowNumberRecord = read(rowNumber); // todo remove existingRowNumberRecord?? once Transactions working?
+			if (checkRowNumber(rowNumber)) { //Checks name is in index before going ahead with delete
+				DBRecord existingRowNumberRecord = read(rowNumber);
 				assert existingRowNumberRecord != null;
 				name = existingRowNumberRecord.getName();
 				if (Index.getInstance().hasNameInIndex(name)) {
-					OperationUnit operationUnit = this.fileHandler.updateByRow(rowNumber, newRecord, existingRowNumberRecord);
+					OperationUnit operationUnit = this.fileHandler.updateByRow(rowNumber, newRecord);
 					ITransaction transaction = getTransaction();
 					transaction.registerAdd(operationUnit.addedRowBytePosition);
 					transaction.registerDelete(operationUnit.deletedRowBytePosition);
@@ -228,8 +228,7 @@ public final class DBServer implements DB{
 		LOGGER.finest("@DBServer @update(name, newRecord) " + name + " "  + newRecord.getName());
 		try {
 			if (Index.getInstance().hasNameInIndex(name)) {
-				DBRecord existingRowNumberRecord = read(Index.getInstance().getRowNumberByName(name));
-				OperationUnit operationUnit = this.fileHandler.updateByName(name, newRecord, existingRowNumberRecord);
+				OperationUnit operationUnit = this.fileHandler.updateByName(name, newRecord);
 				ITransaction transaction = getTransaction();
 				transaction.registerAdd(operationUnit.addedRowBytePosition);
 				transaction.registerDelete(operationUnit.deletedRowBytePosition);
@@ -247,8 +246,7 @@ public final class DBServer implements DB{
 	public void delete(Long rowNumber) {
 		LOGGER.finest("@DBServer @delete(rowNumber) = " + rowNumber);
 		if (checkRowNumber(rowNumber)) {
-			DBRecord existingRowNumberRecord = read(rowNumber); // todo necessary to delete name index entry explore
-			OperationUnit operationUnit = this.fileHandler.deleteRow(rowNumber, existingRowNumberRecord);
+			OperationUnit operationUnit = this.fileHandler.deleteRow(rowNumber);
 			this.getTransaction().registerDelete(operationUnit.deletedRowBytePosition);
 		}
 

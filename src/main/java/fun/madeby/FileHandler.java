@@ -120,7 +120,7 @@ public class FileHandler extends BaseFileHandler {
 		return result;
 	}
 
-	public OperationUnit deleteRow(Long rowNumber, DBRecord existingRowNumberRecord) {
+	public OperationUnit deleteRow(Long rowNumber) {
 		writeLock.lock();
 		OperationUnit operationUnit = new OperationUnit();
 		Long rowsBytePosition = null;
@@ -134,7 +134,6 @@ public class FileHandler extends BaseFileHandler {
 			this.dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);
 			this.dbFile.writeBoolean(true); // isDeleted
 
-			//indexInstance.remove(rowNumber, existingRowNumberRecord);// todo delete, completed with BFH 'commit()'
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally {
@@ -145,11 +144,11 @@ public class FileHandler extends BaseFileHandler {
 		return operationUnit;
 	}
 
-	public OperationUnit updateByRow(Long rowNumber, DBRecord newRecord, DBRecord existingRowNumberRecord) {
+	public OperationUnit updateByRow(Long rowNumber, DBRecord newRecord) {
 		writeLock.lock();
 		OperationUnit operation = new OperationUnit();
 		try {
-			operation.deletedRowBytePosition  = (this.deleteRow(rowNumber, existingRowNumberRecord)).deletedRowBytePosition;
+			operation.deletedRowBytePosition  = (this.deleteRow(rowNumber).deletedRowBytePosition);
 			operation.addedRowBytePosition = (this.add(newRecord)).addedRowBytePosition;
 			operation.successfulOperation = true;
 			return operation;
@@ -159,7 +158,7 @@ public class FileHandler extends BaseFileHandler {
 		}
 	}
 
-	public OperationUnit updateByName(String name, DBRecord newRecord, DBRecord existingRowNumberRecord) {
+	public OperationUnit updateByName(String name, DBRecord newRecord) {
 		writeLock.lock();
 		Long namesRowNumber = Index.getInstance().getRowNumberByName(name);
 		OperationUnit operationUnit = new OperationUnit();
@@ -168,7 +167,7 @@ public class FileHandler extends BaseFileHandler {
 			if (namesRowNumber == -1)
 				throw new NameDoesNotExistException(String.format("Thread issue, name %s existed @DBServer, but could not be found here", name));
 			else {
-				operationUnit = updateByRow(namesRowNumber, newRecord, existingRowNumberRecord); // todo
+				operationUnit = updateByRow(namesRowNumber, newRecord);
 			}
 		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
