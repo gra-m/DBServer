@@ -7,7 +7,7 @@ package fun.madeby;
 public interface DBRecord {
 
 	int INTEGER_LENGTH_IN_BYTES = 4;
-	DBRecord populateOwnRecordLength(DBRecord dbRecord);
+	DBRecord populateOwnRecordLength(DBRecord object);
 	Long getLength();
 	String getName();
 	int getAge();

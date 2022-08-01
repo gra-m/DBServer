@@ -1,8 +1,6 @@
 package fun.madeby;
 
 import com.google.gson.JsonObject;
-import org.eclipse.jetty.util.ajax.JSON;
-import org.eclipse.jetty.util.ajax.JSONPojoConvertor;
 
 /**
  * Created by Gra_m on 2022 06 24
@@ -74,7 +72,7 @@ public class CarOwner implements DBRecord {
 	}
 
 	@Override
-	public DBRecord populateOwnRecordLength(DBRecord dbRecord) {
+	public DBRecord populateOwnRecordLength(DBRecord object) {
 		this.length = (long) (INTEGER_LENGTH_IN_BYTES +  // name int bytes
 						name.length() +
 						INTEGER_LENGTH_IN_BYTES + // age int bytes

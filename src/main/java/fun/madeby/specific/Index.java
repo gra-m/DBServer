@@ -1,4 +1,6 @@
-package fun.madeby;
+package fun.madeby.specific;
+
+import fun.madeby.DBRecord;
 
 import java.util.Collection;
 import java.util.Objects;

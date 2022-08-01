@@ -2,7 +2,9 @@ package fun.madeby.dbserver;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
-import fun.madeby.Index;
+import fun.madeby.db.specific_server.DB;
+import fun.madeby.db.specific_server.DBServer;
+import fun.madeby.specific.Index;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
 import org.junit.jupiter.api.BeforeEach;

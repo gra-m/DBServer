@@ -61,7 +61,7 @@ public class Car implements DBRecord {
 	}
 
 	@Override
-	public DBRecord populateOwnRecordLength(DBRecord dbRecord) {
+	public DBRecord populateOwnRecordLength(DBRecord object) {
 		this.length = (long) (INTEGER_LENGTH_IN_BYTES +  // name bytes
 						name.length() +
 						INTEGER_LENGTH_IN_BYTES + //age

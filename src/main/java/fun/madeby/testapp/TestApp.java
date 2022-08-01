@@ -2,9 +2,9 @@ package fun.madeby.testapp;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
-import fun.madeby.Index;
-import fun.madeby.dbserver.DB;
-import fun.madeby.dbserver.DBServer;
+import fun.madeby.specific.Index;
+import fun.madeby.db.specific_server.DB;
+import fun.madeby.db.specific_server.DBServer;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.Levenshtein;

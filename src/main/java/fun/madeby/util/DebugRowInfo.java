@@ -7,20 +7,20 @@ import fun.madeby.DBRecord;
  */
 
 public final class DebugRowInfo implements DebugInfo {
-	private DBRecord dbRecord;
+	private DBRecord object;
 	private boolean isTemporary;
 	private boolean isDeleted;
 
 	public DebugRowInfo(){}
 
-	public DebugRowInfo(DBRecord dbRecord, boolean isTemporary, boolean isDeleted){
-		this.dbRecord = dbRecord;
+	public DebugRowInfo(DBRecord object, boolean isTemporary, boolean isDeleted){
+		this.object = object;
 		this.isTemporary = isTemporary;
 		this.isDeleted = isDeleted;
 	}
 
 	public DBRecord getDbRecord() {
-		return dbRecord;
+		return object;
 	}
 
 	public boolean isTemporary() {

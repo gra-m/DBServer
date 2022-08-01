@@ -1,5 +1,8 @@
-package fun.madeby;
+package fun.madeby.specific;
 
+import fun.madeby.CarOwner;
+import fun.madeby.DBRecord;
+import fun.madeby.DataHandler;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
 import fun.madeby.util.LoggerSetUp;
@@ -270,7 +273,7 @@ public class BaseFileHandler implements DataHandler {
 			else {
 				boolean isTemporary;
 				boolean isDeleted;
-				DBRecord dbRecord;
+				DBRecord object;
 				int recordLength;
 				long currentPosition = HEADER_INFO_SPACE;
 				returnArrayList = new ArrayList<>();
@@ -289,9 +292,9 @@ public class BaseFileHandler implements DataHandler {
 					byte[] rowDataOnly = new byte[recordLength];
 					dbFile.read(rowDataOnly);
 					stream = new DataInputStream(new ByteArrayInputStream(rowDataOnly));
-					dbRecord = readFromByteStream(stream);
+					object = readFromByteStream(stream);
 
-					debugInfo = new DebugRowInfo(dbRecord, isTemporary, isDeleted);
+					debugInfo = new DebugRowInfo(object, isTemporary, isDeleted);
 					returnArrayList.add(debugInfo);
 
 					currentPosition += recordLength + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES;

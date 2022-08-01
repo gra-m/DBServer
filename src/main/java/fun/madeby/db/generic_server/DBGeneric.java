@@ -1,6 +1,5 @@
-package fun.madeby.dbserver;
+package fun.madeby.db.generic_server;
 
-import fun.madeby.DBRecord;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.util.DebugInfo;
 
@@ -12,21 +11,21 @@ import java.util.Collection;
  * Created by Gra_m on 2022 06 27
  */
 
-public interface DB extends Closeable {
+public interface DBGeneric extends Closeable {
 
-	void add(DBRecord dbRecord);
+	void add(Object obj);
 
-	void update(Long rowNumber, final DBRecord dbRecord);
+	void update(Long rowNumber, final Object obj);
 
-	void update(String name, final DBRecord dbRecord);
+	void update(String name, final Object obj);
 
 	void delete(Long rowNumber);
 
-	DBRecord read(Long rowNumber);
+	Object read(Long rowNumber);
 
 	void close() throws IOException;
 
-	DBRecord search (String name);
+	Object search (String name);
 
 	void refreshIndex();
 
@@ -34,9 +33,9 @@ public interface DB extends Closeable {
 
 	Collection<DebugInfo> getRowsWithDebugInfo();
 
-	Collection<DBRecord> searchWithLevenshtein(final String name, int tolerance);
+	Collection<Object> searchWithLevenshtein(final String indexedFieldName, int tolerance);
 
-	Collection<DBRecord> searchWithRegex(final String regEx);
+	Collection<Object> searchWithRegex(final String regEx);
 
 	ITransaction beginTransaction();
 

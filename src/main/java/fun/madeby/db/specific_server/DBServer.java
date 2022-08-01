@@ -1,8 +1,8 @@
-package fun.madeby.dbserver;
+package fun.madeby.db.specific_server;
 
 import fun.madeby.DBRecord;
-import fun.madeby.FileHandler;
-import fun.madeby.Index;
+import fun.madeby.specific.FileHandler;
+import fun.madeby.specific.Index;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.transaction.Transaction;
@@ -28,7 +28,7 @@ public final class DBServer implements DB{
 
 	{
 		try {
-			LOGGER = LoggerSetUp.setUpLogger("DbServer");
+			LOGGER = LoggerSetUp.setUpLogger("DbSpecificServer");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -124,8 +124,8 @@ public final class DBServer implements DB{
 		for(DebugInfo info: currentDebugInfoRows) {
 			if (info.isDeleted() || info.isTemporary())
 				continue;
-			DBRecord dbRecord = info.getDbRecord();
-			defragFH.add(dbRecord);
+			DBRecord object = info.getDbRecord();
+			defragFH.add(object);
 		}
 
 		replaceOldFileWithNew(tmpFile);
@@ -159,9 +159,9 @@ public final class DBServer implements DB{
 	@Override
 	public DBRecord search(String name) {
 		LOGGER.finest("@DBServer @search(String name) = " + name);
-		DBRecord dbRecord = this.fileHandler.search(name);
-		LOGGER.info("@DBServer search(String name) return. name = " + name + " " + dbRecord);
-		return dbRecord;
+		DBRecord object = this.fileHandler.search(name);
+		LOGGER.info("@DBServer search(String name) return. name = " + name + " " + object);
+		return object;
 	}
 
 	@Override
@@ -194,9 +194,9 @@ public final class DBServer implements DB{
 
 
 	@Override
-	public void add(DBRecord dbRecord) {
-		LOGGER.finest("@DBServer @add(DBRecord) = " + dbRecord);
-		OperationUnit operationUnit =  this.fileHandler.add(dbRecord);
+	public void add(DBRecord object) {
+		LOGGER.finest("@DBServer @add(DBRecord) = " + object);
+		OperationUnit operationUnit =  this.fileHandler.add(object);
 		getTransaction().registerAdd(operationUnit.addedRowBytePosition);
 	}
 
@@ -255,13 +255,13 @@ public final class DBServer implements DB{
 	@Override
 	public DBRecord read(Long rowNumber) {
 		LOGGER.finest("@DBServer @read(rowNumber) = " + rowNumber);
-		DBRecord dbRecord = null;
+		DBRecord object = null;
 		if (checkRowNumber(rowNumber)) {
-			dbRecord = this.fileHandler.readRow(rowNumber);
-			LOGGER.info("@DBServer read(Long rowNumber) return. rowNumber = " + rowNumber + " " + dbRecord);
-			return dbRecord;
+			object = this.fileHandler.readRow(rowNumber);
+			LOGGER.info("@DBServer read(Long rowNumber) return. rowNumber = " + rowNumber + " " + object);
+			return object;
 		}
-		return dbRecord;
+		return object;
 	}
 
 

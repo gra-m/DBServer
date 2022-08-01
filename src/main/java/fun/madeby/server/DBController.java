@@ -2,8 +2,8 @@ package fun.madeby.server;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
-import fun.madeby.dbserver.DB;
-import fun.madeby.dbserver.DBServer;
+import fun.madeby.db.specific_server.DB;
+import fun.madeby.db.specific_server.DBServer;
 import io.javalin.http.Handler;
 
 import java.io.FileNotFoundException;

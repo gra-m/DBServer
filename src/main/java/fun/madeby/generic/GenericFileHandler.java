@@ -1,12 +1,15 @@
-package fun.madeby;
+package fun.madeby.generic;
 
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
+import fun.madeby.specific.Index;
 import fun.madeby.util.Levenshtein;
 import fun.madeby.util.OperationUnit;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 
 import static java.lang.Math.toIntExact;
 
@@ -15,15 +18,15 @@ import static java.lang.Math.toIntExact;
  * Created by Gra_m on 2022 06 24
  */
 
-public class FileHandler extends BaseFileHandler {
+public class GenericFileHandler extends GenericBaseFileHandler {
 
 
 
-	public FileHandler(String fileName) throws FileNotFoundException {
+	public GenericFileHandler(String fileName) throws FileNotFoundException {
 		super(fileName);
 	}
 
-	public FileHandler(RandomAccessFile randomAccessFile, String fileName) {
+	public GenericFileHandler(RandomAccessFile randomAccessFile, String fileName) {
 		super(randomAccessFile, fileName);
 	}
 
@@ -35,18 +38,18 @@ public class FileHandler extends BaseFileHandler {
 	 *
 	 * <p>This method returns a {@code boolean} true, but testing will be added in the future.</p>
 	 *
-	 * @param dbRecord the record to be written
+	 * @param object the record to be written
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public OperationUnit add(DBRecord dbRecord){
+	public OperationUnit add(Object object){
 		writeLock.lock();
 		Long currentPositionToInsert = null;
 		OperationUnit operationUnit = new OperationUnit();
 		try {
 			try {
-				if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
-					throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
+				if (Index.getInstance().hasNameInIndex(object.getClass().getName())) { // todo name mess
+					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName())); // todo name mess
 				}
 			} catch (DuplicateNameException e) {
 				e.printStackTrace();
@@ -56,7 +59,7 @@ public class FileHandler extends BaseFileHandler {
 			currentPositionToInsert = this.dbFile.length();
 			this.dbFile.seek(currentPositionToInsert);
 			// populate length
-			DBRecord returnedRec = dbRecord.populateOwnRecordLength(dbRecord);
+			Object returnedRec = object.populateOwnRecordLength(object);
 			try {
 				length = toIntExact(returnedRec.getLength());
 				if (length <= 0)
@@ -99,14 +102,14 @@ public class FileHandler extends BaseFileHandler {
 	}
 
 
-	public DBRecord readRow(Long rowNumber) {
-		LOGGER.severe("@FH readRow(rowNumber) " + rowNumber);
+	public Object readRow(Long rowNumber) {
+		LOGGER.severe("@GFH readRow(rowNumber) " + rowNumber);
 		readLock.lock();
-		DBRecord result = null;
+		Object result = null;
 		try {
 			Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
 			if (rowsBytePosition == -1L) {
-				LOGGER.severe("FH readRow. getRowsBytePosition == -1L");
+				LOGGER.severe("@GFH readRow. getRowsBytePosition == -1L");
 				return null;
 			}
 			byte[] row = readRawRecord(rowsBytePosition);
@@ -144,12 +147,12 @@ public class FileHandler extends BaseFileHandler {
 		return operationUnit;
 	}
 
-	public OperationUnit updateByRow(Long rowNumber, DBRecord newRecord) {
+	public OperationUnit updateByRow(Long rowNumber, Object newObject) {
 		writeLock.lock();
 		OperationUnit operation = new OperationUnit();
 		try {
 			operation.deletedRowBytePosition  = (this.deleteRow(rowNumber).deletedRowBytePosition);
-			operation.addedRowBytePosition = (this.add(newRecord)).addedRowBytePosition;
+			operation.addedRowBytePosition = (this.add(newObject)).addedRowBytePosition;
 			operation.successfulOperation = true;
 			return operation;
 
@@ -158,16 +161,16 @@ public class FileHandler extends BaseFileHandler {
 		}
 	}
 
-	public OperationUnit updateByName(String name, DBRecord newRecord) {
+	public OperationUnit updateByIndexedFieldName(String indexedFieldName, Object newObject) {
 		writeLock.lock();
-		Long namesRowNumber = Index.getInstance().getRowNumberByName(name);
+		Long namesRowNumber = Index.getInstance().getRowNumberByName(indexedFieldName);
 		OperationUnit operationUnit = new OperationUnit();
 
 		try {
 			if (namesRowNumber == -1)
-				throw new NameDoesNotExistException(String.format("Thread issue, name %s existed @DBServer, but could not be found here", name));
+				throw new NameDoesNotExistException(String.format("Thread issue, indexedFieldName %s existed @DBServer, but could not be found here", indexedFieldName));
 			else {
-				operationUnit = updateByRow(namesRowNumber, newRecord);
+				operationUnit = updateByRow(namesRowNumber, newObject);
 			}
 		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
@@ -177,20 +180,20 @@ public class FileHandler extends BaseFileHandler {
 		return operationUnit;
 	}
 
-	public DBRecord search(String name) {
-		Long rowNumber = Index.getInstance().getRowNumberByName(name);
+	public Object search(String indexedFieldName) {
+		Long rowNumber = Index.getInstance().getRowNumberByName(indexedFieldName);
 		if (rowNumber == -1)
 			return null;
 		return this.readRow(rowNumber);
 	}
 
-	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) {
-		Collection<DBRecord> result = new ArrayList<>();
+	public Collection<Object> searchWithLevenshtein(String indexedFieldName, int tolerance) {
+		Collection<Object> result = new ArrayList<>();
 		Set<String> names = (Set<String>) Index.getInstance().getNames();
 		Collection<String> exactOrCloseFitNames = new ArrayList<>();
 
 		for(String storedName: names) {
-			if (Levenshtein.levenshteinDistance(storedName, name, false) <= tolerance)
+			if (Levenshtein.levenshteinDistance(storedName, indexedFieldName, false) <= tolerance)
 				exactOrCloseFitNames.add(storedName);
 		}
 		// get records:
@@ -200,8 +203,8 @@ public class FileHandler extends BaseFileHandler {
 		return result;
 	}
 
-	public Collection<DBRecord> searchWithRegex(String regEx) {
-		Collection<DBRecord> result = new ArrayList<>();
+	public Collection<Object> searchWithRegex(String regEx) {
+		Collection<Object> result = new ArrayList<>();
 		Set<String> names = (Set<String>) Index.getInstance().getNames();
 		Collection<String> matchesRegEx = new ArrayList<>();
 
