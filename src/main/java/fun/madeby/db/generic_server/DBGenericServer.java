@@ -1,7 +1,10 @@
 package fun.madeby.db.generic_server;
 
+import com.google.gson.Gson;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.generic.GenericFileHandler;
+import fun.madeby.generic.Schema;
+import fun.madeby.generic.SchemaField;
 import fun.madeby.specific.Index;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.transaction.Transaction;
@@ -27,6 +30,8 @@ import java.util.logging.Logger;
 
 public class DBGenericServer implements DBGeneric {
 	private GenericFileHandler genericFileHandler;
+	private Schema schema;
+	private Class aClass;
 	private Logger LOGGER;
 	public Map<Long, ITransaction> transactions;
 
@@ -38,11 +43,22 @@ public class DBGenericServer implements DBGeneric {
 		}
 	}
 
-	public DBGenericServer(String dbFileName, String schema, Class classTemplate) throws FileNotFoundException {
+	public DBGenericServer(String dbFileName, String schemaString, Class aClass) throws FileNotFoundException {
 		LOGGER.finest("@DBGenericServer(String dbFileName) = " + dbFileName);
 		this.genericFileHandler = new GenericFileHandler(dbFileName);
+		this.aClass = aClass;
 		this.transactions = new LinkedHashMap<>();
 		this.initialise();
+		this.schema = this.readSchema(schemaString);
+	}
+
+	private Schema readSchema(final String schema) {
+		Gson gson = new Gson();
+		Schema tmpSchema = gson.fromJson(schema, Schema.class);
+		for(SchemaField field : tmpSchema.schemaFields) {
+			LOGGER.info("@DBGenericServer readSchema(String schema), field: " + field.fieldName + " type: " + field.fieldType);
+		}
+		return tmpSchema;
 	}
 
 	private void logObjectInfo(final Object obj) {
@@ -206,7 +222,7 @@ public class DBGenericServer implements DBGeneric {
 
 	@Override
 	public void update(String name, Object newObject) {
-		LOGGER.finest("@DBGenericServer @update(name, newRecord) " + name + " " + newObject.getName());
+		LOGGER.finest("@DBGenericServer @update(name, newRecord) " + name + " " + newObject.getClass().getSimpleName());
 		try {
 			if (Index.getInstance().hasNameInIndex(name)) {
 				OperationUnit operationUnit = this.genericFileHandler.updateByIndexedFieldName(name, newObject);
@@ -258,7 +274,7 @@ public class DBGenericServer implements DBGeneric {
 			if (checkRowNumber(rowNumber)) { //todo extra. Checks indexedFieldName is in index before going ahead with del
 				Object existingRowNumberRecord = read(rowNumber);
 				assert existingRowNumberRecord != null;
-				indexedFieldName = existingRowNumberRecord.getName();
+				indexedFieldName = existingRowNumberRecord.getClass().getSimpleName();
 				if (Index.getInstance().hasNameInIndex(indexedFieldName)) {
 					OperationUnit operationUnit = this.genericFileHandler.updateByRow(rowNumber, newObj);
 					ITransaction transaction = getTransaction();

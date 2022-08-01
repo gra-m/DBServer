@@ -2,6 +2,7 @@ package fun.madeby.db;
 
 import fun.madeby.db.generic_server.DBGenericServer;
 import fun.madeby.db.specific_server.DBServer;
+import fun.madeby.generic.Schema;
 
 import java.io.FileNotFoundException;
 
@@ -11,11 +12,11 @@ import java.io.FileNotFoundException;
 
 public final class DBFactory {
 
-	public static getSpecificDB(final String dbFileName) throws FileNotFoundException {
+	public static DBServer getSpecificDB(final String dbFileName) throws FileNotFoundException {
 		return new DBServer(dbFileName);
 	}
 
-	public static getGenericDB(final String dbFileName, final String schema, final Class classTemplate) {
+	public static DBGenericServer getGenericDB(final String dbFileName, final String schema, final Class classTemplate) throws FileNotFoundException {
 		return new DBGenericServer(dbFileName, schema,  classTemplate);
 	}
 }

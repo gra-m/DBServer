@@ -2,6 +2,7 @@ package fun.madeby.dbserver;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
+import fun.madeby.db.DBFactory;
 import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBServer;
 import fun.madeby.specific.Index;
@@ -66,7 +67,7 @@ class DBTest {
 	@Test
 	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
 	void testLevenshtein5_2() {
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = DBFactory.getSpecificDB(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"

@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="fun.madeby.dbserver.DBTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2022-07-30T09:41:20" hostname="DESKTOP-5P3J64F" time="0.238">
+<testsuite name="fun.madeby.dbserver.DBTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2022-08-01T20:24:22" hostname="DESKTOP-5P3J64F" time="0.187">
   <properties/>
-  <testcase name="Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info." classname="fun.madeby.dbserver.DBTest" time="0.074"/>
-  <testcase name="testRegEx(): 'R.*'" classname="fun.madeby.dbserver.DBTest" time="0.011"/>
-  <testcase name="addTest(): DBServer Add, via FileHandler test: 1 == OK" classname="fun.madeby.dbserver.DBTest" time="0.007"/>
-  <testcase name="UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data" classname="fun.madeby.dbserver.DBTest" time="0.019"/>
+  <testcase name="Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info." classname="fun.madeby.dbserver.DBTest" time="0.056"/>
+  <testcase name="testRegEx(): 'R.*'" classname="fun.madeby.dbserver.DBTest" time="0.008"/>
+  <testcase name="addTest(): DBServer Add, via FileHandler test: 1 == OK" classname="fun.madeby.dbserver.DBTest" time="0.005"/>
+  <testcase name="UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data" classname="fun.madeby.dbserver.DBTest" time="0.011"/>
   <testcase name="DBServer readTest : 1 == OK and then test equality of each field" classname="fun.madeby.dbserver.DBTest" time="0.008"/>
-  <testcase name="testLevenshtein4_1():  4 tolerance return 1" classname="fun.madeby.dbserver.DBTest" time="0.034"/>
-  <testcase name="testLevenshtein5_2(): 5 tolerance return 2" classname="fun.madeby.dbserver.DBTest" time="0.013"/>
-  <testcase name="searchTest(): DBServer search, then compare retrieved" classname="fun.madeby.dbserver.DBTest" time="0.008"/>
-  <testcase name="UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data" classname="fun.madeby.dbserver.DBTest" time="0.014"/>
-  <testcase name="Searches for commited DBRecord with regex, confirms List.size() and expected name." classname="fun.madeby.dbserver.DBTest" time="0.01"/>
-  <testcase name="COMMIT with MultiBegin." classname="fun.madeby.dbserver.DBTest" time="0.007"/>
-  <testcase name="ROLLBACK with MultiBegin." classname="fun.madeby.dbserver.DBTest" time="0.011"/>
-  <testcase name="testRegEx2():  'Re.*'" classname="fun.madeby.dbserver.DBTest" time="0.009"/>
+  <testcase name="testLevenshtein4_1():  4 tolerance return 1" classname="fun.madeby.dbserver.DBTest" time="0.027"/>
+  <testcase name="testLevenshtein5_2(): 5 tolerance return 2" classname="fun.madeby.dbserver.DBTest" time="0.011"/>
+  <testcase name="searchTest(): DBServer search, then compare retrieved" classname="fun.madeby.dbserver.DBTest" time="0.007"/>
+  <testcase name="UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data" classname="fun.madeby.dbserver.DBTest" time="0.011"/>
+  <testcase name="Searches for commited DBRecord with regex, confirms List.size() and expected name." classname="fun.madeby.dbserver.DBTest" time="0.008"/>
+  <testcase name="COMMIT with MultiBegin." classname="fun.madeby.dbserver.DBTest" time="0.008"/>
+  <testcase name="ROLLBACK with MultiBegin." classname="fun.madeby.dbserver.DBTest" time="0.007"/>
+  <testcase name="testRegEx2():  'Re.*'" classname="fun.madeby.dbserver.DBTest" time="0.008"/>
   <system-out><![CDATA[Retrieved row for 'Rezzi Delamdi' 0
 ]]></system-out>
-  <system-err><![CDATA[Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+  <system-err><![CDATA[Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Jul 30, 2022 11:41:20 AM fun.madeby.specific.FileHandler readRow
+Aug 01, 2022 10:24:22 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
 ]]></system-err>
 </testsuite>

@@ -30,8 +30,10 @@ public class GenericBaseFileHandler implements DataHandler {
 	final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 	final Lock readLock = readWriteLock.readLock();
 	final Lock writeLock = readWriteLock.writeLock();
-	private final int INTEGER_LENGTH_IN_BYTES = 4;
-	final int BOOLEAN_LENGTH_IN_BYTES = 1;
+	protected final int LONG_LENGTH_IN_BYTES = 8;
+	protected final int INTEGER_LENGTH_IN_BYTES = 4;
+	protected final int BOOLEAN_LENGTH_IN_BYTES = 1;
+	protected Schema schema;
 	Logger LOGGER;
 
 	{

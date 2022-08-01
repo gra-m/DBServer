@@ -9,9 +9,8 @@ import fun.madeby.util.OperationUnit;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Set;
-
-import static java.lang.Math.toIntExact;
 
 
 /**
@@ -45,6 +44,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	public OperationUnit add(Object object){
 		writeLock.lock();
 		Long currentPositionToInsert = null;
+		int length = 0;
 		OperationUnit operationUnit = new OperationUnit();
 		try {
 			try {
@@ -55,41 +55,26 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 				e.printStackTrace();
 			}
 
-			int length = 0;
 			currentPositionToInsert = this.dbFile.length();
-			this.dbFile.seek(currentPositionToInsert);
-			// populate length
-			Object returnedRec = object.populateOwnRecordLength(object);
-			try {
-				length = toIntExact(returnedRec.getLength());
-				if (length <= 0)
-					throw new RuntimeException("Record length zero or less");
-			} catch (ArithmeticException e) {
-				e.printStackTrace();
-			}
-			// write data
-			dbFile.writeBoolean(true); // isTemporary
-			dbFile.writeBoolean(false); // isDeleted
-			dbFile.writeInt(length); // length of record bytes
 
-			String name = returnedRec.getName();
-			dbFile.writeInt(name.length());
-			dbFile.write(name.getBytes());
+			length = getObjectLength(object, this.schema.schemaFields);
 
-			int age = returnedRec.getAge();
-			dbFile.writeInt(age);
 
-			String address = returnedRec.getAddress();
-			dbFile.writeInt(address.length());
-			dbFile.write(address.getBytes());
+			//todo remove test here
+			if (length >0) {
+				this.dbFile.seek(currentPositionToInsert);
+				dbFile.writeBoolean(true); // isTemporary
+				dbFile.writeBoolean(false); // isDeleted
+				dbFile.writeInt(length); // length of record bytes
+				writeObject(object, this.schema.schemaFields);
 
-			String carPlateNumber = returnedRec.getCarPlateNumber();
-			dbFile.writeInt(carPlateNumber.length());
-			dbFile.write(carPlateNumber.getBytes());
 
-			String description = returnedRec.getDescription();
-			dbFile.writeInt(description.length());
-			dbFile.write(description.getBytes());
+
+
+			} else
+				LOGGER.info("Object length returned as 0");
+
+
 
 		}catch (IOException e) {
 			e.printStackTrace();
@@ -99,6 +84,66 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		operationUnit.addedRowBytePosition = currentPositionToInsert;
 		operationUnit.successfulOperation = true;
 		return operationUnit;
+	}
+
+	private void writeObject(final Object obj, final LinkedList<SchemaField> linkedList) {
+		LOGGER.severe("@GenericFileHandler writeObject(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
+
+		try {
+			for (SchemaField field : linkedList) {
+				Object objectValue = obj.getClass().getDeclaredField(field.fieldName).get(obj);
+
+				switch (field.fieldType) {
+					case "String" -> {
+						this.dbFile.writeInt(((String)objectValue).length());
+						this.dbFile.write(((String)objectValue).getBytes());
+					}
+					case "boolean" -> {
+						this.dbFile.writeBoolean((Boolean) objectValue);
+					}
+					case "int" -> {
+						this.dbFile.writeInt((Integer) objectValue);
+					}
+					case "long" -> {
+						this.dbFile.writeLong((Long) objectValue);
+					}
+				}
+			}
+		}catch (NoSuchFieldException | IllegalAccessException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private int getObjectLength(final Object obj, final LinkedList<SchemaField> linkedList) {
+		LOGGER.severe("@GenericFileHandler getObjectLength(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
+		int result = 0;
+
+
+		try {
+			for (SchemaField field : linkedList) {
+				switch (field.fieldType) {
+					case "String" -> {
+						String stringValue = (String) obj.getClass().getDeclaredField(field.fieldName).get(obj);
+						result += stringValue.length(); // if I was using UTF-16 not recommended by IJ this would be 2x bytes per char lots of places on int == 2bytes but depends on encoding!
+						result += INTEGER_LENGTH_IN_BYTES;
+					}
+					case "boolean" -> {
+						result += BOOLEAN_LENGTH_IN_BYTES;
+					}
+					case "int" -> {
+						result += INTEGER_LENGTH_IN_BYTES;
+					}
+					case "long" -> {
+						result += LONG_LENGTH_IN_BYTES;
+					}
+				}
+			}
+		}catch (NoSuchFieldException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+
+		return result;
 	}
 
 
