@@ -1,14 +1,14 @@
 package fun.madeby.generic;
 
-import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
-import fun.madeby.DataHandler;
+import fun.madeby.DataHandlerGeneric;
 import fun.madeby.specific.Index;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
 import fun.madeby.util.LoggerSetUp;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  * Created by Gra_m on 2022 06 30
  */
 
-public class GenericBaseFileHandler implements DataHandler {
+public class GenericBaseFileHandler implements DataHandlerGeneric {
 	RandomAccessFile dbFile;
 	String dbFileName;
 	private final String VERSION = "0.1";
@@ -34,6 +34,7 @@ public class GenericBaseFileHandler implements DataHandler {
 	protected final int INTEGER_LENGTH_IN_BYTES = 4;
 	protected final int BOOLEAN_LENGTH_IN_BYTES = 1;
 	protected Schema schema;
+	protected Class aClass;
 	Logger LOGGER;
 
 	{
@@ -55,6 +56,14 @@ public class GenericBaseFileHandler implements DataHandler {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
 		this.dbFileName = fileName;
 		writeVersionInfoIfNewFile();
+	}
+
+	public void setSchema(Schema schema) {
+		this.schema = schema;
+	}
+
+	public void setAClass(Class aClass) {
+		this.aClass = aClass;
 	}
 
 
@@ -82,11 +91,12 @@ public class GenericBaseFileHandler implements DataHandler {
 				dbFile.writeBoolean(false); //  !isTemporary
 				// re-read the record
 				byte[] b = this.readRawRecord(position);
-				DBRecord record = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
+				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
 				// add to index
 
 				Index.getInstance().add(position);
-				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows() - 1); // does not increment total num of rows.
+				String name = (String)object.getClass().getDeclaredField("pName").get(object);
+				Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows() - 1); // does not increment total num of rows.
 			}
 
 			// commit deletedRows
@@ -95,7 +105,7 @@ public class GenericBaseFileHandler implements DataHandler {
 				dbFile.writeBoolean(false); // !isTemporary
 				Index.getInstance().removeByFilePosition(position);
 			}
-		} catch (IOException e) {
+		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
 		} finally {
 			writeLock.unlock();
@@ -103,6 +113,63 @@ public class GenericBaseFileHandler implements DataHandler {
 		return true;
 	}
 
+
+
+	public Object readFromByteStream(final DataInputStream stream) throws IOException {
+		Object object = null;
+		// Get empty object of class passed via reflection, via constructor now as safer.
+		try {
+			object = Class.forName(this.aClass.getCanonicalName()).getDeclaredConstructor().newInstance();
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			LOGGER.severe("@GBFileHandler readObjFromByteStream(stream): " + this.aClass.getSimpleName());
+			throw new IOException(e.getMessage());
+		}
+
+		try {
+		for (SchemaField field: this.schema.schemaFields) {
+
+			switch (field.fieldType.toLowerCase()) {
+				case "string" -> {
+					int fieldLength = stream.readInt();
+					byte[] bArray = new byte[fieldLength];
+					//stream.read(bArray); IJ always complains about this
+					//String value = new String(bArray);
+					String value = (String.valueOf(stream.read(bArray)));
+					object.getClass()
+							.getDeclaredField(field.fieldName)
+							.set(object, value);
+
+				}
+				case "boolean" -> {
+					boolean value = stream.readBoolean();
+					object.getClass()
+							.getDeclaredField((field.fieldName))
+							.set(object, value);
+
+				}
+				case "int" -> {
+					int value = stream.readInt();
+					object.getClass()
+							.getDeclaredField(field.fieldName)
+							.set(object, value);
+				}
+				case "long" -> {
+					long value = stream.readLong();
+					object.getClass()
+							.getDeclaredField(field.fieldName)
+							.set(object, value);
+				}
+			}
+		}
+
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			LOGGER.info("@GBFileHandler readObjFromByteStream(stream): " + e.getMessage());
+			e.printStackTrace();
+		}
+
+
+		return object;
+	}
 
 	@Override
 	public Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
@@ -125,11 +192,12 @@ public class GenericBaseFileHandler implements DataHandler {
 				dbFile.writeBoolean(false); // !isDeleted flag
 
 				byte[] b = this.readRawRecord(position);
-				DBRecord record = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
-				Index.getInstance().addNameToIndex(record.getName(), Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
+				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
+				String name = (String) object.getClass().getDeclaredField("pName").get(object);
+				Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
 				Index.getInstance().add(position); //
 			}
-		} catch (IOException e) {
+		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
 		} finally {
 			writeLock.unlock();
@@ -137,7 +205,7 @@ public class GenericBaseFileHandler implements DataHandler {
 		return true;
 	}
 
-
+	// populateIndexFromFile == better his name better!
 	public void populateIndex() {
 		LOGGER.severe("@BFH PopulateIndex()");
 		long rowNum = 0;
@@ -166,15 +234,16 @@ public class GenericBaseFileHandler implements DataHandler {
 					currentPosition += INTEGER_LENGTH_IN_BYTES;
 					if (!isDeleted) {
 						this.dbFile.seek(currentPosition);
-						byte[] retrieveRecord = new byte[recordLength];
-						dbFile.read(retrieveRecord);
-						DBRecord retrievedRecord = readFromByteStream(new DataInputStream(new ByteArrayInputStream(retrieveRecord)));
-						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
+						byte[] byteArrayOfObject = new byte[recordLength];
+						dbFile.read(byteArrayOfObject);
+						Object retrievedObject = readFromByteStream(new DataInputStream(new ByteArrayInputStream(byteArrayOfObject)));
+						String name = (String) retrievedObject.getClass().getDeclaredField("pName").get(retrievedObject);
+						Index.getInstance().addNameToIndex(name, rowNum++);
 					}
 					currentPosition += recordLength;
 					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d \n", rowNum, deletedRows, temporaryRows);
 				}
-			} catch (IOException e) {
+			} catch (IOException | NoSuchFieldException | IllegalAccessException e) {
 				e.printStackTrace();
 			} finally {
 				writeLock.unlock();
@@ -234,35 +303,6 @@ public class GenericBaseFileHandler implements DataHandler {
 	}
 
 
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public DBRecord readFromByteStream(final DataInputStream stream) throws IOException {
-
-		int nameLength = stream.readInt();
-		byte[] nameBytes = new byte[nameLength];
-		stream.read(nameBytes); // fill array, advance pointer
-		String name = new String(nameBytes);
-
-		int age = stream.readInt();
-
-		byte[] addressBytes = new byte[stream.readInt()];
-		//noinspection ResultOfMethodCallIgnored
-		stream.read(addressBytes); // fill array, advance pointer
-		String address = new String(addressBytes);
-
-		byte[] carPlateBytes = new byte[stream.readInt()];
-		//noinspection ResultOfMethodCallIgnored
-		stream.read(carPlateBytes); // fill array, advance pointer
-		String carPlateNumber = new String(carPlateBytes);
-
-		byte[] descriptionBytes = new byte[stream.readInt()];
-		//noinspection ResultOfMethodCallIgnored
-		stream.read(descriptionBytes); // fill array, advance pointer
-		String description = new String(descriptionBytes);
-
-		return new CarOwner(name, age, address, carPlateNumber, description);
-
-	}
-
 	public void close() throws IOException {
 		this.dbFile.close();
 	}
@@ -279,7 +319,7 @@ public class GenericBaseFileHandler implements DataHandler {
 			else {
 				boolean isTemporary;
 				boolean isDeleted;
-				DBRecord object;
+				Object object;
 				int recordLength;
 				long currentPosition = HEADER_INFO_SPACE;
 				returnArrayList = new ArrayList<>();

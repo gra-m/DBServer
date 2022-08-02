@@ -7,6 +7,8 @@ import fun.madeby.util.Levenshtein;
 import fun.madeby.util.OperationUnit;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -28,7 +30,6 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	public GenericFileHandler(RandomAccessFile randomAccessFile, String fileName) {
 		super(randomAccessFile, fileName);
 	}
-
 
 	/**
 	 * Writes a DbRecord to the RandomAccessFile dbFile.
@@ -118,24 +119,36 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	private int getObjectLength(final Object obj, final LinkedList<SchemaField> linkedList) {
 		LOGGER.severe("@GenericFileHandler getObjectLength(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
 		int result = 0;
+		int count = 0;
 
 
 		try {
 			for (SchemaField field : linkedList) {
 				switch (field.fieldType) {
 					case "String" -> {
-						String stringValue = (String) obj.getClass().getDeclaredField(field.fieldName).get(obj);
-						result += stringValue.length(); // if I was using UTF-16 not recommended by IJ this would be 2x bytes per char lots of places on int == 2bytes but depends on encoding!
+						Class objClass = obj.getClass();
+						RecordComponent[] rcArray = objClass.getRecordComponents();
+						Field jReflectField =  objClass.getDeclaredField(rcArray[count].getAccessor().getName());
+						jReflectField.setAccessible(true);
+						LOGGER.severe("result " + jReflectField.get(obj));
+						result += String.valueOf(jReflectField.get(obj)).length();  // if I was using UTF-16 not recommended by IJ this would be 2x bytes per char lots of places on int == 2bytes but depends on encoding!
 						result += INTEGER_LENGTH_IN_BYTES;
+						count++;
+					//if Dog were a normal Class	String stringValue = (String) obj.getClass().getDeclaredField(field.fieldName).get(obj);
+						//result += stringValue.length(); // if I was using UTF-16 not recommended by IJ this would be 2x bytes per char lots of places on int == 2bytes but depends on encoding!
+						//result += INTEGER_LENGTH_IN_BYTES;
 					}
 					case "boolean" -> {
 						result += BOOLEAN_LENGTH_IN_BYTES;
+						count++;
 					}
 					case "int" -> {
 						result += INTEGER_LENGTH_IN_BYTES;
+						count++;
 					}
 					case "long" -> {
 						result += LONG_LENGTH_IN_BYTES;
+						count++;
 					}
 				}
 			}
@@ -263,4 +276,5 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		}
 		return result;
 	}
+
 }

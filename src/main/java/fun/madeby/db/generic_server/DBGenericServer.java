@@ -45,14 +45,17 @@ public class DBGenericServer implements DBGeneric {
 
 	public DBGenericServer(String dbFileName, String schemaString, Class aClass) throws FileNotFoundException {
 		LOGGER.finest("@DBGenericServer(String dbFileName) = " + dbFileName);
-		this.genericFileHandler = new GenericFileHandler(dbFileName);
+		this.schema = this.readSchema(schemaString);
 		this.aClass = aClass;
+		this.genericFileHandler = new GenericFileHandler(dbFileName);
+		this.genericFileHandler.setSchema(schema);
+		this.genericFileHandler.setAClass(aClass);
 		this.transactions = new LinkedHashMap<>();
 		this.initialise();
-		this.schema = this.readSchema(schemaString);
 	}
 
 	private Schema readSchema(final String schema) {
+		LOGGER.severe("@DBGenericServer readSchema(String schema):" + schema);
 		Gson gson = new Gson();
 		Schema tmpSchema = gson.fromJson(schema, Schema.class);
 		for(SchemaField field : tmpSchema.schemaFields) {

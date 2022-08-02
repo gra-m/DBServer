@@ -1,4 +1,4 @@
-package fun.madeby.dbserver;
+package fun.madeby.specific_server;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
@@ -23,7 +23,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
-class DBTest {
+class DBSpecificTest {
 	private final String dbFileName = "testdb.db";
 	private DBRecord carOwner;
 	private DBRecord carOwnerUpdated;

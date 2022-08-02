@@ -124,7 +124,7 @@ public final class DBServer implements DB{
 		for(DebugInfo info: currentDebugInfoRows) {
 			if (info.isDeleted() || info.isTemporary())
 				continue;
-			DBRecord object = info.getDbRecord();
+			DBRecord object = (DBRecord) info.getDbRecord();
 			defragFH.add(object);
 		}
 

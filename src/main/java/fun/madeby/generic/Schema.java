@@ -10,4 +10,11 @@ public class Schema {
 	public String version;
 	public LinkedList<SchemaField> schemaFields;
 
+	@Override
+	public String toString() {
+		return "Schema{" +
+				"version='" + version + '\'' +
+				", schemaFields=" + schemaFields +
+				'}';
+	}
 }
