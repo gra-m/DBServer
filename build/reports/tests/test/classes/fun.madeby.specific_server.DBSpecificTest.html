@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.129s</div>
+<div class="counter">0.147s</div>
 <p>duration</p>
 </div>
 </td>
@@ -84,7 +84,7 @@
 <tr>
 <td class="success">addTest(): DBServer Add, via FileHandler test: 1 == OK</td>
 <td class="success">addTest()</td>
-<td class="success">0.006s</td>
+<td class="success">0.008s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -96,13 +96,13 @@
 <tr>
 <td class="success">searchTest(): DBServer search, then compare retrieved</td>
 <td class="success">searchTest()</td>
-<td class="success">0.008s</td>
+<td class="success">0.010s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testLevenshtein4_1():  4 tolerance return 1</td>
 <td class="success">testLevenshtein4_1()</td>
-<td class="success">0.011s</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -114,49 +114,49 @@
 <tr>
 <td class="success">testRegEx(): 'R.*'</td>
 <td class="success">testRegEx()</td>
-<td class="success">0.011s</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testRegEx2():  'Re.*'</td>
 <td class="success">testRegEx2()</td>
-<td class="success">0.010s</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">Searches for commited DBRecord with regex, confirms List.size() and expected name.</td>
 <td class="success">transactionTest_COMMIT()</td>
-<td class="success">0.010s</td>
+<td class="success">0.008s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">COMMIT with MultiBegin.</td>
 <td class="success">transactionTest_COMMIT_with_MultiBegin()</td>
-<td class="success">0.010s</td>
+<td class="success">0.009s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info.</td>
 <td class="success">transactionTest_ROLLBACK()</td>
-<td class="success">0.011s</td>
+<td class="success">0.016s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">ROLLBACK with MultiBegin.</td>
 <td class="success">transactionTest_ROLLBACK_with_MultiBegin()</td>
-<td class="success">0.009s</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data</td>
 <td class="success">updateByNameTest()</td>
-<td class="success">0.011s</td>
+<td class="success">0.014s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data</td>
 <td class="success">updateByRowTest()</td>
-<td class="success">0.011s</td>
+<td class="success">0.013s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -171,158 +171,158 @@
 <div id="tab2" class="tab">
 <h2>Standard error</h2>
 <span class="code">
-<pre>Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+<pre>Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer rollback
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer rollback
 INFO: @DBServer rollback() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithRegex
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithRegex
 INFO: @DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = Re.*
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithRegex
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithRegex
 INFO: @DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = R.*
 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
 Name: Razzgu Dulemdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: BAR ANVERS, Description: The place under the bridge..
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer read
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer read
 INFO: @DBServer read(Long rowNumber) return. rowNumber = 1 Name: Razzgu Dulemdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: BAR ANVERS, Description: The place under the bridge..
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer read
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer read
 INFO: @DBServer read(Long rowNumber) return. rowNumber = 0 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithLevenshtein
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithLevenshtein
 INFO: @DBServer @searchWithLevenshtein(String name, int tolerance) + returned Collection&lt;DBRecord&gt; = Rezzi Delamdi 4
 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithLevenshtein
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithLevenshtein
 INFO: @DBServer @searchWithLevenshtein(String name, int tolerance) + returned Collection&lt;DBRecord&gt; = Rezzi Delamdi 5
 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
 Name: Razzgu Dulemdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: BAR ANVERS, Description: The place under the bridge..
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer search
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer search
 INFO: @DBServer search(String name) return. name = Rezzi Delamdi Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer read
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer read
 INFO: @DBServer read(Long rowNumber) return. rowNumber = 0 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 1
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer read
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer read
 INFO: @DBServer read(Long rowNumber) return. rowNumber = 1 Name: Razzgu Dulemdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: BAR ANVERS, Description: The place under the bridge..
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithRegex
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithRegex
 INFO: @DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = Re.*
 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithRegex
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithRegex
 INFO: @DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = Re.*
 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer rollback
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer rollback
 INFO: @DBServer rollback() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithRegex
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithRegex
 INFO: @DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = Re.*
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithRegex
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithRegex
 INFO: @DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = Ra.*
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.BaseFileHandler populateIndex
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.BaseFileHandler populateIndex
 SEVERE: @BFH PopulateIndex()
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer commit
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer commit
 INFO: @DBServer commit() completed
-Aug 02, 2022 7:06:19 PM fun.madeby.specific.FileHandler readRow
+Aug 02, 2022 7:27:52 PM fun.madeby.specific.FileHandler readRow
 SEVERE: @FH readRow(rowNumber) 0
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer searchWithRegex
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer searchWithRegex
 INFO: @DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = Re.*
 Name: Rezzi Delamdi, Age: 34, Address: Repoke Street, Antwerp, 2000, reg#: 3AR 4NVERS, Description: The place under the bridge..
 
-Aug 02, 2022 7:06:19 PM fun.madeby.db.specific_server.DBServer close
+Aug 02, 2022 7:27:52 PM fun.madeby.db.specific_server.DBServer close
 INFO: @DBServer close()
 </pre>
 </span>
@@ -335,7 +335,7 @@ INFO: @DBServer close()
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 7.4</a> at 2 Aug 2022, 19:06:19</p>
+<a href="http://www.gradle.org">Gradle 7.4</a> at 2 Aug 2022, 19:27:52</p>
 </div>
 </div>
 </body>
