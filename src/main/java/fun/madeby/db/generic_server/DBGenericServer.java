@@ -277,7 +277,7 @@ public class DBGenericServer implements DBGeneric {
 			if (checkRowNumber(rowNumber)) { //todo extra. Checks indexedFieldName is in index before going ahead with del
 				Object existingRowNumberRecord = read(rowNumber);
 				assert existingRowNumberRecord != null;
-				indexedFieldName = existingRowNumberRecord.getClass().getSimpleName();
+				indexedFieldName = (String) existingRowNumberRecord.getClass().getDeclaredField("pName").get(existingRowNumberRecord);
 				if (Index.getInstance().hasNameInIndex(indexedFieldName)) {
 					OperationUnit operationUnit = this.genericFileHandler.updateByRow(rowNumber, newObj);
 					ITransaction transaction = getTransaction();
@@ -286,7 +286,7 @@ public class DBGenericServer implements DBGeneric {
 				} else
 					throw new NameDoesNotExistException(String.format("The row you are trying to update with indexedFieldName ('%s') does not exist in the indexedFieldName index", indexedFieldName));
 			}
-		} catch (NameDoesNotExistException e) {
+		} catch (NameDoesNotExistException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
 		}
 
@@ -302,7 +302,7 @@ public class DBGenericServer implements DBGeneric {
 
 
 	private boolean checkRowNumber(Long rowNumber) {
-		LOGGER.finest("@DBGenericServer @checkRowNumber(rowNumber) >0 = " + rowNumber);
+		LOGGER.finest("@DBGenericServer @checkRowNumber(rowNumber) >=0 = " + rowNumber);
 		try {
 			if (rowNumber < 0) {
 				throw new IOException("Row number is less than 0");

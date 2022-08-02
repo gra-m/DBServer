@@ -55,7 +55,7 @@ class DBGenericTest {
 		dogUpdated = new Dog("Chingu",
 				4,
 				"Ruzzi Dalemdi");
-		dogSimilar = new Dog("xtirF",
+		dogSimilar = new Dog("F1itx234",
 				3,
 				"Rezzi Delamdi");
 	}
@@ -106,15 +106,15 @@ class DBGenericTest {
 	}
 
 	@Test
-	@DisplayName("testRegEx(): 'R.*'")
+	@DisplayName("testRegEx(): 'F.*'")
 	void testRegEx() {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
 			db.beginTransaction();
 			db.add(dog);
-			db.add(dogUpdated);
+			db.add(dogSimilar);
 			db.commit();
 			assertEquals(2, index.getTotalNumberOfRows());
-			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("R.*");
+			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("F.*");
 			assertEquals(2, returnedMatchesRegex.size());
 		}catch(IOException e) {
 			System.out.println("5Tolerance Levenshtein: threw Exception");
@@ -123,7 +123,7 @@ class DBGenericTest {
 	}
 
 	@Test
-	@DisplayName("testRegEx2():  'Re.*'")
+	@DisplayName("testRegEx2():  'Fr.*'")
 	void testRegEx2() {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
 			db.beginTransaction();
@@ -131,7 +131,7 @@ class DBGenericTest {
 			db.add(dogUpdated);
 			db.commit();
 			assertEquals(2, index.getTotalNumberOfRows());
-			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("Re.*");
+			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("Fr.*");
 			assertEquals(1, returnedMatchesRegex.size());
 		}catch(IOException e) {
 			System.out.println("5Tolerance Levenshtein: threw Exception");
@@ -250,12 +250,13 @@ class DBGenericTest {
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			Long retrievedRowNum = index.getRowNumberByName("Fritx");
-			System.out.println("Retrieved row for 'Rezzi Delamdi' " + retrievedRowNum);
+			System.out.println("Retrieved row for 'Fritx' " + retrievedRowNum);
+			assertTrue(retrievedRowNum >= 0);
 			db.beginTransaction();
-			db.update("Rezzi Delamdi", dogUpdated );
+			db.update("Fritx", dogUpdated );
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
-			Dog retrieved = (Dog) db.read(index.getRowNumberByName("Razzgu Dulemdi"));
+			Dog retrieved = (Dog) db.read(index.getRowNumberByName("Chingu"));
 			if (retrieved != null) {
 				assertEquals("Chingu", retrieved.pName);
 				assertEquals(4, retrieved.age);

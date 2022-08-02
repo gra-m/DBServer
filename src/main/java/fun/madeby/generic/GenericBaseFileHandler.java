@@ -132,9 +132,9 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				case "string" -> {
 					int fieldLength = stream.readInt();
 					byte[] bArray = new byte[fieldLength];
-					//stream.read(bArray); IJ always complains about this
-					//String value = new String(bArray);
-					String value = (String.valueOf(stream.read(bArray)));
+					stream.read(bArray);// IJ always complains about this but XXX below makes pName the length of the String
+					String value = new String(bArray);
+					//String value = (String.valueOf(stream.read(bArray))); //XXX
 					object.getClass()
 							.getDeclaredField(field.fieldName)
 							.set(object, value);
