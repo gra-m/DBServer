@@ -157,7 +157,7 @@
       <recent name="fun.madeby.dbserver" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.Tests in 'fun.madeby.specific_server'">
+  <component name="RunManager" selected="Gradle.DBTestSuite">
     <configuration name="TestApp" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="fun.madeby.testapp.TestApp" />
       <module name="DBServer.main" />
@@ -170,29 +170,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="DBGenericTest.transactionTest_COMMIT_with_MultiBegin" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.DBGenericTest.transactionTest_COMMIT_with_MultiBegin&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
     </configuration>
     <configuration name="DBGenericTest.transactionTest_ROLLBACK" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -231,6 +208,29 @@
             <option value=":test" />
             <option value="--tests" />
             <option value="&quot;fun.madeby.generic_server.DBGenericTest.transactionTest_ROLLBACK_with_MultiBegin&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="DBTestSuite" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;fun.madeby.DBTestSuite&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -299,11 +299,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.DBTestSuite" />
         <item itemvalue="Gradle.Tests in 'fun.madeby.specific_server'" />
         <item itemvalue="Gradle.Tests in 'DBServer.test'" />
         <item itemvalue="Gradle.DBGenericTest.transactionTest_ROLLBACK_with_MultiBegin" />
         <item itemvalue="Gradle.DBGenericTest.transactionTest_ROLLBACK" />
-        <item itemvalue="Gradle.DBGenericTest.transactionTest_COMMIT_with_MultiBegin" />
       </list>
     </recent_temporary>
   </component>
