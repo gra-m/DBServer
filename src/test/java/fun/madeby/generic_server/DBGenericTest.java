@@ -47,7 +47,7 @@ class DBGenericTest {
 		//Empties existing file comment out to see
 		clearDataInExistingFile();
 
-		// create Dog test objects:
+		// create fun.madeby.Dog test objects:
 		dog = new Dog("Fritx",
 				3,
 				"Rezzi Delamdi");
@@ -156,7 +156,7 @@ class DBGenericTest {
 /*	@Test //todo see issue 34
 	@DisplayName("deleteTest(): DBServer Add then delete separate transactions")
 	void deleteTest() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, fun.madeby.Dog.class)){
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
@@ -182,9 +182,9 @@ class DBGenericTest {
 			assertEquals(1, index.getTotalNumberOfRows());
 			Dog retrieved = (Dog) db.search("Fritx");
 			assertNotNull(retrieved);
-			assertEquals("Fritx", retrieved.pName());
-			assertEquals(3, retrieved.age());
-			assertEquals("Rezzi Delamdi", retrieved.owner());
+			assertEquals("Fritx", retrieved.pName);
+			assertEquals(3, retrieved.age);
+			assertEquals("Rezzi Delamdi", retrieved.owner);
 
 		}catch(IOException e) {
 			System.out.println("searchTest: threw Exception");
@@ -204,9 +204,9 @@ class DBGenericTest {
 			assertEquals(index.getTotalNumberOfRows(), 1);
 			Dog readdog = (Dog) db.read(Index.getInstance().getRowNumberByName("Fritx"));
 			assertNotNull(readdog);
-			assertEquals("Fritx", readdog.pName());
-			assertEquals(3, readdog.age());
-			assertEquals("Rezzi Delamdi", readdog.owner());
+			assertEquals("Fritx", readdog.pName);
+			assertEquals(3, readdog.age);
+			assertEquals("Rezzi Delamdi", readdog.owner);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -229,9 +229,9 @@ class DBGenericTest {
 			//Object retrieved = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
 			Dog retrieved =  (Dog) db.read(1L);
 			assert retrieved != null;
-			assertEquals("Chingu", retrieved.pName());
-			assertEquals(4, retrieved.age());
-			assertEquals("Ruzzi Dalemdi", retrieved.owner());
+			assertEquals("Chingu", retrieved.pName);
+			assertEquals(4, retrieved.age);
+			assertEquals("Ruzzi Dalemdi", retrieved.owner);
 
 		}catch(IOException e) {
 			System.out.println("updateByRowTest:  threw Exception");
@@ -257,9 +257,9 @@ class DBGenericTest {
 			assertEquals(1, index.getTotalNumberOfRows());
 			Dog retrieved = (Dog) db.read(index.getRowNumberByName("Razzgu Dulemdi"));
 			if (retrieved != null) {
-				assertEquals("Chingu", retrieved.pName());
-				assertEquals(4, retrieved.age());
-				assertEquals("Ruzzi Dalemdi", retrieved.owner());
+				assertEquals("Chingu", retrieved.pName);
+				assertEquals(4, retrieved.age);
+				assertEquals("Ruzzi Dalemdi", retrieved.owner);
 			}
 		} catch (IOException e) {
 			System.out.println("updateByNameTest:  threw Exception");
@@ -280,7 +280,7 @@ class DBGenericTest {
 			List<Object> result = (List<Object>) db.searchWithRegex("Fr.*");
 			assertEquals(1, result.size());
 			Dog dog = (Dog) result.get(0);
-			assertEquals("Fritx", dog.pName());
+			assertEquals("Fritx", dog.pName);
 
 		}catch (Exception e) {
 			System.out.println("transactionTest_COMMIT():  threw Exception");
@@ -300,7 +300,7 @@ class DBGenericTest {
 			List<Object> result = (List<Object>) db.searchWithRegex("Fr.*");
 			assertEquals(1, result.size());
 			Dog dog = (Dog) result.get(0);
-			assertEquals("Fritx", dog.pName());
+			assertEquals("Fritx", dog.pName);
 
 		}catch (Exception e) {
 			System.out.println("transactionTest_COMMIT():  threw Exception");

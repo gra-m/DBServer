@@ -122,7 +122,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 			object = Class.forName(this.aClass.getCanonicalName()).getDeclaredConstructor().newInstance();
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			LOGGER.severe("@GBFileHandler readObjFromByteStream(stream): " + this.aClass.getSimpleName());
-			throw new IOException(e.getMessage());
+			e.printStackTrace();
 		}
 
 		try {
@@ -207,7 +207,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 
 	// populateIndexFromFile == better his name better!
 	public void populateIndex() {
-		LOGGER.severe("@BFH PopulateIndex()");
+		LOGGER.finest("@GBFH PopulateIndex()");
 		long rowNum = 0;
 		int recordLength = 0;
 		long currentPosition = HEADER_INFO_SPACE;

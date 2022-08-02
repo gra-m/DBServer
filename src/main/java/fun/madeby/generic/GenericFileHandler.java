@@ -43,6 +43,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	 * @throws IOException if there is one
 	 */
 	public OperationUnit add(Object object){
+		LOGGER.severe("@GFH add(Object) = " + object);
 		writeLock.lock();
 		Long currentPositionToInsert = null;
 		int length = 0;
@@ -88,7 +89,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	}
 
 	private void writeObject(final Object obj, final LinkedList<SchemaField> linkedList) {
-		LOGGER.severe("@GenericFileHandler writeObject(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
+		LOGGER.finest("@GenericFileHandler writeObject(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
 
 		try {
 			for (SchemaField field : linkedList) {
@@ -117,7 +118,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 
 	private int getObjectLength(final Object obj, final LinkedList<SchemaField> linkedList) {
-		LOGGER.severe("@GenericFileHandler getObjectLength(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
+		LOGGER.finest("@GenericFileHandler getObjectLength(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
 		int result = 0;
 		int count = 0;
 
@@ -126,29 +127,18 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 			for (SchemaField field : linkedList) {
 				switch (field.fieldType) {
 					case "String" -> {
-						Class objClass = obj.getClass();
-						RecordComponent[] rcArray = objClass.getRecordComponents();
-						Field jReflectField =  objClass.getDeclaredField(rcArray[count].getAccessor().getName());
-						jReflectField.setAccessible(true);
-						LOGGER.severe("result " + jReflectField.get(obj));
-						result += String.valueOf(jReflectField.get(obj)).length();  // if I was using UTF-16 not recommended by IJ this would be 2x bytes per char lots of places on int == 2bytes but depends on encoding!
+						String stringValue = (String) obj.getClass().getDeclaredField(field.fieldName).get(obj);
+						result += stringValue.length(); // if I was using UTF-16 not recommended by IJ this would be 2x bytes per char lots of places on int == 2bytes but depends on encoding!
 						result += INTEGER_LENGTH_IN_BYTES;
-						count++;
-					//if Dog were a normal Class	String stringValue = (String) obj.getClass().getDeclaredField(field.fieldName).get(obj);
-						//result += stringValue.length(); // if I was using UTF-16 not recommended by IJ this would be 2x bytes per char lots of places on int == 2bytes but depends on encoding!
-						//result += INTEGER_LENGTH_IN_BYTES;
 					}
 					case "boolean" -> {
 						result += BOOLEAN_LENGTH_IN_BYTES;
-						count++;
 					}
 					case "int" -> {
 						result += INTEGER_LENGTH_IN_BYTES;
-						count++;
 					}
 					case "long" -> {
 						result += LONG_LENGTH_IN_BYTES;
-						count++;
 					}
 				}
 			}
@@ -161,13 +151,13 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 
 	public Object readRow(Long rowNumber) {
-		LOGGER.severe("@GFH readRow(rowNumber) " + rowNumber);
+		LOGGER.finest("@GFH readRow(rowNumber) " + rowNumber);
 		readLock.lock();
 		Object result = null;
 		try {
 			Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
 			if (rowsBytePosition == -1L) {
-				LOGGER.severe("@GFH readRow. getRowsBytePosition == -1L");
+				LOGGER.finest("@GFH readRow. getRowsBytePosition == -1L");
 				return null;
 			}
 			byte[] row = readRawRecord(rowsBytePosition);

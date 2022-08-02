@@ -55,11 +55,11 @@ public class DBGenericServer implements DBGeneric {
 	}
 
 	private Schema readSchema(final String schema) {
-		LOGGER.severe("@DBGenericServer readSchema(String schema):" + schema);
+		LOGGER.finest("@DBGenericServer readSchema(String schema):" + schema);
 		Gson gson = new Gson();
 		Schema tmpSchema = gson.fromJson(schema, Schema.class);
 		for(SchemaField field : tmpSchema.schemaFields) {
-			LOGGER.info("@DBGenericServer readSchema(String schema), field: " + field.fieldName + " type: " + field.fieldType);
+			LOGGER.finest("@DBGenericServer readSchema(String schema), field: " + field.fieldName + " type: " + field.fieldType);
 		}
 		return tmpSchema;
 	}
@@ -75,7 +75,7 @@ public class DBGenericServer implements DBGeneric {
 		sb.append(obj.toString()).append(System.getProperty("line separator"));
 		}
 		// todo check output, not seen
-		LOGGER.info("[" + this.getClass().getSimpleName() + "]" + "Read Object: " + sb);
+		LOGGER.finest("[" + this.getClass().getSimpleName() + "]" + "Read Object: " + sb);
 	}
 
 
@@ -296,6 +296,7 @@ public class DBGenericServer implements DBGeneric {
 	private ITransaction getTransaction() {
 		LOGGER.finest("@DBGenericServer getTransaction()");
 		long threadId = Thread.currentThread().getId();
+		LOGGER.severe("@DBGenericServer getTransaction() getting transactions with ThreadId = " + threadId);
 		return transactions.getOrDefault(threadId, null);
 	}
 
