@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 public class Schema {
 	public String version;
+	public String indexBy;
 	public LinkedList<SchemaField> schemaFields;
 
 	@Override

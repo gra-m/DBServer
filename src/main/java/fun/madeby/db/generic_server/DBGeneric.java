@@ -27,7 +27,7 @@ public interface DBGeneric extends Closeable {
 
 	Object search (String name);
 
-	void refreshIndex();
+	void refreshGenericIndex();
 
 	void defragmentDatabase() throws IOException;
 

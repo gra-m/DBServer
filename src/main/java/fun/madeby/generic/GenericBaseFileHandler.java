@@ -1,8 +1,6 @@
 package fun.madeby.generic;
 
-import fun.madeby.DBRecord;
 import fun.madeby.DataHandlerGeneric;
-import fun.madeby.specific.Index;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
 import fun.madeby.util.LoggerSetUp;
@@ -94,16 +92,16 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
 				// add to index
 
-				Index.getInstance().add(position);
-				String name = (String)object.getClass().getDeclaredField("pName").get(object);
-				Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows() - 1); // does not increment total num of rows.
+				GenericIndex.getInstance().add(position);
+				String genericIndexedValue = (String)object.getClass().getDeclaredField(schema.indexBy).get(object);
+				GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, GenericIndex.getInstance().getTotalNumberOfRows() - 1); // does not increment total num of rows.
 			}
 
 			// commit deletedRows
 			for (Long position : deletedRowsBytePosition) {
 				this.dbFile.seek(position);
 				dbFile.writeBoolean(false); // !isTemporary
-				Index.getInstance().removeByFilePosition(position);
+				GenericIndex.getInstance().removeByFilePosition(position);
 			}
 		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
@@ -132,7 +130,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				case "string" -> {
 					int fieldLength = stream.readInt();
 					byte[] bArray = new byte[fieldLength];
-					stream.read(bArray);// IJ always complains about this but XXX below makes pName the length of the String
+					stream.read(bArray);// IJ always complains about this but XXX below makes genericIndexedValue the length of the String
 					String value = new String(bArray);
 					//String value = (String.valueOf(stream.read(bArray))); //XXX
 					object.getClass()
@@ -182,7 +180,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);
 				dbFile.writeBoolean(true); // isDeleted
 
-				Index.getInstance().removeByFilePosition(position);
+				GenericIndex.getInstance().removeByFilePosition(position);
 			}
 			// rollback deletedRows
 			for (Long position : deletedRowsBytePosition) {
@@ -193,9 +191,9 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 
 				byte[] b = this.readRawRecord(position);
 				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
-				String name = (String) object.getClass().getDeclaredField("pName").get(object);
-				Index.getInstance().addNameToIndex(name, Index.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
-				Index.getInstance().add(position); //
+				String genericIndexedValue = (String) object.getClass().getDeclaredField(schema.indexBy).get(object);
+				GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, GenericIndex.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
+				GenericIndex.getInstance().add(position); //
 			}
 		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
@@ -205,7 +203,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		return true;
 	}
 
-	// populateIndexFromFile == better his name better!
+
 	public void populateIndex() {
 		LOGGER.finest("@GBFH PopulateIndex()");
 		long rowNum = 0;
@@ -217,7 +215,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		if (isExistingData()) {
 			writeLock.lock();
 			try {
-				Index.getInstance().resetTotalNumberOfRows();
+				GenericIndex.getInstance().resetTotalNumberOfRows();
 				while (currentPosition < this.dbFile.length()) {
 					this.dbFile.seek(currentPosition);
 					boolean isTemporary = this.dbFile.readBoolean(); // new read ifTemporary
@@ -226,7 +224,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 					this.dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES);
 					boolean isDeleted = this.dbFile.readBoolean();
 					if (!isDeleted) {
-						Index.getInstance().add(currentPosition);
+						GenericIndex.getInstance().add(currentPosition);
 					} else deletedRows++;
 
 					currentPosition += BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES;
@@ -237,8 +235,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 						byte[] byteArrayOfObject = new byte[recordLength];
 						dbFile.read(byteArrayOfObject);
 						Object retrievedObject = readFromByteStream(new DataInputStream(new ByteArrayInputStream(byteArrayOfObject)));
-						String name = (String) retrievedObject.getClass().getDeclaredField("pName").get(retrievedObject);
-						Index.getInstance().addNameToIndex(name, rowNum++);
+						String genericIndexedValue = (String) retrievedObject.getClass().getDeclaredField(schema.indexBy).get(retrievedObject);
+						GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, rowNum++);
 					}
 					currentPosition += recordLength;
 					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d \n", rowNum, deletedRows, temporaryRows);
@@ -269,7 +267,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	 * Reads the raw record, returns record data without storage information.
 	 *
 	 * @param rowsBytePosition Not working with index currently, working if passed -1L.
-	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 3 bytes representing the name
+	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 3 bytes representing the genericIndexedValue
 	 * length int.
 	 */
 	public byte[] readRawRecord(Long rowsBytePosition) {

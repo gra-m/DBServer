@@ -155,7 +155,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		readLock.lock();
 		Object result = null;
 		try {
-			Long rowsBytePosition = Index.getInstance().getRowsBytePosition(rowNumber);
+			Long rowsBytePosition = GenericIndex.getInstance().getRowsBytePosition(rowNumber);
 			if (rowsBytePosition == -1L) {
 				LOGGER.finest("@GFH readRow. getRowsBytePosition == -1L");
 				return null;
@@ -176,7 +176,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		OperationUnit operationUnit = new OperationUnit();
 		Long rowsBytePosition = null;
 		try {
-			Index indexInstance = Index.getInstance();
+			GenericIndex indexInstance = GenericIndex.getInstance();
 			rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
 			if (rowsBytePosition == -1)
 				throw new IOException("Row does not exist in index");
@@ -211,7 +211,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 	public OperationUnit updateByIndexedFieldName(String indexedFieldName, Object newObject) {
 		writeLock.lock();
-		Long namesRowNumber = Index.getInstance().getRowNumberByName(indexedFieldName);
+		Long namesRowNumber = GenericIndex.getInstance().getRowNumberByName(indexedFieldName);
 		OperationUnit operationUnit = new OperationUnit();
 
 		try {
@@ -229,7 +229,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	}
 
 	public Object search(String indexedFieldName) {
-		Long rowNumber = Index.getInstance().getRowNumberByName(indexedFieldName);
+		Long rowNumber = GenericIndex.getInstance().getRowNumberByName(indexedFieldName);
 		if (rowNumber == -1)
 			return null;
 		return this.readRow(rowNumber);
@@ -237,7 +237,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 	public Collection<Object> searchWithLevenshtein(String indexedFieldName, int tolerance) {
 		Collection<Object> result = new ArrayList<>();
-		Set<String> names = (Set<String>) Index.getInstance().getNames();
+		Set<String> names = (Set<String>) GenericIndex.getInstance().getGenericIndexedValues();
 		Collection<String> exactOrCloseFitNames = new ArrayList<>();
 
 		for(String storedName: names) {
@@ -253,7 +253,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 	public Collection<Object> searchWithRegex(String regEx) {
 		Collection<Object> result = new ArrayList<>();
-		Set<String> names = (Set<String>) Index.getInstance().getNames();
+		Set<String> names = (Set<String>) GenericIndex.getInstance().getGenericIndexedValues();
 		Collection<String> matchesRegEx = new ArrayList<>();
 
 		for(String storedName: names) {

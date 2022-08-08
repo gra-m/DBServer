@@ -3,9 +3,10 @@ package fun.madeby.generic_server;
 import fun.madeby.Dog;
 import fun.madeby.db.DBFactory;
 import fun.madeby.db.generic_server.DBGenericServer;
-import fun.madeby.specific.Index;
+import fun.madeby.generic.GenericIndex;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,10 +27,10 @@ class DBGenericTest {
 	private Object dog;
 	private Object dogUpdated;
 	private Object dogSimilar;
-	private Index index;
 	private static final String DOG_SCHEMA = """
-  			{
+					{
 			"version": "0.1",
+			"indexBy": "pName",
 			"schemaFields":[
 			{"fieldName":"pName","fieldType":"String"},
 			{"fieldName":"age","fieldType":"int"},
@@ -40,9 +41,6 @@ class DBGenericTest {
 
 	@BeforeEach
 	public void setUp() {
-
-		// get singleton
-		index = Index.getInstance();
 
 		//Empties existing file comment out to see
 		clearDataInExistingFile();
@@ -73,34 +71,32 @@ class DBGenericTest {
 	@Test
 	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
 	void testLevenshtein5_2() {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.add(dogSimilar); //"xtirF"
 			db.commit();
-			assertEquals(2, index.getTotalNumberOfRows());
+			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
 			ArrayList<Object> returnedMatchesWithinTolerance = (ArrayList<Object>) db.searchWithLevenshtein("Fritx", 5);
 			assertEquals(2, returnedMatchesWithinTolerance.size());
-		}catch(IOException e) {
-			System.out.println("5Tolerance Levenshtein: threw Exception");
-			e.printStackTrace();
+		} catch (IOException e) {
+			Assertions.fail();
 		}
 	}
 
 	@Test
 	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
 	void testLevenshtein4_1() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.add(dogUpdated); //"xtirF"
 			db.commit();
-			assertEquals(2, index.getTotalNumberOfRows());
+			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
 			ArrayList<Object> returnedMatchesWithinTolerance = (ArrayList<Object>) db.searchWithLevenshtein("Fritx", 4);
 			assertEquals(1, returnedMatchesWithinTolerance.size());
-		}catch(IOException e) {
-			System.out.println("5Tolerance Levenshtein: threw Exception");
-			e.printStackTrace();
+		} catch (IOException e) {
+			Assertions.fail();
 		}
 
 	}
@@ -108,48 +104,46 @@ class DBGenericTest {
 	@Test
 	@DisplayName("testRegEx(): 'F.*'")
 	void testRegEx() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.add(dogSimilar);
 			db.commit();
-			assertEquals(2, index.getTotalNumberOfRows());
+			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
 			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("F.*");
 			assertEquals(2, returnedMatchesRegex.size());
-		}catch(IOException e) {
-			System.out.println("5Tolerance Levenshtein: threw Exception");
-			e.printStackTrace();
+		} catch (IOException e) {
+			Assertions.fail();
 		}
 	}
 
 	@Test
 	@DisplayName("testRegEx2():  'Fr.*'")
 	void testRegEx2() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.add(dogUpdated);
 			db.commit();
-			assertEquals(2, index.getTotalNumberOfRows());
+			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
 			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("Fr.*");
 			assertEquals(1, returnedMatchesRegex.size());
-		}catch(IOException e) {
-			System.out.println("5Tolerance Levenshtein: threw Exception");
-			e.printStackTrace();
+		} catch (IOException e) {
+			Assertions.fail();
 		}
 	}
 
 
 	@Test
 	@DisplayName("addTest(): DBGenericServer Add, via FileHandler test: 1 == OK")
-	void addTest(){
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)){
+	void addTest() {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
-			assertEquals(1, index.getTotalNumberOfRows());
-		}catch(IOException e) {
-			System.out.println("addTest: add threw Exception");
+			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
+		} catch (IOException e) {
+			Assertions.fail();
 		}
 	}
 
@@ -160,11 +154,11 @@ class DBGenericTest {
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
-			assertEquals(1, index.getTotalNumberOfRows());
+			assertEquals(1, GenericIndex.getTotalNumberOfRows());
 			db.beginTransaction();
 			db.delete(0L);
 			db.commit();
-			assertEquals(0, index.getTotalNumberOfRows());
+			assertEquals(0, GenericIndex.getTotalNumberOfRows());
 		}catch(IOException e) {
 			System.out.println("deleteTest: threw Exception");
 			e.printStackTrace();
@@ -175,105 +169,101 @@ class DBGenericTest {
 	@Test
 	@DisplayName("searchTest(): DBServer search, then compare retrieved")
 	void searchTest() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
-			assertEquals(1, index.getTotalNumberOfRows());
+			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
 			Dog retrieved = (Dog) db.search("Fritx");
 			assertNotNull(retrieved);
 			assertEquals("Fritx", retrieved.pName);
 			assertEquals(3, retrieved.age);
 			assertEquals("Rezzi Delamdi", retrieved.owner);
 
-		}catch(IOException e) {
-			System.out.println("searchTest: threw Exception");
-			e.printStackTrace();
+		} catch (IOException e) {
+			Assertions.fail();
 		}
 	}
 
 
-
 	@Test
-	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field") //shows on fail
-	void readTest(){
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field")
+		//shows on fail
+	void readTest() {
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
-			assertEquals(index.getTotalNumberOfRows(), 1);
-			Dog readdog = (Dog) db.read(Index.getInstance().getRowNumberByName("Fritx"));
+			assertEquals(GenericIndex.getInstance().getTotalNumberOfRows(), 1);
+			Dog readdog = (Dog) db.read(GenericIndex.getInstance().getRowNumberByName("Fritx"));
 			assertNotNull(readdog);
 			assertEquals("Fritx", readdog.pName);
 			assertEquals(3, readdog.age);
 			assertEquals("Rezzi Delamdi", readdog.owner);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Assertions.fail();
 		}
 	}
 
 	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
 	void updateByRowTest() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			// normal
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
-			assertEquals(1, index.getTotalNumberOfRows());
+			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
 			db.beginTransaction();
-			db.update(0L, dogUpdated );
+			db.update(0L, dogUpdated);
 			db.commit();
-			assertEquals(1, index.getTotalNumberOfRows());
+			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
 			//db.defragmentDatabase(); // todo defrag breaks this test (adding as bug @issue 35) retrieved == null
-			//Object retrieved = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
-			Dog retrieved =  (Dog) db.read(1L);
+			//Object retrieved = db.read(GenericIndex.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
+			Dog retrieved = (Dog) db.read(1L);
 			assert retrieved != null;
 			assertEquals("Chingu", retrieved.pName);
 			assertEquals(4, retrieved.age);
 			assertEquals("Ruzzi Dalemdi", retrieved.owner);
 
-		}catch(IOException e) {
-			System.out.println("updateByRowTest:  threw Exception");
-			e.printStackTrace();
+		} catch (IOException e) {
+			Assertions.fail();
 		}
 	}
-
 
 
 	@Test // todo see issue 34
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
-			assertEquals(1, index.getTotalNumberOfRows());
-			Long retrievedRowNum = index.getRowNumberByName("Fritx");
+			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
+			Long retrievedRowNum = GenericIndex.getInstance().getRowNumberByName("Fritx");
 			System.out.println("Retrieved row for 'Fritx' " + retrievedRowNum);
 			assertTrue(retrievedRowNum >= 0);
 			db.beginTransaction();
-			db.update("Fritx", dogUpdated );
+			db.update("Fritx", dogUpdated);
 			db.commit();
-			assertEquals(1, index.getTotalNumberOfRows());
-			Dog retrieved = (Dog) db.read(index.getRowNumberByName("Chingu"));
+			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
+			Dog retrieved = (Dog) db.read(GenericIndex.getInstance().getRowNumberByName("Chingu"));
 			if (retrieved != null) {
 				assertEquals("Chingu", retrieved.pName);
 				assertEquals(4, retrieved.age);
 				assertEquals("Ruzzi Dalemdi", retrieved.owner);
 			}
 		} catch (IOException e) {
-			System.out.println("updateByNameTest:  threw Exception");
+			Assertions.fail();
 		}
 	}
-
 
 
 	@Test
 	@DisplayName("Searches for commited Object with regex, confirms List.size() and expected name.")
 	public void transactionTest_COMMIT() {
 
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
@@ -283,8 +273,8 @@ class DBGenericTest {
 			Dog dog = (Dog) result.get(0);
 			assertEquals("Fritx", dog.pName);
 
-		}catch (Exception e) {
-			System.out.println("transactionTest_COMMIT():  threw Exception");
+		} catch (Exception e) {
+			Assertions.fail();
 		}
 	}
 
@@ -292,7 +282,7 @@ class DBGenericTest {
 	@DisplayName("COMMIT with MultiBegin.")
 	public void transactionTest_COMMIT_with_MultiBegin() {
 
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.beginTransaction();
@@ -303,15 +293,15 @@ class DBGenericTest {
 			Dog dog = (Dog) result.get(0);
 			assertEquals("Fritx", dog.pName);
 
-		}catch (Exception e) {
-			System.out.println("transactionTest_COMMIT():  threw Exception");
+		} catch (Exception e) {
+			Assertions.fail();
 		}
 	}
 
 	@Test
 	@DisplayName("Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info.")
 	public void transactionTest_ROLLBACK() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.rollback();
@@ -326,8 +316,8 @@ class DBGenericTest {
 			assertFalse(dri.isTemporary());
 			assertTrue(dri.isDeleted());
 
-		}catch (Exception e) {
-			System.out.println("transactionTest_ROLLBACK():  threw Exception");
+		} catch (Exception e) {
+			Assertions.fail();
 		}
 	}
 
@@ -335,7 +325,7 @@ class DBGenericTest {
 	@DisplayName("ROLLBACK with MultiBegin.")
 	public void transactionTest_ROLLBACK_with_MultiBegin() {
 
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)){
+		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.beginTransaction();
@@ -358,8 +348,8 @@ class DBGenericTest {
 			assertFalse(dri1.isTemporary());
 			assertTrue(dri1.isDeleted());
 
-		}catch (Exception e) {
-			System.out.println("transactionTest_COMMIT():  threw Exception");
+		} catch (Exception e) {
+			Assertions.fail();
 		}
 	}
 

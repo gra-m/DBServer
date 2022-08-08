@@ -3,9 +3,9 @@ package fun.madeby.db.generic_server;
 import com.google.gson.Gson;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.generic.GenericFileHandler;
+import fun.madeby.generic.GenericIndex;
 import fun.madeby.generic.Schema;
 import fun.madeby.generic.SchemaField;
-import fun.madeby.specific.Index;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.transaction.Transaction;
 import fun.madeby.util.DebugInfo;
@@ -105,7 +105,7 @@ public class DBGenericServer implements DBGeneric {
 	@Override
 	public void close() throws IOException {
 		LOGGER.info("@DBGenericServer close()");
-		Index.getInstance().clear();
+		GenericIndex.getInstance().clear();
 		this.genericFileHandler.close();
 	}
 
@@ -128,6 +128,7 @@ public class DBGenericServer implements DBGeneric {
 	}
 
 	private void initialise() {
+		GenericIndex.getInstance().initialiseGenericIndexSchema(this.schema);
 		LOGGER.finest("@DBGenericServer intialise()");
 		this.genericFileHandler.writeVersionInfoIfNewFile();
 		this.genericFileHandler.populateIndex();
@@ -141,7 +142,7 @@ public class DBGenericServer implements DBGeneric {
 		String suffix = "dat";
 
 		File tmpFile = File.createTempFile(prefix, suffix);
-		Index.getInstance().clear();
+		GenericIndex.getInstance().clear();
 
 		// open temp file:
 		GenericFileHandler defragGFH = new GenericFileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName());
@@ -157,7 +158,7 @@ public class DBGenericServer implements DBGeneric {
 
 		replaceOldFileWithNew(tmpFile);
 		defragGFH.close();
-		Index.getInstance().clear();
+		GenericIndex.getInstance().clear();
 		this.initialise();
 	}
 
@@ -182,7 +183,7 @@ public class DBGenericServer implements DBGeneric {
 
 	@Override
 	public Long getTotalRecordAmount() {
-		return Index.getInstance().getTotalNumberOfRows();
+		return GenericIndex.getInstance().getTotalNumberOfRows();
 	}
 
 
@@ -200,8 +201,8 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void refreshIndex() {
-		LOGGER.finest("@DBGenericServer @refreshIndex()");
+	public void refreshGenericIndex() {
+		LOGGER.finest("@DBGenericServer @refreshGenericIndex()");
 		this.genericFileHandler.populateIndex();
 	}
 
@@ -224,17 +225,17 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void update(String name, Object newObject) {
-		LOGGER.finest("@DBGenericServer @update(name, newRecord) " + name + " " + newObject.getClass().getSimpleName());
+	public void update(String GenericIndexedValue, Object newObject) {
+		LOGGER.finest("@DBGenericServer @update(name, newRecord) " + GenericIndexedValue + " " + newObject.getClass().getSimpleName());
 		try {
-			if (Index.getInstance().hasNameInIndex(name)) {
-				OperationUnit operationUnit = this.genericFileHandler.updateByIndexedFieldName(name, newObject);
+			if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(GenericIndexedValue)) {
+				OperationUnit operationUnit = this.genericFileHandler.updateByIndexedFieldName(GenericIndexedValue, newObject);
 				ITransaction transaction = getTransaction();
 				transaction.registerAdd(operationUnit.addedRowBytePosition);
 				transaction.registerDelete(operationUnit.deletedRowBytePosition);
 
 			} else
-				throw new NameDoesNotExistException(String.format("The name you are trying to update ('%s') does not exist", name));
+				throw new NameDoesNotExistException(String.format("The name you are trying to update ('%s') does not exist", GenericIndexedValue));
 		} catch (NameDoesNotExistException e) {
 			e.printStackTrace();
 		}
@@ -242,19 +243,19 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public Object search(String indexedFieldName) {
-		LOGGER.finest("@DBGenericServer @search(String indexedFieldName) = " + indexedFieldName);
-		Object object = this.genericFileHandler.search(indexedFieldName);
-		LOGGER.info("@DBGenericServer search(String indexedFieldName) return. indexedFieldName = " + indexedFieldName + " " + object);
+	public Object search(String GenericIndexedFieldName) {
+		LOGGER.finest("@DBGenericServer @search(String GenericIndexedFieldName) = " + GenericIndexedFieldName);
+		Object object = this.genericFileHandler.search(GenericIndexedFieldName);
+		LOGGER.info("@DBGenericServer search(String GenericIndexedFieldName) return. GenericIndexedFieldName = " + GenericIndexedFieldName + " " + object);
 		return object;
 	}
 
 
 	@Override
-	public Collection<Object> searchWithLevenshtein(String indexedFieldName, int tolerance) {
-		LOGGER.finest("@DBGenericServer @searchWithLevenshtein(String name, int tolerance) = " + indexedFieldName + " " + tolerance);
-		Collection<Object> recordCollection = this.genericFileHandler.searchWithLevenshtein(indexedFieldName, tolerance);
-		LOGGER.info("@DBGenericServer [New Alternative output below:] @searchWithLevenshtein(String name, int tolerance) + returned Collection<DBRecord> = " + indexedFieldName + " " + tolerance + "\n" + getCollectionContents(recordCollection));
+	public Collection<Object> searchWithLevenshtein(String GenericIndexedFieldName, int tolerance) {
+		LOGGER.finest("@DBGenericServer @searchWithLevenshtein(String name, int tolerance) = " + GenericIndexedFieldName + " " + tolerance);
+		Collection<Object> recordCollection = this.genericFileHandler.searchWithLevenshtein(GenericIndexedFieldName, tolerance);
+		LOGGER.info("@DBGenericServer [New Alternative output below:] @searchWithLevenshtein(String name, int tolerance) + returned Collection<DBRecord> = " + GenericIndexedFieldName + " " + tolerance + "\n" + getCollectionContents(recordCollection));
 		this.logObjectListInfo(recordCollection);
 		return recordCollection;
 	}
@@ -272,19 +273,19 @@ public class DBGenericServer implements DBGeneric {
 	@Override
 	public void update(Long rowNumber, final Object newObj) {
 		LOGGER.finest("@DBGenericServer @update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " " + newObj);
-		String indexedFieldName;
+		String GenericIndexedFieldName;
 		try {
-			if (checkRowNumber(rowNumber)) { //todo extra. Checks indexedFieldName is in index before going ahead with del
+			if (checkRowNumber(rowNumber)) { //todo extra. Checks GenericIndexedFieldName is in GenericIndex before going ahead with del
 				Object existingRowNumberRecord = read(rowNumber);
 				assert existingRowNumberRecord != null;
-				indexedFieldName = (String) existingRowNumberRecord.getClass().getDeclaredField("pName").get(existingRowNumberRecord);
-				if (Index.getInstance().hasNameInIndex(indexedFieldName)) {
+				GenericIndexedFieldName = (String) existingRowNumberRecord.getClass().getDeclaredField("pName").get(existingRowNumberRecord);
+				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(GenericIndexedFieldName)) {
 					OperationUnit operationUnit = this.genericFileHandler.updateByRow(rowNumber, newObj);
 					ITransaction transaction = getTransaction();
 					transaction.registerAdd(operationUnit.addedRowBytePosition);
 					transaction.registerDelete(operationUnit.deletedRowBytePosition);
 				} else
-					throw new NameDoesNotExistException(String.format("The row you are trying to update with indexedFieldName ('%s') does not exist in the indexedFieldName index", indexedFieldName));
+					throw new NameDoesNotExistException(String.format("The row you are trying to update with GenericIndexedFieldName ('%s') does not exist in the GenericIndexedFieldName GenericIndex", GenericIndexedFieldName));
 			}
 		} catch (NameDoesNotExistException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
