@@ -1,13 +1,18 @@
 plugins {
     id 'java'
+    id 'jacoco' // bring in jacoco plugin
 }
 
 group 'fun.madeby'
 version '1.0-SNAPSHOT'
-
+//I am not setting sourceCompatibility = 1.8
+jacoco {
+    toolVersion = "0.8.8" // latest version @ 090822
+}
 repositories {
     mavenCentral()
 }
+
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
@@ -22,10 +27,29 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.36'
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
-
-
 }
+
 
 test {
     useJUnitPlatform()
 }
+
+// set jacoco src Directories
+sourceSets {
+    test{
+        java {
+            srcDirs = ["src/test/java"]
+        }
+    }
+}
+
+// set jacoco report requirements.
+jacocoTestReport {
+    group="Report"
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+    }
+}
+

@@ -1,6 +1,7 @@
 package fun.madeby.generic_server;
 
 import fun.madeby.Dog;
+import fun.madeby.Person;
 import fun.madeby.db.DBFactory;
 import fun.madeby.db.generic_server.DBGenericServer;
 import fun.madeby.exceptions.DBException;
@@ -14,11 +15,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,6 +32,9 @@ class DBGenericTest {
 	private Object dog;
 	private Object dogUpdated;
 	private Object dogSimilar;
+	private Object person;
+	private Object personUpdated;
+	private Object personSimilar;
 	private static final String DOG_SCHEMA = """
 					{
 			"version": "0.1",
@@ -37,6 +43,18 @@ class DBGenericTest {
 			{"fieldName":"pName","fieldType":"String"},
 			{"fieldName":"age","fieldType":"int"},
 			{"fieldName":"owner","fieldType":"String"}
+			]
+			}""";
+	private static final String PERSON_SCHEMA = """
+			{
+			"version": "0.1",
+			"indexBy": "name",
+			"schemaFields":[
+			{"fieldName":"name","fieldType":"String"},
+			{"fieldName":"age","fieldType":"int"},
+			{"fieldName":"address","fieldType":"String"},
+			{"fieldName":"pet","fieldType":"String"},
+			{"fieldName":"description","fieldType":"String"}
 			]
 			}""";
 
@@ -58,7 +76,23 @@ class DBGenericTest {
 		dogSimilar = new Dog("F1itx234",
 				3,
 				"Rezzi Delamdi");
-	}
+
+		person = new Person("Rezzi Delamdi",
+				41,
+				"The world somewhere",
+				"Fritx",
+				"Uses dog as excuse for going outside and socialising");
+		personUpdated = new Person("Ruzzi Dalamdi",
+				44,
+				"The horld hemewhere",
+				"Chingu",
+				"Eats pie, seriously");
+		personSimilar = new Person("Rezzi Delamdi",
+				20,
+				"The chig hackle",
+				"F1itx234",
+				"Pret a then some");
+	    }
 
 	@SuppressWarnings("EmptyTryBlock")
 	private void clearDataInExistingFile() {
@@ -69,6 +103,74 @@ class DBGenericTest {
 		}
 	}
 
+	@Test
+	@DisplayName("testPopulateIndex totalRows 2")
+	void testPopulateIndex() throws DuplicateNameException, DBException, FileNotFoundException {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			db.beginTransaction();
+			db.add(person);
+			db.add(personSimilar);
+			db.commit();
+			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+		// reopen db
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
+			Long recNumber = db.getTotalRecordAmount();
+			Assertions.assertEquals(2,recNumber);
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+	}
+
+
+	@Test
+	@DisplayName("testDefragmentation totalRows 2")
+	void testDefragmentation()  {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			Long recNumber = 0L;
+
+			db.beginTransaction();
+			db.add(person);
+			db.add(personSimilar);
+			db.add(personUpdated);
+			db.commit();
+			assertEquals(3, GenericIndex.getInstance().getTotalNumberOfRows());
+
+			// delete first record
+			db.beginTransaction();
+			db.delete(0L);
+			db.commit();
+
+			// call defrag
+			db.defragmentDatabase();
+			recNumber = db.getTotalRecordAmount();
+			Assertions.assertEquals(2, recNumber);
+
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(2, debugList.size());
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+	}
+
+	@Test
+	@DisplayName("testDBVersion(): 0.1")
+	void testDBVersion() {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			String version = db.getDBVersion();
+			Assertions.assertEquals("0.1", version);
+
+		} catch (IOException e) {
+			Assertions.fail();
+		}
+	}
 
 	@Test
 	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
@@ -88,7 +190,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
-	void testLevenshtein4_1()  throws DuplicateNameException, DBException{
+	void testLevenshtein4_1() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -151,8 +253,8 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("addDuplicateTest(): DBGenericServer AddDuplicateTest throws DuplicateNameException == OK")
-	void addDuplicateTest()  {
-		try(DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
+	void addDuplicateTest() {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
 
 			DuplicateNameException thrown = Assertions.assertThrows(DuplicateNameException.class, () -> {
 				db.beginTransaction();
@@ -163,7 +265,7 @@ class DBGenericTest {
 				db.commit();
 			});
 
-		}catch (IOException e) {
+		} catch (IOException e) {
 			Assertions.fail();
 		}
 	}
@@ -189,7 +291,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("searchTest(): DBServer search, then compare retrieved")
-	void searchTest()  throws DuplicateNameException, DBException {
+	void searchTest() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -210,7 +312,7 @@ class DBGenericTest {
 	@Test
 	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field")
 		//shows on fail
-	void readTest()  throws DuplicateNameException, DBException {
+	void readTest() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -228,7 +330,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
-	void updateByRowTest()  throws DuplicateNameException, DBException {
+	void updateByRowTest() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			// normal
 			db.beginTransaction();
@@ -255,7 +357,7 @@ class DBGenericTest {
 
 	@Test // todo see issue 34
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
-	void updateByNameTest()  throws DuplicateNameException, DBException {
+	void updateByNameTest() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);

@@ -351,4 +351,7 @@ public class DBGenericServer implements DBGeneric {
 		}
 	}
 
+	public String getDBVersion() {
+		return this.genericFileHandler.getDBVersion();
+	}
 }

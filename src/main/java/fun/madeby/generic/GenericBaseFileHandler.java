@@ -390,7 +390,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		}
 	}
 
-	private String getDBVersion() {
+	public String getDBVersion() {
 		readLock.lock();
 		try {
 			this.dbFile.seek(START_OF_FILE);
