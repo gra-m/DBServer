@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DBServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">DBServer</a> &gt; <a href="index.source.html" class="el_package">fun.madeby.db.specific_server</a> &gt; <span class="el_source">DBServer.java</span></div><h1>DBServer.java</h1><pre class="source lang-java linenums">package fun.madeby.db.specific_server;
+
+import fun.madeby.DBRecord;
+import fun.madeby.exceptions.DuplicateNameException;
+import fun.madeby.specific.FileHandler;
+import fun.madeby.specific.Index;
+import fun.madeby.exceptions.NameDoesNotExistException;
+import fun.madeby.transaction.ITransaction;
+import fun.madeby.transaction.Transaction;
+import fun.madeby.util.DebugInfo;
+import fun.madeby.util.LoggerSetUp;
+import fun.madeby.util.OperationUnit;
+
+import java.io.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.logging.Logger;
+
+/**
+ * Created by Gra_m on 2022 06 27
+ */
+
+<span class="fc" id="L25">public final class DBServer implements DB{</span>
+	private FileHandler fileHandler;
+	private  Logger LOGGER;
+	public Map&lt;Long, ITransaction&gt; transactions;
+
+	{
+		try {
+<span class="fc" id="L32">			LOGGER = LoggerSetUp.setUpLogger(&quot;DbSpecificServer&quot;);</span>
+<span class="nc" id="L33">		} catch (IOException e) {</span>
+<span class="nc" id="L34">			e.printStackTrace();</span>
+<span class="fc" id="L35">		}</span>
+	}
+
+<span class="fc" id="L38">	public DBServer(final String dbFileName) throws FileNotFoundException {</span>
+<span class="fc" id="L39">		LOGGER.finest(&quot;@DBServer(String dbFileName) = &quot; + dbFileName);</span>
+<span class="fc" id="L40">		this.fileHandler = new FileHandler(dbFileName);</span>
+<span class="fc" id="L41">		this.transactions = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L42">		this.initialise();</span>
+<span class="fc" id="L43">	}</span>
+
+	private void initialise() {
+<span class="fc" id="L46">		LOGGER.finest(&quot;@DBServer intialise()&quot;);</span>
+<span class="fc" id="L47">		this.fileHandler.writeVersionInfoIfNewFile();</span>
+<span class="fc" id="L48">		this.fileHandler.populateIndex();</span>
+<span class="fc" id="L49">	}</span>
+
+	@Override
+	public ITransaction beginTransaction() {
+<span class="fc" id="L53">		LOGGER.finest(&quot;@DBServer beginTransaction()&quot;);</span>
+<span class="fc" id="L54">		long threadId = Thread.currentThread().getId();</span>
+<span class="fc" id="L55">		boolean threadAlreadyHasTransaction = transactions.containsKey(threadId);</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">		if(threadAlreadyHasTransaction)</span>
+<span class="fc" id="L58">			return transactions.get(threadId);</span>
+
+<span class="fc" id="L60">		ITransaction transaction = new Transaction();</span>
+<span class="fc" id="L61">		this.transactions.put(threadId, transaction);</span>
+<span class="fc" id="L62">		return new Transaction();</span>
+	}
+
+	@Override
+	public void commit() {
+<span class="fc" id="L67">		LOGGER.finest(&quot;@DBServer commit() entered&quot;);</span>
+<span class="fc" id="L68">		ITransaction transaction = getTransaction();</span>
+
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">		if (transaction != null) {</span>
+<span class="fc" id="L71">		Boolean successfullyCommitted = fileHandler.</span>
+<span class="fc" id="L72">				commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">		if(successfullyCommitted) {</span>
+<span class="fc" id="L74">			transactions.remove(Thread.currentThread().getId()); // cannot be retrieved..</span>
+<span class="fc" id="L75">			transaction.clear();// clearing data in object that can no longer be retrieved...</span>
+<span class="fc" id="L76">			LOGGER.info(&quot;@DBServer commit() completed&quot;);</span>
+		}
+<span class="fc" id="L78">		} else</span>
+<span class="nc" id="L79">			LOGGER.info(&quot;@DBServer commit() transaction could not be found&quot;);</span>
+<span class="fc" id="L80">	}</span>
+
+	@Override
+	public void rollback() {
+<span class="fc" id="L84">		LOGGER.finest(&quot;@DBServer rollback() entered&quot;);</span>
+<span class="fc" id="L85">		ITransaction transaction = getTransaction();</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		if (transaction == null)</span>
+<span class="nc" id="L87">			return;</span>
+
+<span class="fc" id="L89">		Boolean successfullyRolledBack = fileHandler.rollback(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());</span>
+
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">		if(successfullyRolledBack){</span>
+<span class="fc" id="L92">			transactions.remove(Thread.currentThread().getId()); // cannot be retrieved..</span>
+<span class="fc" id="L93">			transaction.clear();// clearing data in object that can no longer be retrieved...</span>
+		}
+<span class="fc" id="L95">		LOGGER.info(&quot;@DBServer rollback() completed&quot;);</span>
+<span class="fc" id="L96">	}</span>
+
+
+	private ITransaction getTransaction() {
+<span class="fc" id="L100">		LOGGER.finest(&quot;@DBServer getTransaction()&quot;);</span>
+<span class="fc" id="L101">		long threadId = Thread.currentThread().getId();</span>
+<span class="fc" id="L102">		return transactions.getOrDefault(threadId, null);</span>
+	}
+
+	public void close() throws IOException {
+<span class="fc" id="L106">		LOGGER.info(&quot;@DBServer close()&quot;);</span>
+<span class="fc" id="L107">		Index.getInstance().clear();</span>
+<span class="fc" id="L108">		this.fileHandler.close();</span>
+<span class="fc" id="L109">	}</span>
+
+	@Override
+	public void defragmentDatabase() throws IOException, DuplicateNameException {
+<span class="nc" id="L113">		LOGGER.finest(&quot;@DBServer defragmentDatabase()&quot;);</span>
+<span class="nc" id="L114">		String prefix = &quot;defrag&quot;;</span>
+<span class="nc" id="L115">		String suffix = &quot;dat&quot;;</span>
+
+<span class="nc" id="L117">		File tmpFile = File.createTempFile(prefix, suffix);</span>
+<span class="nc" id="L118">		Index.getInstance().clear();</span>
+
+		// open temp file:
+<span class="nc" id="L121">		FileHandler defragFH = new FileHandler(new RandomAccessFile(tmpFile, &quot;rw&quot;), tmpFile.getName());</span>
+
+<span class="nc" id="L123">		Collection&lt;DebugInfo&gt; currentDebugInfoRows = this.fileHandler.getCurrentDebugInfoRows();</span>
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		for(DebugInfo info: currentDebugInfoRows) {</span>
+<span class="nc bnc" id="L126" title="All 4 branches missed.">			if (info.isDeleted() || info.isTemporary())</span>
+<span class="nc" id="L127">				continue;</span>
+<span class="nc" id="L128">			DBRecord object = (DBRecord) info.getDbRecord();</span>
+<span class="nc" id="L129">			defragFH.add(object);</span>
+<span class="nc" id="L130">		}</span>
+
+<span class="nc" id="L132">		replaceOldFileWithNew(tmpFile);</span>
+<span class="nc" id="L133">		defragFH.close();</span>
+<span class="nc" id="L134">		Index.getInstance().clear();</span>
+<span class="nc" id="L135">		this.initialise();</span>
+<span class="nc" id="L136">	}</span>
+
+	private void replaceOldFileWithNew(File tmpFile) {
+<span class="nc" id="L139">		LOGGER.finest(&quot;@DBServer replaceOldFileWithNew(File tmpFile) = &quot; + tmpFile.getName());</span>
+<span class="nc" id="L140">		String oldDBName = this.fileHandler.getDbFileName();</span>
+<span class="nc" id="L141">		boolean oldFileDeleted = this.fileHandler.deleteFile();</span>
+		try {
+<span class="nc bnc" id="L143" title="All 2 branches missed.">			if (oldFileDeleted) {</span>
+<span class="nc" id="L144">				this.fileHandler.close();</span>
+<span class="nc" id="L145">				Files.copy(tmpFile.toPath(), FileSystems.getDefault().getPath(&quot;&quot;, oldDBName),</span>
+						StandardCopyOption.REPLACE_EXISTING);
+<span class="nc" id="L147">				this.fileHandler = new FileHandler(oldDBName);</span>
+			} else {
+<span class="nc" id="L149">				boolean tmpFileDeleted = tmpFile.delete();</span>
+<span class="nc" id="L150">				LOGGER.warning(&quot;@DBServer @replaceOldFileWithNew(File tmpFile)\n-&gt;Database file could not be deleted during defragmentation ||&quot; +</span>
+						&quot; \nOutcome for tmpFile.delete() (necessary on fail) == &quot; + tmpFileDeleted);
+<span class="nc" id="L152">				this.initialise();</span>
+<span class="nc" id="L153">				throw new IOException(&quot;Old DB file could not be deleted, defrag failed, check logs&quot;);</span>
+			}
+<span class="nc" id="L155">		}catch (IOException e) {</span>
+<span class="nc" id="L156">			e.printStackTrace();</span>
+<span class="nc" id="L157">		}</span>
+<span class="nc" id="L158">	}</span>
+
+	@Override
+	public DBRecord search(String name) {
+<span class="fc" id="L162">		LOGGER.finest(&quot;@DBServer @search(String name) = &quot; + name);</span>
+<span class="fc" id="L163">		DBRecord object = this.fileHandler.search(name);</span>
+<span class="fc" id="L164">		LOGGER.info(&quot;@DBServer search(String name) return. name = &quot; + name + &quot; &quot; + object);</span>
+<span class="fc" id="L165">		return object;</span>
+	}
+
+	@Override
+	public void refreshIndex() {
+<span class="nc" id="L170">		LOGGER.finest(&quot;@DBServer @refreshIndex()&quot;);</span>
+<span class="nc" id="L171">		this.fileHandler.populateIndex();</span>
+<span class="nc" id="L172">	}</span>
+
+	@Override
+	public Collection&lt;DebugInfo&gt; getRowsWithDebugInfo() {
+<span class="fc" id="L176">		LOGGER.finest(&quot;@DBServer @getData()&quot;);</span>
+<span class="fc" id="L177">		return this.fileHandler.getCurrentDebugInfoRows();</span>
+	}
+
+	@Override
+	public Collection&lt;DBRecord&gt; searchWithLevenshtein(String name, int tolerance) {
+<span class="fc" id="L182">		LOGGER.finest(&quot;@DBServer @searchWithLevenshtein(String name, int tolerance) = &quot; + name + &quot; &quot; + tolerance);</span>
+<span class="fc" id="L183">		Collection&lt;DBRecord&gt; recordCollection =  this.fileHandler.searchWithLevenshtein(name, tolerance);</span>
+<span class="fc" id="L184">		LOGGER.info(&quot;@DBServer @searchWithLevenshtein(String name, int tolerance) + returned Collection&lt;DBRecord&gt; = &quot; + name + &quot; &quot; + tolerance + &quot;\n&quot; + getCollectionContents(recordCollection));</span>
+<span class="fc" id="L185">		return recordCollection;</span>
+	}
+
+	@Override
+	public Collection&lt;DBRecord&gt; searchWithRegex(String regEx)  {
+<span class="fc" id="L190">		LOGGER.finest(&quot;@DBServer @searchWithRegex(String regEx) = &quot; + regEx);</span>
+<span class="fc" id="L191">		Collection&lt;DBRecord&gt; recordCollection = fileHandler.searchWithRegex(regEx);</span>
+<span class="fc" id="L192">		LOGGER.info(&quot;@DBServer @searchWithRegex(String regEx) + returned Collection&lt;DBRecord&gt; = &quot; + regEx  + &quot;\n&quot; + getCollectionContents(recordCollection));</span>
+<span class="fc" id="L193">		return recordCollection;</span>
+	}
+
+
+	@Override
+	public void add(DBRecord object) throws DuplicateNameException{
+<span class="fc" id="L199">		LOGGER.finest(&quot;@DBServer @add(DBRecord) = &quot; + object);</span>
+<span class="fc" id="L200">		OperationUnit operationUnit =  this.fileHandler.add(object);</span>
+<span class="fc" id="L201">		getTransaction().registerAdd(operationUnit.addedRowBytePosition);</span>
+<span class="fc" id="L202">	}</span>
+
+	@Override
+	public void update(Long rowNumber, final DBRecord newRecord) throws DuplicateNameException {
+<span class="fc" id="L206">		LOGGER.finest(&quot;@DBServer @update(Long rowNumberOldRecord, DBRecord newRecord) = &quot; + rowNumber + &quot; &quot;  + newRecord);</span>
+		String name;
+		try {
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">			if (checkRowNumber(rowNumber)) { //Checks name is in index before going ahead with delete</span>
+<span class="fc" id="L210">				DBRecord existingRowNumberRecord = read(rowNumber);</span>
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">				assert existingRowNumberRecord != null;</span>
+<span class="fc" id="L212">				name = existingRowNumberRecord.getName();</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">				if (Index.getInstance().hasNameInIndex(name)) {</span>
+<span class="fc" id="L214">					OperationUnit operationUnit = this.fileHandler.updateByRow(rowNumber, newRecord);</span>
+<span class="fc" id="L215">					ITransaction transaction = getTransaction();</span>
+<span class="fc" id="L216">					transaction.registerAdd(operationUnit.addedRowBytePosition);</span>
+<span class="fc" id="L217">					transaction.registerDelete(operationUnit.deletedRowBytePosition);</span>
+<span class="fc" id="L218">				} else</span>
+<span class="nc" id="L219">					throw new NameDoesNotExistException(String.format(&quot;The row you are trying to update with name ('%s') does not exist in the name index&quot;, name));</span>
+			}
+<span class="nc" id="L221">		} catch (NameDoesNotExistException e) {</span>
+<span class="nc" id="L222">			e.printStackTrace();</span>
+<span class="fc" id="L223">		}</span>
+
+<span class="fc" id="L225">	}</span>
+
+	@Override
+	public void update(String name, DBRecord newRecord) throws DuplicateNameException {
+<span class="fc" id="L229">		LOGGER.finest(&quot;@DBServer @update(name, newRecord) &quot; + name + &quot; &quot;  + newRecord.getName());</span>
+		try {
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">			if (Index.getInstance().hasNameInIndex(name)) {</span>
+<span class="fc" id="L232">				OperationUnit operationUnit = this.fileHandler.updateByName(name, newRecord);</span>
+<span class="fc" id="L233">				ITransaction transaction = getTransaction();</span>
+<span class="fc" id="L234">				transaction.registerAdd(operationUnit.addedRowBytePosition);</span>
+<span class="fc" id="L235">				transaction.registerDelete(operationUnit.deletedRowBytePosition);</span>
+
+<span class="fc" id="L237">			} else</span>
+<span class="nc" id="L238">				throw new NameDoesNotExistException(String.format(&quot;The name you are trying to update ('%s') does not exist&quot;, name));</span>
+<span class="nc" id="L239">		}catch (NameDoesNotExistException e) {</span>
+<span class="nc" id="L240">			e.printStackTrace();</span>
+<span class="fc" id="L241">		}</span>
+
+
+<span class="fc" id="L244">	}</span>
+
+	@Override
+	public void delete(Long rowNumber) {
+<span class="nc" id="L248">		LOGGER.finest(&quot;@DBServer @delete(rowNumber) = &quot; + rowNumber);</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">		if (checkRowNumber(rowNumber)) {</span>
+<span class="nc" id="L250">			OperationUnit operationUnit = this.fileHandler.deleteRow(rowNumber);</span>
+<span class="nc" id="L251">			this.getTransaction().registerDelete(operationUnit.deletedRowBytePosition);</span>
+		}
+
+<span class="nc" id="L254">	}</span>
+
+	@Override
+	public DBRecord read(Long rowNumber) {
+<span class="fc" id="L258">		LOGGER.finest(&quot;@DBServer @read(rowNumber) = &quot; + rowNumber);</span>
+<span class="fc" id="L259">		DBRecord object = null;</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">		if (checkRowNumber(rowNumber)) {</span>
+<span class="fc" id="L261">			object = this.fileHandler.readRow(rowNumber);</span>
+<span class="fc" id="L262">			LOGGER.info(&quot;@DBServer read(Long rowNumber) return. rowNumber = &quot; + rowNumber + &quot; &quot; + object);</span>
+<span class="fc" id="L263">			return object;</span>
+		}
+<span class="nc" id="L265">		return object;</span>
+	}
+
+
+	private boolean checkRowNumber(Long rowNumber) {
+<span class="fc" id="L270">		LOGGER.finest(&quot;@DBServer @checkRowNumber(rowNumber) &gt;0 = &quot; + rowNumber);</span>
+		try {
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">			if (rowNumber &lt; 0) {</span>
+<span class="nc" id="L273">				throw new IOException(&quot;Row number is less than 0&quot;);</span>
+			}
+<span class="nc" id="L275">		}catch(IOException e) {</span>
+<span class="nc" id="L276">			e.printStackTrace();</span>
+<span class="fc" id="L277">		}</span>
+<span class="fc" id="L278">		return true;</span>
+	}
+
+	private StringBuilder getCollectionContents(final Collection&lt;DBRecord&gt; recordCollection) {
+<span class="fc" id="L282">		StringBuilder sb = new StringBuilder();</span>
+
+<span class="fc bfc" id="L284" title="All 2 branches covered.">		for(DBRecord dbr: recordCollection) {</span>
+<span class="fc" id="L285">			sb.append(dbr.toString());</span>
+<span class="fc" id="L286">			sb.append(System.getProperty(&quot;line.separator&quot;));</span>
+<span class="fc" id="L287">		}</span>
+
+<span class="fc" id="L289">		return sb;</span>
+	}
+	@Override
+	public Long getTotalRecordAmount() {
+<span class="nc" id="L293">		return Index.getInstance().getTotalNumberOfRows();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

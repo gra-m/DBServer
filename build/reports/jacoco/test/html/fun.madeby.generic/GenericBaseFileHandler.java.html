@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GenericBaseFileHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">DBServer</a> &gt; <a href="index.source.html" class="el_package">fun.madeby.generic</a> &gt; <span class="el_source">GenericBaseFileHandler.java</span></div><h1>GenericBaseFileHandler.java</h1><pre class="source lang-java linenums">package fun.madeby.generic;
+
+import fun.madeby.DataHandlerGeneric;
+import fun.madeby.util.DebugInfo;
+import fun.madeby.util.DebugRowInfo;
+import fun.madeby.util.LoggerSetUp;
+
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
+
+/**
+ * Created by Gra_m on 2022 06 30
+ */
+
+public class GenericBaseFileHandler implements DataHandlerGeneric {
+	RandomAccessFile dbFile;
+	String dbFileName;
+<span class="pc" id="L25">	private final String VERSION = &quot;0.1&quot;;</span>
+	private static final int START_OF_FILE = 0;
+	private static final int HEADER_INFO_SPACE = 100;
+<span class="pc" id="L28">	final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();</span>
+<span class="pc" id="L29">	final Lock readLock = readWriteLock.readLock();</span>
+<span class="pc" id="L30">	final Lock writeLock = readWriteLock.writeLock();</span>
+<span class="pc" id="L31">	protected final int LONG_LENGTH_IN_BYTES = 8;</span>
+<span class="pc" id="L32">	protected final int INTEGER_LENGTH_IN_BYTES = 4;</span>
+<span class="pc" id="L33">	protected final int BOOLEAN_LENGTH_IN_BYTES = 1;</span>
+	protected Schema schema;
+	protected Class aClass;
+	Logger LOGGER;
+
+	{
+		try {
+<span class="pc" id="L40">			LOGGER = LoggerSetUp.setUpLogger(&quot;BaseFileHandler/FH&quot;);</span>
+<span class="nc" id="L41">		} catch (IOException e) {</span>
+<span class="nc" id="L42">			e.printStackTrace();</span>
+<span class="pc" id="L43">		}</span>
+	}
+
+
+<span class="nc" id="L47">	public GenericBaseFileHandler(RandomAccessFile randomAccessFile, final String fileName) {</span>
+<span class="nc" id="L48">		this.dbFile = randomAccessFile;</span>
+<span class="nc" id="L49">		this.dbFileName = fileName;</span>
+<span class="nc" id="L50">	}</span>
+
+
+<span class="fc" id="L53">	public GenericBaseFileHandler(final String fileName) throws FileNotFoundException {</span>
+<span class="fc" id="L54">		this.dbFile = new RandomAccessFile(fileName, &quot;rw&quot;);</span>
+<span class="fc" id="L55">		this.dbFileName = fileName;</span>
+<span class="fc" id="L56">		writeVersionInfoIfNewFile();</span>
+<span class="fc" id="L57">	}</span>
+
+	public void setSchema(Schema schema) {
+<span class="fc" id="L60">		this.schema = schema;</span>
+<span class="fc" id="L61">	}</span>
+
+	public void setAClass(Class aClass) {
+<span class="fc" id="L64">		this.aClass = aClass;</span>
+<span class="fc" id="L65">	}</span>
+
+
+	public void writeVersionInfoIfNewFile() {
+		try {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">			if (dbFile.length() == 0) {</span>
+<span class="fc" id="L71">				this.setDBVersion();</span>
+			} else {
+<span class="fc" id="L73">				LOGGER.finest(&quot;@BFH writeVersionInfoIfNewFile() and dbFile.length() &gt; 0 DBVersion is: &quot; + VERSION);</span>
+			}
+
+<span class="nc" id="L76">		} catch (IOException e) {</span>
+<span class="nc" id="L77">			e.printStackTrace();</span>
+<span class="fc" id="L78">		}</span>
+<span class="fc" id="L79">	}</span>
+
+
+	@Override
+	public Boolean commit(Collection&lt;Long&gt; newRowsBytePosition, Collection&lt;Long&gt; deletedRowsBytePosition) {
+<span class="fc" id="L84">		writeLock.lock();</span>
+		try {
+			// commit new Rows
+<span class="fc bfc" id="L87" title="All 2 branches covered.">			for (Long position : newRowsBytePosition) {</span>
+<span class="fc" id="L88">				this.dbFile.seek(position);</span>
+<span class="fc" id="L89">				dbFile.writeBoolean(false); //  !isTemporary</span>
+				// re-read the record
+<span class="fc" id="L91">				byte[] b = this.readRawRecord(position);</span>
+<span class="fc" id="L92">				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));</span>
+				// add to index
+
+<span class="fc" id="L95">				GenericIndex.getInstance().add(position);</span>
+<span class="fc" id="L96">				String genericIndexedValue = (String)object.getClass().getDeclaredField(schema.indexBy).get(object);</span>
+<span class="fc" id="L97">				GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, GenericIndex.getInstance().getTotalNumberOfRows() - 1); // does not increment total num of rows.</span>
+<span class="fc" id="L98">			}</span>
+
+			// commit deletedRows
+<span class="fc bfc" id="L101" title="All 2 branches covered.">			for (Long position : deletedRowsBytePosition) {</span>
+<span class="fc" id="L102">				this.dbFile.seek(position);</span>
+<span class="fc" id="L103">				dbFile.writeBoolean(false); // !isTemporary</span>
+<span class="fc" id="L104">				GenericIndex.getInstance().removeByFilePosition(position);</span>
+<span class="fc" id="L105">			}</span>
+<span class="nc" id="L106">		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {</span>
+<span class="nc" id="L107">			e.printStackTrace();</span>
+		} finally {
+<span class="fc" id="L109">			writeLock.unlock();</span>
+		}
+<span class="fc" id="L111">		return true;</span>
+	}
+
+
+
+	public Object readFromByteStream(final DataInputStream stream) throws IOException {
+<span class="fc" id="L117">		Object object = null;</span>
+		// Get empty object of class passed via reflection, via constructor now as safer.
+		try {
+<span class="fc" id="L120">			object = Class.forName(this.aClass.getCanonicalName()).getDeclaredConstructor().newInstance();</span>
+<span class="nc" id="L121">		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {</span>
+<span class="nc" id="L122">			LOGGER.severe(&quot;@GBFileHandler readObjFromByteStream(stream): &quot; + this.aClass.getSimpleName());</span>
+<span class="nc" id="L123">			e.printStackTrace();</span>
+<span class="fc" id="L124">		}</span>
+
+		try {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		for (SchemaField field: this.schema.schemaFields) {</span>
+
+<span class="pc bpc" id="L129" title="3 of 5 branches missed.">			switch (field.fieldType.toLowerCase()) {</span>
+				case &quot;string&quot; -&gt; {
+<span class="fc" id="L131">					int fieldLength = stream.readInt();</span>
+<span class="fc" id="L132">					byte[] bArray = new byte[fieldLength];</span>
+<span class="fc" id="L133">					stream.read(bArray);// IJ always complains about this but XXX below makes genericIndexedValue the length of the String</span>
+<span class="fc" id="L134">					String value = new String(bArray);</span>
+					//String value = (String.valueOf(stream.read(bArray))); //XXX
+<span class="fc" id="L136">					object.getClass()</span>
+<span class="fc" id="L137">							.getDeclaredField(field.fieldName)</span>
+<span class="fc" id="L138">							.set(object, value);</span>
+
+<span class="fc" id="L140">				}</span>
+				case &quot;boolean&quot; -&gt; {
+<span class="nc" id="L142">					boolean value = stream.readBoolean();</span>
+<span class="nc" id="L143">					object.getClass()</span>
+<span class="nc" id="L144">							.getDeclaredField((field.fieldName))</span>
+<span class="nc" id="L145">							.set(object, value);</span>
+
+<span class="nc" id="L147">				}</span>
+				case &quot;int&quot; -&gt; {
+<span class="fc" id="L149">					int value = stream.readInt();</span>
+<span class="fc" id="L150">					object.getClass()</span>
+<span class="fc" id="L151">							.getDeclaredField(field.fieldName)</span>
+<span class="fc" id="L152">							.set(object, value);</span>
+<span class="fc" id="L153">				}</span>
+				case &quot;long&quot; -&gt; {
+<span class="nc" id="L155">					long value = stream.readLong();</span>
+<span class="nc" id="L156">					object.getClass()</span>
+<span class="nc" id="L157">							.getDeclaredField(field.fieldName)</span>
+<span class="nc" id="L158">							.set(object, value);</span>
+				}
+			}
+<span class="fc" id="L161">		}</span>
+
+<span class="nc" id="L163">		} catch (NoSuchFieldException | IllegalAccessException e) {</span>
+<span class="nc" id="L164">			LOGGER.info(&quot;@GBFileHandler readObjFromByteStream(stream): &quot; + e.getMessage());</span>
+<span class="nc" id="L165">			e.printStackTrace();</span>
+<span class="fc" id="L166">		}</span>
+
+
+<span class="fc" id="L169">		return object;</span>
+	}
+
+	@Override
+	public Boolean rollback(Collection&lt;Long&gt; newRowsBytePosition, Collection&lt;Long&gt; deletedRowsBytePosition) {
+<span class="fc" id="L174">		writeLock.lock();</span>
+		try {
+			// rollback new Rows
+<span class="fc bfc" id="L177" title="All 2 branches covered.">			for (Long position : newRowsBytePosition) {</span>
+<span class="fc" id="L178">				this.dbFile.seek(position);</span>
+<span class="fc" id="L179">				dbFile.writeBoolean(false); //  !isTemporary</span>
+<span class="fc" id="L180">				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);</span>
+<span class="fc" id="L181">				dbFile.writeBoolean(true); // isDeleted</span>
+
+<span class="fc" id="L183">				GenericIndex.getInstance().removeByFilePosition(position);</span>
+<span class="fc" id="L184">			}</span>
+			// rollback deletedRows
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">			for (Long position : deletedRowsBytePosition) {</span>
+<span class="nc" id="L187">				this.dbFile.seek(position);</span>
+<span class="nc" id="L188">				dbFile.writeBoolean(false); // !isTemporary</span>
+<span class="nc" id="L189">				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);</span>
+<span class="nc" id="L190">				dbFile.writeBoolean(false); // !isDeleted flag</span>
+
+<span class="nc" id="L192">				byte[] b = this.readRawRecord(position);</span>
+<span class="nc" id="L193">				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));</span>
+<span class="nc" id="L194">				String genericIndexedValue = (String) object.getClass().getDeclaredField(schema.indexBy).get(object);</span>
+<span class="nc" id="L195">				GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, GenericIndex.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.</span>
+<span class="nc" id="L196">				GenericIndex.getInstance().add(position); //</span>
+<span class="nc" id="L197">			}</span>
+<span class="nc" id="L198">		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {</span>
+<span class="nc" id="L199">			e.printStackTrace();</span>
+		} finally {
+<span class="fc" id="L201">			writeLock.unlock();</span>
+		}
+<span class="fc" id="L203">		return true;</span>
+	}
+
+
+	public void populateIndex() {
+<span class="fc" id="L208">		LOGGER.finest(&quot;@GBFH PopulateIndex()&quot;);</span>
+<span class="fc" id="L209">		long rowNum = 0;</span>
+<span class="fc" id="L210">		int recordLength = 0;</span>
+<span class="fc" id="L211">		long currentPosition = HEADER_INFO_SPACE;</span>
+<span class="fc" id="L212">		long deletedRows = 0;</span>
+<span class="fc" id="L213">		long temporaryRows = 0;</span>
+
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">		if (isExistingData()) {</span>
+<span class="fc" id="L216">			writeLock.lock();</span>
+			try {
+<span class="fc" id="L218">				GenericIndex.getInstance().resetTotalNumberOfRows();</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">				while (currentPosition &lt; this.dbFile.length()) {</span>
+<span class="nc" id="L220">					this.dbFile.seek(currentPosition);</span>
+<span class="nc" id="L221">					boolean isTemporary = this.dbFile.readBoolean(); // new read ifTemporary</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">					if (isTemporary)</span>
+<span class="nc" id="L223">						++temporaryRows;</span>
+<span class="nc" id="L224">					this.dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES);</span>
+<span class="nc" id="L225">					boolean isDeleted = this.dbFile.readBoolean();</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">					if (!isDeleted) {</span>
+<span class="nc" id="L227">						GenericIndex.getInstance().add(currentPosition);</span>
+<span class="nc" id="L228">					} else deletedRows++;</span>
+
+<span class="nc" id="L230">					currentPosition += BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES;</span>
+<span class="nc" id="L231">					recordLength = this.dbFile.readInt();</span>
+<span class="nc" id="L232">					currentPosition += INTEGER_LENGTH_IN_BYTES;</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">					if (!isDeleted) {</span>
+<span class="nc" id="L234">						this.dbFile.seek(currentPosition);</span>
+<span class="nc" id="L235">						byte[] byteArrayOfObject = new byte[recordLength];</span>
+<span class="nc" id="L236">						dbFile.read(byteArrayOfObject);</span>
+<span class="nc" id="L237">						Object retrievedObject = readFromByteStream(new DataInputStream(new ByteArrayInputStream(byteArrayOfObject)));</span>
+<span class="nc" id="L238">						String genericIndexedValue = (String) retrievedObject.getClass().getDeclaredField(schema.indexBy).get(retrievedObject);</span>
+<span class="nc" id="L239">						GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, rowNum++);</span>
+					}
+<span class="nc" id="L241">					currentPosition += recordLength;</span>
+<span class="nc" id="L242">					System.out.printf(&quot;BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d \n&quot;, rowNum, deletedRows, temporaryRows);</span>
+<span class="nc" id="L243">				}</span>
+<span class="nc" id="L244">			} catch (IOException | NoSuchFieldException | IllegalAccessException e) {</span>
+<span class="nc" id="L245">				e.printStackTrace();</span>
+			} finally {
+<span class="fc" id="L247">				writeLock.unlock();</span>
+			}
+		}
+<span class="fc" id="L250">	}</span>
+
+
+	public boolean isExistingData() {
+		try {
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">			if (this.dbFile.length() == 0) {</span>
+<span class="nc" id="L256">				System.out.println(&quot;BFH: populateIndex -&gt; isExistingData() no existing data, nothing to index.&quot;);</span>
+<span class="nc" id="L257">				return false;</span>
+			}
+<span class="nc" id="L259">		} catch (IOException e) {</span>
+<span class="nc" id="L260">			e.printStackTrace();</span>
+<span class="fc" id="L261">		}</span>
+<span class="fc" id="L262">		return true;</span>
+	}
+
+
+	/**
+	 * Reads the raw record, returns record data without storage information.
+	 *
+	 * @param rowsBytePosition Not working with index currently, working if passed -1L.
+	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 3 bytes representing the genericIndexedValue
+	 * length int.
+	 */
+	public byte[] readRawRecord(Long rowsBytePosition) {
+<span class="fc" id="L274">		byte[] data = null;</span>
+
+<span class="fc" id="L276">		readLock.lock();</span>
+		try {
+<span class="fc" id="L278">			dbFile.seek(rowsBytePosition);</span>
+<span class="fc" id="L279">			boolean isTemporary = dbFile.readBoolean();</span>
+<span class="fc" id="L280">			dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES);</span>
+<span class="fc" id="L281">			boolean isDeleted = dbFile.readBoolean();</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">			if (isTemporary) {</span>
+<span class="nc" id="L283">				LOGGER.severe(&quot;@BaseFileHandler readRawRecord(Long rowsBytePosition) attempting to read isTemporary row&quot;);</span>
+<span class="nc" id="L284">				return new byte[]{-1};</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">			} else if (isDeleted) {</span>
+<span class="nc" id="L286">				LOGGER.severe(&quot;@BaseFileHandler readRawRecord(Long rowsBytePosition) attempting to read isDeleted row&quot;);</span>
+<span class="nc" id="L287">				return new byte[]{-1};</span>
+			} else {
+<span class="fc" id="L289">				dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES); // 2 byte = 2* boolean</span>
+<span class="fc" id="L290">				int recordLength = dbFile.readInt();</span>
+<span class="fc" id="L291">				dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 6 bytes boolean + int</span>
+<span class="fc" id="L292">				data = new byte[recordLength];</span>
+<span class="fc" id="L293">				this.dbFile.read(data);</span>
+			}
+<span class="nc" id="L295">		} catch (IOException e) {</span>
+<span class="nc" id="L296">			e.printStackTrace();</span>
+		} finally {
+<span class="fc" id="L298">			readLock.unlock();</span>
+		}
+<span class="fc" id="L300">		return data;</span>
+	}
+
+
+	public void close() throws IOException {
+<span class="fc" id="L305">		this.dbFile.close();</span>
+<span class="fc" id="L306">	}</span>
+
+	public Collection&lt;DebugInfo&gt; getCurrentDebugInfoRows() {
+<span class="fc" id="L309">		LOGGER.finest(&quot;@BFH getCurrentDebugInfoRows()&quot;);</span>
+<span class="fc" id="L310">		readLock.lock();</span>
+		DataInputStream stream;
+		DebugInfo debugInfo;
+<span class="fc" id="L313">		ArrayList&lt;DebugInfo&gt; returnArrayList = null;</span>
+		try {
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">			if (dbFile.length() == 0)</span>
+<span class="nc" id="L316">				return new ArrayList&lt;&gt;();</span>
+			else {
+				boolean isTemporary;
+				boolean isDeleted;
+				Object object;
+				int recordLength;
+<span class="fc" id="L322">				long currentPosition = HEADER_INFO_SPACE;</span>
+<span class="fc" id="L323">				returnArrayList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L324">				this.dbFile.seek(currentPosition);</span>
+
+<span class="fc bfc" id="L326" title="All 2 branches covered.">				while (currentPosition &lt; this.dbFile.length()) {</span>
+<span class="fc" id="L327">					LOGGER.finest(&quot;@BFH getCurrentDebugInfoRows() while loop file length is: &quot; + this.dbFile.length() + &quot; current position is: &quot; + currentPosition);</span>
+<span class="fc" id="L328">					isTemporary = dbFile.readBoolean();</span>
+<span class="fc" id="L329">					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES);</span>
+
+<span class="fc" id="L331">					isDeleted = dbFile.readBoolean();</span>
+<span class="fc" id="L332">					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES);</span>
+
+<span class="fc" id="L334">					recordLength = dbFile.readInt();</span>
+<span class="fc" id="L335">					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES);</span>
+<span class="fc" id="L336">					byte[] rowDataOnly = new byte[recordLength];</span>
+<span class="fc" id="L337">					dbFile.read(rowDataOnly);</span>
+<span class="fc" id="L338">					stream = new DataInputStream(new ByteArrayInputStream(rowDataOnly));</span>
+<span class="fc" id="L339">					object = readFromByteStream(stream);</span>
+
+<span class="fc" id="L341">					debugInfo = new DebugRowInfo(object, isTemporary, isDeleted);</span>
+<span class="fc" id="L342">					returnArrayList.add(debugInfo);</span>
+
+<span class="fc" id="L344">					currentPosition += recordLength + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES;</span>
+<span class="fc" id="L345">				}</span>
+			}
+<span class="nc" id="L347">		} catch (IOException e) {</span>
+<span class="nc" id="L348">			e.printStackTrace();</span>
+		} finally {
+<span class="fc" id="L350">			readLock.unlock();</span>
+		}
+
+<span class="fc" id="L353">		return returnArrayList;</span>
+	}
+
+
+	public String getDbFileName() {
+<span class="nc" id="L358">		return dbFileName;</span>
+	}
+
+
+	public boolean deleteFile() {
+<span class="nc" id="L363">		writeLock.lock();</span>
+		try {
+<span class="nc" id="L365">			this.dbFile.close();</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">			if (new File(this.dbFileName).delete()) {</span>
+<span class="nc" id="L367">				System.out.println(&quot;File successfully deleted&quot;);</span>
+<span class="nc" id="L368">				return true;</span>
+			}
+<span class="nc" id="L370">		} catch (IOException e) {</span>
+<span class="nc" id="L371">			e.printStackTrace();</span>
+		} finally {
+<span class="nc" id="L373">			writeLock.unlock();</span>
+		}
+
+<span class="nc" id="L376">		System.out.println(&quot;File deletion failed&quot;);</span>
+<span class="nc" id="L377">		return false;</span>
+	}
+
+	private void setDBVersion() {
+		try {
+<span class="fc" id="L382">			this.dbFile.seek(START_OF_FILE);</span>
+<span class="fc" id="L383">			this.dbFile.writeBytes(VERSION);</span>
+			//this.dbFile.write(VERSION.getBytes());
+<span class="fc" id="L385">			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];</span>
+<span class="fc" id="L386">			Arrays.fill(characterFiller, ' ');</span>
+<span class="fc" id="L387">			this.dbFile.write(new String(characterFiller).getBytes());</span>
+<span class="nc" id="L388">		} catch (IOException e) {</span>
+<span class="nc" id="L389">			e.printStackTrace();</span>
+<span class="fc" id="L390">		}</span>
+<span class="fc" id="L391">	}</span>
+
+	private String getDBVersion() {
+<span class="nc" id="L394">		readLock.lock();</span>
+		try {
+<span class="nc" id="L396">			this.dbFile.seek(START_OF_FILE);</span>
+<span class="nc" id="L397">			byte[] bytes = new byte[HEADER_INFO_SPACE];</span>
+<span class="nc" id="L398">			this.dbFile.read(bytes);</span>
+<span class="nc" id="L399">			return new String(bytes).trim();</span>
+<span class="nc" id="L400">		} catch (IOException e) {</span>
+<span class="nc" id="L401">			e.printStackTrace();</span>
+		} finally {
+<span class="nc" id="L403">			readLock.unlock();</span>
+		}
+<span class="nc" id="L405">		return &quot;Read Fail @ getDBVersion&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

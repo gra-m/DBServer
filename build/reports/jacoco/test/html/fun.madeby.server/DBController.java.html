@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DBController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">DBServer</a> &gt; <a href="index.source.html" class="el_package">fun.madeby.server</a> &gt; <span class="el_source">DBController.java</span></div><h1>DBController.java</h1><pre class="source lang-java linenums">package fun.madeby.server;
+
+import fun.madeby.CarOwner;
+import fun.madeby.DBRecord;
+import fun.madeby.db.specific_server.DB;
+import fun.madeby.db.specific_server.DBServer;
+import io.javalin.http.Handler;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.stream.LongStream;
+
+/**
+ * Created by Gra_m on 2022 07 19
+ */
+
+<span class="nc" id="L19">public final class DBController {</span>
+	private static DB database;
+
+	static {
+		try {
+<span class="nc" id="L24">			database = new DBServer(&quot;restTest.db&quot;);</span>
+<span class="nc" id="L25">		} catch (FileNotFoundException e) {</span>
+<span class="nc" id="L26">			throw new RuntimeException(e);</span>
+<span class="nc" id="L27">		}</span>
+	}
+
+<span class="nc" id="L30">	public static Handler fetchAllRecords = ctx -&gt; {</span>
+<span class="nc" id="L31">		Long totalRecordNumber = database.getTotalRecordAmount();</span>
+<span class="nc" id="L32">		ArrayList&lt;String&gt; allRecordList = new ArrayList&lt;&gt;(Math.toIntExact(totalRecordNumber));</span>
+<span class="nc" id="L33">		LongStream.range(0, totalRecordNumber).forEach(i-&gt; {</span>
+<span class="nc" id="L34">				allRecordList.add(database.read(i).toJSON());</span>
+<span class="nc" id="L35">		});</span>
+
+<span class="nc" id="L37">	 ctx.json(allRecordList);</span>
+<span class="nc" id="L38">	};</span>
+
+	// localhost:7001/add?name=test&amp;age=45&amp;address=somewheretest&amp;carplate=qqq-123&amp;description=testEntry
+<span class="nc" id="L41">	public static Handler addCarOwner = ctx -&gt; {</span>
+<span class="nc" id="L42">		String name = ctx.queryParam(&quot;name&quot;);</span>
+<span class="nc" id="L43">		int age = Integer.parseInt(ctx.queryParam(&quot;age&quot;));</span>
+<span class="nc" id="L44">		String address = ctx.queryParam(&quot;address&quot;);</span>
+<span class="nc" id="L45">		String carPlate = ctx.queryParam(&quot;carplate&quot;);</span>
+<span class="nc" id="L46">		String description = ctx.queryParam(&quot;description&quot;);</span>
+
+<span class="nc bnc" id="L48" title="All 8 branches missed.">		if(name == null || address == null || carPlate == null || description == null)</span>
+<span class="nc" id="L49">			ctx.json(&quot;{Error: Parameter is missing}&quot;);</span>
+		else {
+<span class="nc" id="L51">			database.beginTransaction();</span>
+<span class="nc" id="L52">			database.add(new CarOwner(name, age, address, carPlate, description));</span>
+<span class="nc" id="L53">			database.commit();</span>
+		}
+
+<span class="nc" id="L56">		ctx.json(true);</span>
+
+<span class="nc" id="L58">	};</span>
+
+	// searchLevenshtein?name=test
+<span class="nc" id="L61">	public static Handler searchLevenshtein = ctx -&gt; {</span>
+<span class="nc" id="L62">		String  name = ctx.queryParam(&quot;name&quot;);</span>
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		if (name == null) {</span>
+<span class="nc" id="L65">			ctx.json(&quot;{\&quot;Error\&quot;: \&quot;Parameter is missing\&quot;}&quot;);</span>
+<span class="nc" id="L66">			return;</span>
+		}
+
+<span class="nc" id="L69">		Collection&lt;DBRecord&gt; levenshteinReturn = database.searchWithLevenshtein(name, 1);</span>
+<span class="nc" id="L70">		LinkedList&lt;String&gt; result = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L71">		levenshteinReturn.forEach(i -&gt; {</span>
+<span class="nc" id="L72">			result.add(i.toJSON());</span>
+<span class="nc" id="L73">		});</span>
+
+<span class="nc" id="L75">		ctx.json(result);</span>
+<span class="nc" id="L76">	};</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

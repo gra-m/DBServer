@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestApp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">DBServer</a> &gt; <a href="index.source.html" class="el_package">fun.madeby.testapp</a> &gt; <span class="el_source">TestApp.java</span></div><h1>TestApp.java</h1><pre class="source lang-java linenums">package fun.madeby.testapp;
+
+import fun.madeby.CarOwner;
+import fun.madeby.DBRecord;
+import fun.madeby.exceptions.DuplicateNameException;
+import fun.madeby.specific.Index;
+import fun.madeby.db.specific_server.DB;
+import fun.madeby.db.specific_server.DBServer;
+import fun.madeby.transaction.ITransaction;
+import fun.madeby.util.DebugInfo;
+import fun.madeby.util.Levenshtein;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
+
+/**
+ * Created by Gra_m on 2022 06 25
+ */
+
+@SuppressWarnings(&quot;InfiniteLoopStatement&quot;)
+<span class="nc" id="L30">public class TestApp {</span>
+	final static int AMOUNT_OF_EACH = 2;
+	final static String dbFile = &quot;DBServer.db&quot;;
+
+
+	public static void main(String[] args) throws DuplicateNameException{
+<span class="nc" id="L36">		TestApp testApp = new TestApp();</span>
+
+<span class="nc" id="L38">		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable</span>
+		//testApp.addOneRecordWithTransaction();
+		//testApp.listAllFileRecords();
+<span class="nc" id="L41">		testApp.performTest();</span>
+		//testApp.performDefragTest();
+		//testApp.performMultiThreadTest();
+<span class="nc" id="L44">	}</span>
+
+	private void performMultiThreadTest() throws DuplicateNameException {
+<span class="nc" id="L47">		CountDownLatch cl = new CountDownLatch(3);</span>
+<span class="nc" id="L48">		Runnable runnableAdd = null;</span>
+<span class="nc" id="L49">		Runnable runnableUpdate = null;</span>
+<span class="nc" id="L50">		Runnable runnableListAll = null;</span>
+<span class="nc" id="L51">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L52">			runnableAdd = () -&gt; {</span>
+				while (true) {
+<span class="nc" id="L54">					int i = new Random().nextInt(0, 4000);</span>
+<span class="nc" id="L55">					CarOwner c = new CarOwner(&quot;John&quot; + i, 44, &quot;Berlin&quot;, &quot;VJW707S&quot;, &quot;This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...&quot;);</span>
+					try {
+<span class="nc" id="L57">						dbServer.add(c);</span>
+<span class="nc" id="L58">					} catch (DuplicateNameException e) {</span>
+<span class="nc" id="L59">						throw new RuntimeException(&quot;@PerformMultiThreadTest()/runnableAdd threw DuplicateNameException&quot;);</span>
+
+<span class="nc" id="L61">					}</span>
+<span class="nc" id="L62">				}</span>
+			};
+
+<span class="nc" id="L65">			runnableUpdate = ()  -&gt; {</span>
+				while (true) {
+<span class="nc" id="L67">					int i = new Random().nextInt(0, 4000);</span>
+<span class="nc" id="L68">					CarOwner c = new CarOwner(&quot;John&quot; + i, 44, &quot;Berlin&quot;, &quot;VJW707S&quot;, &quot;This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...&quot;);</span>
+					try {
+<span class="nc" id="L70">						dbServer.update(&quot;John&quot; + i, c);</span>
+<span class="nc" id="L71">					} catch (DuplicateNameException e) {</span>
+<span class="nc" id="L72">						throw new RuntimeException(&quot;@PerformMultiThreadTest()/runnableUpdate threw DuplicateNameException&quot;);</span>
+
+<span class="nc" id="L74">					}</span>
+<span class="nc" id="L75">				}</span>
+			};
+
+<span class="nc" id="L78">			runnableListAll = () -&gt; {</span>
+				while (true) {
+<span class="nc" id="L80">					listAllFileRecords();</span>
+				}
+			};
+
+<span class="nc" id="L84">			ExecutorService executorService = Executors.newFixedThreadPool(3);</span>
+<span class="nc" id="L85">			executorService.submit(runnableAdd);</span>
+<span class="nc" id="L86">			executorService.submit(runnableUpdate);</span>
+<span class="nc" id="L87">			executorService.submit(runnableListAll);</span>
+<span class="nc" id="L88">			cl.await();</span>
+<span class="nc" id="L89">		} catch (InterruptedException | IOException e) {</span>
+<span class="nc" id="L90">			e.printStackTrace();</span>
+<span class="nc" id="L91">		}</span>
+<span class="nc" id="L92">	}</span>
+
+
+
+	private void performDefragTest() throws DuplicateNameException {
+<span class="nc" id="L97">		clearDataInExistingFile();</span>
+<span class="nc" id="L98">		fragementDatabase();</span>
+<span class="nc" id="L99">		listAllFileRecords();</span>
+<span class="nc" id="L100">		System.out.println(&quot;\n\n-------------------NOW  DEFRAGGING----------------------\n\n&quot;);</span>
+<span class="nc" id="L101">		defragmentDatabase();</span>
+		//listAllFileRecords();
+
+<span class="nc" id="L104">	}</span>
+
+	private void defragmentDatabase() throws DuplicateNameException {
+<span class="nc" id="L107">			try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L108">				dbServer.defragmentDatabase();</span>
+<span class="nc" id="L109">			} catch (IOException e) {</span>
+<span class="nc" id="L110">				e.printStackTrace();</span>
+<span class="nc" id="L111">			}</span>
+<span class="nc" id="L112">	}</span>
+
+	private void fragementDatabase() throws DuplicateNameException{
+<span class="nc" id="L115">		try (DB dbServer = new DBServer(dbFile)) {</span>
+
+			// create 100 records
+<span class="nc" id="L118">			dbServer.beginTransaction();</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			for (int i : IntStream.range(0, 2).toArray()) {</span>
+<span class="nc" id="L120">				CarOwner c = new CarOwner(&quot;John&quot; + i, 44, &quot;Berlin&quot;, &quot;VJW707S&quot;, &quot;This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...&quot;);</span>
+<span class="nc" id="L121">				dbServer.add(c);</span>
+			}
+<span class="nc" id="L123">			dbServer.commit();</span>
+
+			//listAllFileRecords();
+
+			// update half of them
+<span class="nc" id="L128">			dbServer.beginTransaction();</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">			for (long i : IntStream.range(0, 2).toArray()) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">				if (i % 2 == 0) {</span>
+<span class="nc" id="L131">					dbServer.update(i, new CarOwner(&quot;Rupert&quot; + i + &quot;__Updated&quot;, 44, &quot;Berlin&quot;, &quot;VJW707S&quot;, &quot;This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...&quot;));</span>
+				}
+			}
+<span class="nc" id="L134">			dbServer.commit();</span>
+<span class="nc" id="L135">		} catch(IOException e) {</span>
+<span class="nc" id="L136">			e.printStackTrace();</span>
+<span class="nc" id="L137">		}</span>
+<span class="nc" id="L138">	}</span>
+
+	private void performTest() throws DuplicateNameException{
+<span class="nc" id="L141">		clearDataInExistingFile();</span>
+<span class="nc" id="L142">		fillDB();</span>
+			/*delete(0); // todo Never works row numbers change after first delete..
+			delete(1);
+			delete(2);*/
+<span class="nc" id="L146">		delete(&quot;Frank Demian&quot;);</span>
+<span class="nc" id="L147">		delete(&quot;Frank Demlan&quot;);</span>
+<span class="nc" id="L148">		delete(&quot;Funk Adelic&quot;);</span>
+<span class="nc" id="L149">		listAllFileRecords();</span>
+<span class="nc" id="L150">		testSearch(&quot;Frank Demian&quot;);</span>
+<span class="nc" id="L151">		testLevenshtein();</span>
+<span class="nc" id="L152">		printLevenshtein();</span>
+<span class="nc" id="L153">		testRegEx();</span>
+
+<span class="nc" id="L155">	}</span>
+
+	private void testRegEx() {
+<span class="nc" id="L158">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L159">			ArrayList&lt;DBRecord&gt; result = (ArrayList&lt;DBRecord&gt;) dbServer.searchWithRegex(&quot;Fra.*&quot;);</span>
+<span class="nc" id="L160">			System.out.println(&quot;---------searchWithRegEx()-----------&quot;);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">			for(DBRecord record: result) {</span>
+<span class="nc" id="L162">				System.out.println(record);</span>
+<span class="nc" id="L163">			}</span>
+<span class="nc" id="L164">		} catch (IOException e) {</span>
+<span class="nc" id="L165">			e.printStackTrace();</span>
+<span class="nc" id="L166">		}</span>
+<span class="nc" id="L167">	}</span>
+
+	private void printLevenshtein() {
+<span class="nc" id="L170">		Levenshtein.levenshteinDistance(&quot;ziggy&quot;, &quot;zaggys&quot;, true);</span>
+<span class="nc" id="L171">	}</span>
+
+	private void testLevenshtein() {
+<span class="nc" id="L174">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L175">			ArrayList&lt;DBRecord&gt; result = (ArrayList&lt;DBRecord&gt;) dbServer.searchWithLevenshtein(&quot;Frank Demian1&quot;, 0);</span>
+<span class="nc" id="L176">			System.out.println(&quot;---------searchWithLevenshtein()-----------&quot;);</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">			for(DBRecord record: result) {</span>
+<span class="nc" id="L178">				System.out.println(record);</span>
+<span class="nc" id="L179">			}</span>
+<span class="nc" id="L180">		} catch (IOException e) {</span>
+<span class="nc" id="L181">			e.printStackTrace();</span>
+<span class="nc" id="L182">		}</span>
+<span class="nc" id="L183">	}</span>
+
+	private void addOneRecordWithTransaction() throws DuplicateNameException{
+
+<span class="nc" id="L187">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L188">			ITransaction transaction = dbServer.beginTransaction();</span>
+<span class="nc" id="L189">			DBRecord carOwner = new CarOwner(&quot;Frank Demian&quot;,</span>
+					20,
+					&quot;Herbert Street, Antwerp, 2000&quot;,
+					&quot;VJW707S&quot;,
+					&quot;Doesn't know we have a file on him at all&quot;);
+<span class="nc" id="L194">			dbServer.add(carOwner);</span>
+<span class="nc" id="L195">			dbServer.commit();</span>
+			//dbServer.rollback();
+<span class="nc" id="L197">		} catch (IOException e) {</span>
+<span class="nc" id="L198">			e.printStackTrace();</span>
+<span class="nc" id="L199">		}</span>
+<span class="nc" id="L200">	}</span>
+
+	private void testSearch(String name) throws DuplicateNameException{
+
+<span class="nc" id="L204">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L205">			System.out.println(&quot;TEST SEARCH: &quot;);</span>
+<span class="nc" id="L206">			addOneRecordWithTransaction();</span>
+<span class="nc" id="L207">			dbServer.refreshIndex();</span>
+<span class="nc" id="L208">			CarOwner cO = (CarOwner) dbServer.search(name);</span>
+<span class="nc" id="L209">			System.out.println(&quot;Found carOwner: &quot; + cO);</span>
+
+<span class="nc" id="L211">		} catch (IOException e) {</span>
+<span class="nc" id="L212">			e.printStackTrace();</span>
+<span class="nc" id="L213">		}</span>
+<span class="nc" id="L214">	}</span>
+
+	private void clearDataInExistingFile() {
+<span class="nc" id="L217">		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of(&quot;./&quot; + dbFile),</span>
+				StandardOpenOption.TRUNCATE_EXISTING)) {
+<span class="nc" id="L219">			System.out.println(&quot;CLEARING EXISTING RECORDS..&quot;);</span>
+<span class="nc" id="L220">		} catch (IOException e) {</span>
+<span class="nc" id="L221">			e.printStackTrace();</span>
+<span class="nc" id="L222">		}</span>
+
+<span class="nc" id="L224">	}</span>
+
+
+	private void listAllFileRecords() {
+
+<span class="nc" id="L229">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L230">			long count = 1L;</span>
+<span class="nc" id="L231">			long rowPosition = 0L;</span>
+<span class="nc" id="L232">			ArrayList&lt;DebugInfo&gt; data = (ArrayList&lt;DebugInfo&gt;) dbServer.getRowsWithDebugInfo();</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">			for (DebugInfo di : data) {</span>
+<span class="nc" id="L234">				prettyPrint(di, count, rowPosition);</span>
+<span class="nc" id="L235">				count++;</span>
+<span class="nc" id="L236">				rowPosition++;</span>
+<span class="nc" id="L237">			}</span>
+<span class="nc" id="L238">		} catch (IOException e) {</span>
+<span class="nc" id="L239">			e.printStackTrace();</span>
+<span class="nc" id="L240">		}</span>
+<span class="nc" id="L241">	}</span>
+
+	private void prettyPrint(DebugInfo di, long count, long rowPosition) {
+<span class="nc" id="L244">		CarOwner carOwner = (CarOwner) di.getDbRecord();</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		String debugCharTemp = di.isTemporary() ? &quot;temp&quot; : &quot;final&quot;;</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">		String debugCharDeleted = di.isDeleted() ? &quot;-&quot; : &quot;+&quot;;</span>
+<span class="nc" id="L247">		String formatted = String.format(&quot;%d %d %s %s name: %s age: %d address: %s carplateNumber %s description %s&quot;,</span>
+<span class="nc" id="L248">				count,</span>
+<span class="nc" id="L249">				rowPosition,</span>
+				debugCharTemp,
+				debugCharDeleted,
+<span class="nc" id="L252">				carOwner.getName(),</span>
+<span class="nc" id="L253">				carOwner.getAge(),</span>
+<span class="nc" id="L254">				carOwner.getAddress(),</span>
+<span class="nc" id="L255">				carOwner.getCarPlateNumber(),</span>
+<span class="nc" id="L256">				carOwner.getDescription());</span>
+<span class="nc" id="L257">		System.out.println(formatted);</span>
+<span class="nc" id="L258">	}</span>
+
+	void delete(long rowNumber) {
+
+<span class="nc" id="L262">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L263">			dbServer.delete(rowNumber);</span>
+<span class="nc" id="L264">		} catch (IOException e) {</span>
+<span class="nc" id="L265">			e.printStackTrace();</span>
+<span class="nc" id="L266">		}</span>
+<span class="nc" id="L267">	}</span>
+
+	void delete(String name) {
+<span class="nc" id="L270">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc" id="L271">			dbServer.beginTransaction();</span>
+<span class="nc" id="L272">			dbServer.delete(Index.getInstance().getRowNumberByName(name));</span>
+<span class="nc" id="L273">			dbServer.commit();</span>
+<span class="nc" id="L274">		} catch (IOException e) {</span>
+<span class="nc" id="L275">			e.printStackTrace();</span>
+<span class="nc" id="L276">		}</span>
+<span class="nc" id="L277">	}</span>
+
+	void fillDB() throws DuplicateNameException{
+<span class="nc" id="L280">		int count = 0;</span>
+
+
+<span class="nc" id="L283">		try (DB dbServer = new DBServer(dbFile)) {</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">				for (int i = 0; i &lt; 1; i++) {</span>
+<span class="nc" id="L285">					DBRecord carOwner = new CarOwner(&quot;Frank Demian&quot;,</span>
+							20,
+							&quot;Herbert Street, Antwerp, 2000&quot;,
+							&quot;VJW707S&quot;,
+							&quot;Doesn't know we have a file on him at all&quot;);
+<span class="nc" id="L290">					DBRecord carOwner2 = new CarOwner(</span>
+							&quot;Frank Demlan&quot;,
+							20,
+							&quot;Herbert Street, Antwerp, 2000&quot;,
+							&quot;VJW7076&quot;,
+							&quot;Doesn't know that we know that he knows we have a file on him&quot;);
+<span class="nc" id="L296">					DBRecord carOwner3 = new CarOwner(</span>
+							&quot;Funk Adelic&quot;,
+							20,
+							&quot;Herbert Street, Antwerp, 2000&quot;,
+							&quot;VJW7076&quot;,
+							&quot;Doesn't know that we know that he knows we have a file on him&quot;
+					);
+
+<span class="nc" id="L304">					dbServer.beginTransaction();</span>
+<span class="nc" id="L305">					dbServer.add(carOwner);</span>
+<span class="nc" id="L306">					dbServer.add(carOwner2);</span>
+<span class="nc" id="L307">					dbServer.add(carOwner3);</span>
+<span class="nc" id="L308">					dbServer.commit();</span>
+<span class="nc" id="L309">					count++;</span>
+			}
+<span class="nc bnc" id="L311" title="All 2 branches missed.">			for (int i = 0; i &lt; AMOUNT_OF_EACH; i++) {</span>
+<span class="nc" id="L312">				DBRecord carOwner = new CarOwner(</span>
+						&quot;Frank Demian&quot; + i,
+						23 + i,
+						&quot;Herbert Street, Antwerp, 2000&quot;,
+						&quot;VJW707S&quot;,
+						&quot;Doesn't know we have a file on him at all&quot;);
+<span class="nc" id="L318">				DBRecord carOwner2 = new CarOwner(</span>
+						&quot;Frank Demlan&quot; + i,
+						23 + i,
+						&quot;Herbert Street, Antwerp, 2000&quot;,
+						&quot;VJW7076&quot;,
+						&quot;Doesn't know that we know that he knows we have a file on him&quot;);
+<span class="nc" id="L324">				DBRecord carOwner3 = new CarOwner(</span>
+						&quot;Funk Adelic&quot; + i,
+						23 + i,
+						&quot;Herbert Street, Antwerp, 2000&quot;,
+						&quot;VJW7076&quot;,
+						&quot;Doesn't know that we know that he knows we have a file on him&quot;
+				);
+
+<span class="nc" id="L332">				dbServer.beginTransaction();</span>
+<span class="nc" id="L333">				dbServer.add(carOwner);</span>
+<span class="nc" id="L334">				dbServer.add(carOwner2);</span>
+<span class="nc" id="L335">				dbServer.add(carOwner3);</span>
+<span class="nc" id="L336">				dbServer.commit();</span>
+			}
+<span class="nc" id="L338">		} catch (IOException e) {</span>
+<span class="nc" id="L339">			e.printStackTrace();</span>
+<span class="nc" id="L340">		}</span>
+<span class="nc" id="L341">	}</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
