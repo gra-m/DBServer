@@ -5,9 +5,11 @@ import fun.madeby.DBRecord;
 import fun.madeby.db.DBFactory;
 import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBServer;
+import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.specific.Index;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,7 +68,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
-	void testLevenshtein5_2() {
+	void testLevenshtein5_2() throws DuplicateNameException{
 		try (DB db = DBFactory.getSpecificDB(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -83,7 +85,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
-	void testLevenshtein4_1() {
+	void testLevenshtein4_1() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -101,7 +103,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("testRegEx(): 'R.*'")
-	void testRegEx() {
+	void testRegEx() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -118,7 +120,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("testRegEx2():  'Re.*'")
-	void testRegEx2() {
+	void testRegEx2() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -136,7 +138,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("addTest(): DBServer Add, via FileHandler test: 1 == OK")
-	void addTest(){
+	void addTest() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -144,6 +146,26 @@ class DBSpecificTest {
 			assertEquals(1, index.getTotalNumberOfRows());
 		}catch(IOException e) {
 			System.out.println("addTest: add threw Exception");
+		}
+	}
+
+	@Test
+	@DisplayName("addDuplicateThrowsDuplicateNameTest(): DBServer Add, via FileHandler test: 1 == OK")
+	void addDuplicateThrowsDuplicateNameTest(){
+		try (DB db = new DBServer(dbFileName)){
+			DuplicateNameException thrown = Assertions.assertThrows(DuplicateNameException.class, () -> {
+				db.beginTransaction();
+				db.add(carOwner);
+				db.commit();
+				db.beginTransaction();
+				db.add(carOwner);
+				db.commit();
+			});
+
+			Assertions.assertEquals("Name Rezzi Delamdi already exists!", thrown.getMessage());
+
+		}catch(IOException e) {
+			System.out.println("(): ");
 		}
 	}
 
@@ -168,7 +190,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("searchTest(): DBServer search, then compare retrieved")
-	void searchTest() {
+	void searchTest() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -192,7 +214,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field") //shows on fail
-	void readTest(){
+	void readTest() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
@@ -212,7 +234,7 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
-	void updateByRowTest() {
+	void updateByRowTest() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			// normal
 			db.beginTransaction();
@@ -243,7 +265,7 @@ class DBSpecificTest {
 
 	@Test // todo see issue 34
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
-	void updateByNameTest() {
+	void updateByNameTest() throws DuplicateNameException{
 		try (DB db = new DBServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);

@@ -40,18 +40,18 @@ public class FileHandler extends BaseFileHandler {
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public OperationUnit add(DBRecord dbRecord){
+	public OperationUnit add(DBRecord dbRecord) throws DuplicateNameException {
 		writeLock.lock();
 		Long currentPositionToInsert = null;
 		OperationUnit operationUnit = new OperationUnit();
-		try {
-			try {
-				if (Index.getInstance().hasNameInIndex(dbRecord.getName())) {
-					throw new DuplicateNameException(String.format("Name '%s' already exists!", dbRecord.getName()));
+		String nameTest = dbRecord.getName();
+
+				if (Index.getInstance().hasNameInIndex(nameTest)) {
+					LOGGER.severe("@DBServer/add(DBRecord) Is duplicate name: " + nameTest);
+					throw new DuplicateNameException(String.format("Name %s already exists!", nameTest));
 				}
-			} catch (DuplicateNameException e) {
-				e.printStackTrace();
-			}
+
+				try{
 
 			int length = 0;
 			currentPositionToInsert = this.dbFile.length();
@@ -145,7 +145,7 @@ public class FileHandler extends BaseFileHandler {
 		return operationUnit;
 	}
 
-	public OperationUnit updateByRow(Long rowNumber, DBRecord newRecord) {
+	public OperationUnit updateByRow(Long rowNumber, DBRecord newRecord) throws DuplicateNameException {
 		writeLock.lock();
 		OperationUnit operation = new OperationUnit();
 		try {
@@ -159,7 +159,7 @@ public class FileHandler extends BaseFileHandler {
 		}
 	}
 
-	public OperationUnit updateByName(String name, DBRecord newRecord) {
+	public OperationUnit updateByName(String name, DBRecord newRecord) throws DuplicateNameException {
 		writeLock.lock();
 		Long namesRowNumber = Index.getInstance().getRowNumberByName(name);
 		OperationUnit operationUnit = new OperationUnit();

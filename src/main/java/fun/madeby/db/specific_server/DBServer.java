@@ -1,6 +1,7 @@
 package fun.madeby.db.specific_server;
 
 import fun.madeby.DBRecord;
+import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.specific.FileHandler;
 import fun.madeby.specific.Index;
 import fun.madeby.exceptions.NameDoesNotExistException;
@@ -108,7 +109,7 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public void defragmentDatabase() throws IOException {
+	public void defragmentDatabase() throws IOException, DuplicateNameException {
 		LOGGER.finest("@DBServer defragmentDatabase()");
 		String prefix = "defrag";
 		String suffix = "dat";
@@ -194,14 +195,14 @@ public final class DBServer implements DB{
 
 
 	@Override
-	public void add(DBRecord object) {
+	public void add(DBRecord object) throws DuplicateNameException{
 		LOGGER.finest("@DBServer @add(DBRecord) = " + object);
 		OperationUnit operationUnit =  this.fileHandler.add(object);
 		getTransaction().registerAdd(operationUnit.addedRowBytePosition);
 	}
 
 	@Override
-	public void update(Long rowNumber, final DBRecord newRecord) {
+	public void update(Long rowNumber, final DBRecord newRecord) throws DuplicateNameException {
 		LOGGER.finest("@DBServer @update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " "  + newRecord);
 		String name;
 		try {
@@ -224,7 +225,7 @@ public final class DBServer implements DB{
 	}
 
 	@Override
-	public void update(String name, DBRecord newRecord) {
+	public void update(String name, DBRecord newRecord) throws DuplicateNameException {
 		LOGGER.finest("@DBServer @update(name, newRecord) " + name + " "  + newRecord.getName());
 		try {
 			if (Index.getInstance().hasNameInIndex(name)) {

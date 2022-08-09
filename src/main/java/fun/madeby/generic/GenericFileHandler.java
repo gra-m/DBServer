@@ -50,7 +50,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		OperationUnit operationUnit = new OperationUnit();
 		try {
 			try {
-				if (Index.getInstance().hasNameInIndex(object.getClass().getName())) { // todo name mess
+				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(object.getClass().getName())) { // todo name mess
 					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName())); // todo name mess
 				}
 			} catch (DuplicateNameException e) {

@@ -1,6 +1,7 @@
 package fun.madeby.db.specific_server;
 
 import fun.madeby.DBRecord;
+import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.util.DebugInfo;
 
@@ -14,11 +15,11 @@ import java.util.Collection;
 
 public interface DB extends Closeable {
 
-	void add(DBRecord object);
+	void add(DBRecord object) throws DuplicateNameException;
 
-	void update(Long rowNumber, final DBRecord object);
+	void update(Long rowNumber, final DBRecord object) throws DuplicateNameException;
 
-	void update(String name, final DBRecord object);
+	void update(String name, final DBRecord object) throws DuplicateNameException;
 
 	void delete(Long rowNumber);
 
@@ -30,7 +31,7 @@ public interface DB extends Closeable {
 
 	void refreshIndex();
 
-	void defragmentDatabase() throws IOException;
+	void defragmentDatabase() throws IOException, DuplicateNameException;
 
 	Collection<DebugInfo> getRowsWithDebugInfo();
 

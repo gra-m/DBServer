@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fun.madeby.specific_server.DBSpecificTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-08-09T10:27:36" hostname="DESKTOP-5P3J64F" time="0.053">
+  <properties/>
+  <testcase name="addDuplicateThrowsDuplicateNameTest(): DBServer Add, via FileHandler test: 1 == OK" classname="fun.madeby.specific_server.DBSpecificTest" time="0.053"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Aug 09, 2022 12:27:36 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 09, 2022 12:27:36 PM fun.madeby.db.specific_server.DBServer commit
+INFO: @DBServer commit() completed
+Aug 09, 2022 12:27:36 PM fun.madeby.specific.FileHandler add
+SEVERE: @DBServer/add(DBRecord) Is duplicate name: Rezzi Delamdi
+Aug 09, 2022 12:27:36 PM fun.madeby.db.specific_server.DBServer close
+INFO: @DBServer close()
+]]></system-err>
+</testsuite>

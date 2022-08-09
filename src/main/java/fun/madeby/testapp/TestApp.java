@@ -2,6 +2,7 @@ package fun.madeby.testapp;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
+import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.specific.Index;
 import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBServer;
@@ -31,7 +32,7 @@ public class TestApp {
 	final static String dbFile = "DBServer.db";
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws DuplicateNameException{
 		TestApp testApp = new TestApp();
 
 		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
@@ -42,7 +43,7 @@ public class TestApp {
 		//testApp.performMultiThreadTest();
 	}
 
-	private void performMultiThreadTest() {
+	private void performMultiThreadTest() throws DuplicateNameException {
 		CountDownLatch cl = new CountDownLatch(3);
 		Runnable runnableAdd = null;
 		Runnable runnableUpdate = null;
@@ -52,15 +53,25 @@ public class TestApp {
 				while (true) {
 					int i = new Random().nextInt(0, 4000);
 					CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
-					dbServer.add(c);
+					try {
+						dbServer.add(c);
+					} catch (DuplicateNameException e) {
+						throw new RuntimeException("@PerformMultiThreadTest()/runnableAdd threw DuplicateNameException");
+
+					}
 				}
 			};
 
-			runnableUpdate = () -> {
+			runnableUpdate = ()  -> {
 				while (true) {
 					int i = new Random().nextInt(0, 4000);
 					CarOwner c = new CarOwner("John" + i, 44, "Berlin", "VJW707S", "This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...");
-					dbServer.update("John" + i, c);
+					try {
+						dbServer.update("John" + i, c);
+					} catch (DuplicateNameException e) {
+						throw new RuntimeException("@PerformMultiThreadTest()/runnableUpdate threw DuplicateNameException");
+
+					}
 				}
 			};
 
@@ -82,7 +93,7 @@ public class TestApp {
 
 
 
-	private void performDefragTest() {
+	private void performDefragTest() throws DuplicateNameException {
 		clearDataInExistingFile();
 		fragementDatabase();
 		listAllFileRecords();
@@ -92,7 +103,7 @@ public class TestApp {
 
 	}
 
-	private void defragmentDatabase() {
+	private void defragmentDatabase() throws DuplicateNameException {
 			try (DB dbServer = new DBServer(dbFile)) {
 				dbServer.defragmentDatabase();
 			} catch (IOException e) {
@@ -100,7 +111,7 @@ public class TestApp {
 			}
 	}
 
-	private void fragementDatabase() {
+	private void fragementDatabase() throws DuplicateNameException{
 		try (DB dbServer = new DBServer(dbFile)) {
 
 			// create 100 records
@@ -126,7 +137,7 @@ public class TestApp {
 		}
 	}
 
-	private void performTest() {
+	private void performTest() throws DuplicateNameException{
 		clearDataInExistingFile();
 		fillDB();
 			/*delete(0); // todo Never works row numbers change after first delete..
@@ -171,7 +182,7 @@ public class TestApp {
 		}
 	}
 
-	private void addOneRecordWithTransaction() {
+	private void addOneRecordWithTransaction() throws DuplicateNameException{
 
 		try (DB dbServer = new DBServer(dbFile)) {
 			ITransaction transaction = dbServer.beginTransaction();
@@ -188,7 +199,7 @@ public class TestApp {
 		}
 	}
 
-	private void testSearch(String name) {
+	private void testSearch(String name) throws DuplicateNameException{
 
 		try (DB dbServer = new DBServer(dbFile)) {
 			System.out.println("TEST SEARCH: ");
@@ -265,7 +276,7 @@ public class TestApp {
 		}
 	}
 
-	void fillDB() {
+	void fillDB() throws DuplicateNameException{
 		int count = 0;
 
 
