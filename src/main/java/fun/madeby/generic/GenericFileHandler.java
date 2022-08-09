@@ -48,13 +48,13 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		try {
 
 			try {
-				String testName = object.getClass().getName()
-				//reflection to get indexBy
-				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex("Fritx")) {
+				String testName = (String)object.getClass().getDeclaredField(schema.indexBy).get(object);
+
+				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(testName)) {
 					LOGGER.severe("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName())); // todo name mess
 				}
-			}catch(DuplicateNameException e) {
+			}catch(DuplicateNameException | NoSuchFieldException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 
