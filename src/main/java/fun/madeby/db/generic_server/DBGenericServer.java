@@ -1,6 +1,8 @@
 package fun.madeby.db.generic_server;
 
 import com.google.gson.Gson;
+import fun.madeby.exceptions.DBException;
+import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.generic.GenericFileHandler;
 import fun.madeby.generic.GenericIndex;
@@ -80,7 +82,7 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void add(Object obj) {
+	public void add(Object obj) throws DuplicateNameException, DBException {
 		LOGGER.finest("@DBGenericServer @add(DBRecord) = " + obj);
 		OperationUnit operationUnit = this.genericFileHandler.add(obj);
 		getTransaction().registerAdd(operationUnit.addedRowBytePosition);
@@ -136,7 +138,7 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void defragmentDatabase() throws IOException {
+	public void defragmentDatabase() throws IOException, DuplicateNameException, DBException {
 		LOGGER.finest("@DBGenericServer defragmentDatabase()");
 		String prefix = "defrag";
 		String suffix = "dat";
@@ -225,7 +227,7 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void update(String GenericIndexedValue, Object newObject) {
+	public void update(String GenericIndexedValue, Object newObject) throws DuplicateNameException, DBException {
 		LOGGER.finest("@DBGenericServer @update(name, newRecord) " + GenericIndexedValue + " " + newObject.getClass().getSimpleName());
 		try {
 			if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(GenericIndexedValue)) {
@@ -271,7 +273,7 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void update(Long rowNumber, final Object newObj) {
+	public void update(Long rowNumber, final Object newObj) throws DuplicateNameException, DBException {
 		LOGGER.finest("@DBGenericServer @update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " " + newObj);
 		String GenericIndexedFieldName;
 		try {

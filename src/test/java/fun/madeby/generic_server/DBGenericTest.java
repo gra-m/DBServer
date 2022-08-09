@@ -3,6 +3,7 @@ package fun.madeby.generic_server;
 import fun.madeby.Dog;
 import fun.madeby.db.DBFactory;
 import fun.madeby.db.generic_server.DBGenericServer;
+import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.generic.GenericIndex;
 import fun.madeby.util.DebugInfo;
@@ -71,7 +72,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
-	void testLevenshtein5_2() {
+	void testLevenshtein5_2() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -87,7 +88,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
-	void testLevenshtein4_1() {
+	void testLevenshtein4_1()  throws DuplicateNameException, DBException{
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -104,7 +105,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("testRegEx(): 'F.*'")
-	void testRegEx() {
+	void testRegEx() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -120,7 +121,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("testRegEx2():  'Fr.*'")
-	void testRegEx2() {
+	void testRegEx2() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -137,7 +138,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("addTest(): DBGenericServer Add, via FileHandler test: 1 == OK")
-	void addTest() throws DuplicateNameException {
+	void addTest() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -188,7 +189,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("searchTest(): DBServer search, then compare retrieved")
-	void searchTest() {
+	void searchTest()  throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -209,7 +210,7 @@ class DBGenericTest {
 	@Test
 	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field")
 		//shows on fail
-	void readTest() {
+	void readTest()  throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -227,7 +228,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
-	void updateByRowTest() {
+	void updateByRowTest()  throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			// normal
 			db.beginTransaction();
@@ -254,7 +255,7 @@ class DBGenericTest {
 
 	@Test // todo see issue 34
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
-	void updateByNameTest() {
+	void updateByNameTest()  throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
@@ -326,7 +327,7 @@ class DBGenericTest {
 			db.add(dog);
 			db.rollback();
 
-			List<Object> result = (List<Object>) db.searchWithRegex("Re.*");
+			List<Object> result = (List<Object>) db.searchWithRegex("Fr.*");
 			assertEquals(0, result.size());
 			List<DebugInfo> info = (List<DebugInfo>) db.getRowsWithDebugInfo();
 			assertEquals(1, info.size());
@@ -337,6 +338,7 @@ class DBGenericTest {
 			assertTrue(dri.isDeleted());
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			Assertions.fail();
 		}
 	}

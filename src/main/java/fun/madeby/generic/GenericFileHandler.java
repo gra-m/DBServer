@@ -1,5 +1,6 @@
 package fun.madeby.generic;
 
+import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.Levenshtein;
@@ -39,7 +40,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public OperationUnit add(Object object){
+	public OperationUnit add(Object object) throws DuplicateNameException, DBException {
 		LOGGER.severe("@GFH add(Object) = " + object);
 		writeLock.lock();
 		Long currentPositionToInsert = null;
@@ -51,11 +52,13 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 				String testName = (String)object.getClass().getDeclaredField(schema.indexBy).get(object);
 
 				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(testName)) {
-					LOGGER.severe("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+					LOGGER.severe(String.format("@GenericFileHandler/add(Object)  Name/GenericIndexedValue '%s' already exists", testName));
 					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName())); // todo name mess
 				}
-			}catch(DuplicateNameException | NoSuchFieldException | IllegalAccessException e) {
-				e.printStackTrace();
+			}catch(NoSuchFieldException e) {
+				throw new DBException("@GenericFileHandler/add(Object) noSuchField");
+			}catch (IllegalAccessException e) {
+				throw new DBException("@GenericFileHandler/add(Object) IllegalAccess");
 			}
 
 			currentPositionToInsert = this.dbFile.length();
@@ -196,7 +199,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		return operationUnit;
 	}
 
-	public OperationUnit updateByRow(Long rowNumber, Object newObject) {
+	public OperationUnit updateByRow(Long rowNumber, Object newObject) throws DuplicateNameException, DBException{
 		writeLock.lock();
 		OperationUnit operation = new OperationUnit();
 		try {
@@ -210,7 +213,8 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		}
 	}
 
-	public OperationUnit updateByIndexedFieldName(String indexedFieldName, Object newObject) {
+	public OperationUnit updateByIndexedFieldName(String indexedFieldName, Object newObject)
+			throws DuplicateNameException, DBException {
 		writeLock.lock();
 		Long namesRowNumber = GenericIndex.getInstance().getRowNumberByName(indexedFieldName);
 		OperationUnit operationUnit = new OperationUnit();
@@ -254,16 +258,21 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 	public Collection<Object> searchWithRegex(String regEx) {
 		Collection<Object> result = new ArrayList<>();
-		Set<String> names = (Set<String>) GenericIndex.getInstance().getGenericIndexedValues();
-		Collection<String> matchesRegEx = new ArrayList<>();
+		Object ifArrayListSkip = GenericIndex.getInstance().getGenericIndexedValues();
+		Set<String> names;
 
-		for(String storedName: names) {
-			if (storedName.matches(regEx))
-				matchesRegEx.add(storedName);
-		}
-		// get records:
-		for (String match: matchesRegEx) {
-			result.add(search(match));
+		if(ifArrayListSkip.getClass() != ArrayList.class) {
+			names = (Set<String>) GenericIndex.getInstance().getGenericIndexedValues();
+			Collection<String> matchesRegEx = new ArrayList<>();
+
+			for (String storedName : names) {
+				if (storedName.matches(regEx))
+					matchesRegEx.add(storedName);
+			}
+			// get records:
+			for (String match : matchesRegEx) {
+				result.add(search(match));
+			}
 		}
 		return result;
 	}

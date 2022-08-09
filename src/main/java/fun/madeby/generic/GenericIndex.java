@@ -1,6 +1,8 @@
 package fun.madeby.generic;
 
 import fun.madeby.exceptions.DBException;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,11 +72,26 @@ public final class GenericIndex {
 		totalNumberOfRows++;
 	}
 
-	// previously addNameToIndex
 	public synchronized void addGenericIndexedValue(String GenericIndexedValue, Long rowIndex) {
-		ConcurrentHashMap<String, Long> newCHM = new ConcurrentHashMap<>();
-		newCHM.put(GenericIndexedValue, rowIndex);
-		this.indexByWithMappedValueAndRowNumber.put(this.schema.indexBy, newCHM);
+		ConcurrentHashMap<String, Long> isExisting;
+		ConcurrentHashMap<String, Long> addedNewIndexByValue = new ConcurrentHashMap<>();
+
+		if (checkExists()) {
+			isExisting = getExisting();
+			isExisting.put(GenericIndexedValue, rowIndex);
+			this.indexByWithMappedValueAndRowNumber.put(this.schema.indexBy, isExisting);
+		} else {
+				addedNewIndexByValue.put(GenericIndexedValue, rowIndex);
+				this.indexByWithMappedValueAndRowNumber.put(this.schema.indexBy, addedNewIndexByValue);
+		}
+	}
+
+	private boolean checkExists() {
+		return indexByWithMappedValueAndRowNumber.containsKey(this.schema.indexBy) ? true : false;
+	}
+
+	private ConcurrentHashMap<String, Long> getExisting() {
+		return indexByWithMappedValueAndRowNumber.get(this.schema.indexBy);
 	}
 
 	//previously hasNameInIndex
@@ -128,8 +145,17 @@ public final class GenericIndex {
 
 	// was getNames()
 	public synchronized Collection<String> getGenericIndexedValues() {
-		ConcurrentHashMap<String, Long> checkValue = this.indexByWithMappedValueAndRowNumber.get(this.schema.indexBy);
+		Collection<String> noValuesFound  = new ArrayList<>(0);
+		ConcurrentHashMap<String, Long> checkValue = new ConcurrentHashMap<>();
+		try {
+			 checkValue = this.indexByWithMappedValueAndRowNumber.get(this.schema.indexBy);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+		if(checkValue != null)
 		return checkValue.keySet();
+		else
+			return noValuesFound;
 	}
 
 	public void removeByFilePosition(Long position) {
