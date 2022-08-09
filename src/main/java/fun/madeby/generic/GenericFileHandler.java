@@ -2,13 +2,10 @@ package fun.madeby.generic;
 
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
-import fun.madeby.specific.Index;
 import fun.madeby.util.Levenshtein;
 import fun.madeby.util.OperationUnit;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -49,11 +46,15 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		int length = 0;
 		OperationUnit operationUnit = new OperationUnit();
 		try {
+
 			try {
-				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(object.getClass().getName())) { // todo name mess
+				String testName = object.getClass().getName()
+				//reflection to get indexBy
+				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex("Fritx")) {
+					LOGGER.severe("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName())); // todo name mess
 				}
-			} catch (DuplicateNameException e) {
+			}catch(DuplicateNameException e) {
 				e.printStackTrace();
 			}
 

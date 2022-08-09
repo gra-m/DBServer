@@ -6,13 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="5f884b3e-abe3-43e3-bfb4-28e4ef31545b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DB.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DBServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DBServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/specific/FileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/specific/FileHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/testapp/TestApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/testapp/TestApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/specific_server/DBSpecificTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/specific_server/DBSpecificTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testdb.db" beforeDir="false" afterPath="$PROJECT_DIR$/testdb.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testGeneric.db" beforeDir="false" afterPath="$PROJECT_DIR$/testGeneric.db" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,7 +138,7 @@
       <recent name="fun.madeby.general" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.DBSpecificTest">
+  <component name="RunManager" selected="Gradle.DBGenericTest.addDuplicateTest">
     <configuration name="TestApp" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="fun.madeby.testapp.TestApp" />
       <module name="DBServer.main" />
@@ -156,7 +152,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DBGenericTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericTest.addDuplicateTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -169,7 +165,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.DBGenericTest&quot;" />
+            <option value="&quot;fun.madeby.generic_server.DBGenericTest.addDuplicateTest&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -273,11 +269,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.DBSpecificTest" />
+        <item itemvalue="Gradle.DBGenericTest.addDuplicateTest" />
         <item itemvalue="Gradle.DBSpecificTest.addDuplicateThrowsDuplicateNameTest" />
+        <item itemvalue="Gradle.DBSpecificTest" />
         <item itemvalue="Gradle.DBGenericTest.searchTest" />
         <item itemvalue="Gradle.DBGenericTest.addTest" />
-        <item itemvalue="Gradle.DBGenericTest" />
       </list>
     </recent_temporary>
   </component>
@@ -372,16 +368,6 @@
             <option name="WATCH_EXIT" value="false" />
           </properties>
           <option name="timeStamp" value="15" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java</url>
-          <line>176</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java</url>
-          <line>247</line>
-          <option name="timeStamp" value="23" />
         </line-breakpoint>
         <breakpoint enabled="true" type="java-exception">
           <properties class="fun.madeby.exceptions.NameDoesNotExistException" package="fun.madeby.exceptions" />

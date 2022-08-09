@@ -3,6 +3,7 @@ package fun.madeby.generic_server;
 import fun.madeby.Dog;
 import fun.madeby.db.DBFactory;
 import fun.madeby.db.generic_server.DBGenericServer;
+import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.generic.GenericIndex;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
@@ -136,13 +137,32 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("addTest(): DBGenericServer Add, via FileHandler test: 1 == OK")
-	void addTest() {
+	void addTest() throws DuplicateNameException {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
 			db.beginTransaction();
 			db.add(dog);
 			db.commit();
 			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
 		} catch (IOException e) {
+			Assertions.fail();
+		}
+	}
+
+	@Test
+	@DisplayName("addDuplicateTest(): DBGenericServer AddDuplicateTest throws DuplicateNameException == OK")
+	void addDuplicateTest()  {
+		try(DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
+
+			DuplicateNameException thrown = Assertions.assertThrows(DuplicateNameException.class, () -> {
+				db.beginTransaction();
+				db.add(dog);
+				db.commit();
+				db.beginTransaction();
+				db.add(dog);
+				db.commit();
+			});
+
+		}catch (IOException e) {
 			Assertions.fail();
 		}
 	}
