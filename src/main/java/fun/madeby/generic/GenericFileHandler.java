@@ -223,7 +223,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 		try {
 			if (namesRowNumber == -1)
-				throw new NameDoesNotExistException(String.format("Thread issue, indexedFieldName %s existed @DBServer, but could not be found here", indexedFieldName));
+				throw new NameDoesNotExistException(String.format("Thread issue, indexedFieldName %s existed @DBSpecificServer, but could not be found here", indexedFieldName));
 			else {
 				operationUnit = updateByRow(namesRowNumber, newObject);
 			}

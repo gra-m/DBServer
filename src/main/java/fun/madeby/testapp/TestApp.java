@@ -2,10 +2,10 @@ package fun.madeby.testapp;
 
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
+import fun.madeby.db.specific_server.DBSpecificServer;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.specific.Index;
 import fun.madeby.db.specific_server.DB;
-import fun.madeby.db.specific_server.DBServer;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.Levenshtein;
@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 @SuppressWarnings("InfiniteLoopStatement")
 public class TestApp {
 	final static int AMOUNT_OF_EACH = 2;
-	final static String dbFile = "DBServer.db";
+	final static String dbFile = "DBSpecificServer.db";
 
 
 	public static void main(String[] args) throws DuplicateNameException{
@@ -48,7 +48,7 @@ public class TestApp {
 		Runnable runnableAdd = null;
 		Runnable runnableUpdate = null;
 		Runnable runnableListAll = null;
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			runnableAdd = () -> {
 				while (true) {
 					int i = new Random().nextInt(0, 4000);
@@ -104,7 +104,7 @@ public class TestApp {
 	}
 
 	private void defragmentDatabase() throws DuplicateNameException {
-			try (DB dbServer = new DBServer(dbFile)) {
+			try (DB dbServer = new DBSpecificServer(dbFile)) {
 				dbServer.defragmentDatabase();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -112,7 +112,7 @@ public class TestApp {
 	}
 
 	private void fragementDatabase() throws DuplicateNameException{
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 
 			// create 100 records
 			dbServer.beginTransaction();
@@ -155,7 +155,7 @@ public class TestApp {
 	}
 
 	private void testRegEx() {
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			ArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithRegex("Fra.*");
 			System.out.println("---------searchWithRegEx()-----------");
 			for(DBRecord record: result) {
@@ -171,7 +171,7 @@ public class TestApp {
 	}
 
 	private void testLevenshtein() {
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			ArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithLevenshtein("Frank Demian1", 0);
 			System.out.println("---------searchWithLevenshtein()-----------");
 			for(DBRecord record: result) {
@@ -184,7 +184,7 @@ public class TestApp {
 
 	private void addOneRecordWithTransaction() throws DuplicateNameException{
 
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			ITransaction transaction = dbServer.beginTransaction();
 			DBRecord carOwner = new CarOwner("Frank Demian",
 					20,
@@ -201,7 +201,7 @@ public class TestApp {
 
 	private void testSearch(String name) throws DuplicateNameException{
 
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			System.out.println("TEST SEARCH: ");
 			addOneRecordWithTransaction();
 			dbServer.refreshIndex();
@@ -226,7 +226,7 @@ public class TestApp {
 
 	private void listAllFileRecords() {
 
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			long count = 1L;
 			long rowPosition = 0L;
 			ArrayList<DebugInfo> data = (ArrayList<DebugInfo>) dbServer.getRowsWithDebugInfo();
@@ -259,7 +259,7 @@ public class TestApp {
 
 	void delete(long rowNumber) {
 
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			dbServer.delete(rowNumber);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -267,7 +267,7 @@ public class TestApp {
 	}
 
 	void delete(String name) {
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			dbServer.beginTransaction();
 			dbServer.delete(Index.getInstance().getRowNumberByName(name));
 			dbServer.commit();
@@ -280,7 +280,7 @@ public class TestApp {
 		int count = 0;
 
 
-		try (DB dbServer = new DBServer(dbFile)) {
+		try (DB dbServer = new DBSpecificServer(dbFile)) {
 				for (int i = 0; i < 1; i++) {
 					DBRecord carOwner = new CarOwner("Frank Demian",
 							20,

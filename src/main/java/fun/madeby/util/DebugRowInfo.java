@@ -1,6 +1,5 @@
 package fun.madeby.util;
 
-import fun.madeby.DBRecord;
 
 /**
  * Created by Gra_m on 2022 06 30

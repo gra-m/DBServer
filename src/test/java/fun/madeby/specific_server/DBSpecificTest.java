@@ -4,7 +4,7 @@ import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.db.DBFactory;
 import fun.madeby.db.specific_server.DB;
-import fun.madeby.db.specific_server.DBServer;
+import fun.madeby.db.specific_server.DBSpecificServer;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.specific.Index;
 import fun.madeby.util.DebugInfo;
@@ -86,7 +86,7 @@ class DBSpecificTest {
 	@Test
 	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
 	void testLevenshtein4_1() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"
@@ -104,7 +104,7 @@ class DBSpecificTest {
 	@Test
 	@DisplayName("testRegEx(): 'R.*'")
 	void testRegEx() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated);
@@ -121,7 +121,7 @@ class DBSpecificTest {
 	@Test
 	@DisplayName("testRegEx2():  'Re.*'")
 	void testRegEx2() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated);
@@ -137,9 +137,9 @@ class DBSpecificTest {
 
 
 	@Test
-	@DisplayName("addTest(): DBServer Add, via FileHandler test: 1 == OK")
+	@DisplayName("addTest(): DBSpecificServer Add, via FileHandler test: 1 == OK")
 	void addTest() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -150,9 +150,9 @@ class DBSpecificTest {
 	}
 
 	@Test
-	@DisplayName("addDuplicateThrowsDuplicateNameTest(): DBServer Add, via FileHandler test: 1 == OK")
+	@DisplayName("addDuplicateThrowsDuplicateNameTest(): DBSpecificServer Add, via FileHandler test: 1 == OK")
 	void addDuplicateThrowsDuplicateNameTest(){
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			DuplicateNameException thrown = Assertions.assertThrows(DuplicateNameException.class, () -> {
 				db.beginTransaction();
 				db.add(carOwner);
@@ -170,9 +170,9 @@ class DBSpecificTest {
 	}
 
 /*	@Test //todo see issue 34
-	@DisplayName("deleteTest(): DBServer Add then delete separate transactions")
+	@DisplayName("deleteTest(): DBSpecificServer Add then delete separate transactions")
 	void deleteTest() {
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -189,9 +189,9 @@ class DBSpecificTest {
 
 
 	@Test
-	@DisplayName("searchTest(): DBServer search, then compare retrieved")
+	@DisplayName("searchTest(): DBSpecificServer search, then compare retrieved")
 	void searchTest() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -213,9 +213,9 @@ class DBSpecificTest {
 
 
 	@Test
-	@DisplayName("DBServer readTest : 1 == OK and then test equality of each field") //shows on fail
+	@DisplayName("DBSpecificServer readTest : 1 == OK and then test equality of each field") //shows on fail
 	void readTest() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -235,7 +235,7 @@ class DBSpecificTest {
 	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
 	void updateByRowTest() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			// normal
 			db.beginTransaction();
 			db.add(carOwner);
@@ -245,9 +245,9 @@ class DBSpecificTest {
 			db.update(0L, carOwnerUpdated );
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
-			//db.defragmentDatabase(); // todo defrag breaks this test (adding as bug @issue 35) retrieved == null
-			//DBRecord retrieved = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
-			DBRecord retrieved = db.read(1L);
+			//db.defragmentDatabase(); todo get defrag working here?
+			DBRecord retrieved = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
+			//DBRecord retrieved = db.read(1L);
 			assert retrieved != null;
 			assertEquals( "Razzgu Dulemdi", retrieved.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
@@ -266,7 +266,7 @@ class DBSpecificTest {
 	@Test // todo see issue 34
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() throws DuplicateNameException{
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -296,7 +296,7 @@ class DBSpecificTest {
 	@DisplayName("Searches for commited DBRecord with regex, confirms List.size() and expected name.")
 	public void transactionTest_COMMIT() {
 
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -315,7 +315,7 @@ class DBSpecificTest {
 	@DisplayName("COMMIT with MultiBegin.")
 	public void transactionTest_COMMIT_with_MultiBegin() {
 
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.beginTransaction();
@@ -334,7 +334,7 @@ class DBSpecificTest {
 	@Test
 	@DisplayName("Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info.")
 	public void transactionTest_ROLLBACK() {
-		try(DB db = new DBServer(dbFileName)) {
+		try(DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.rollback();
@@ -358,7 +358,7 @@ class DBSpecificTest {
 	@DisplayName("ROLLBACK with MultiBegin.")
 	public void transactionTest_ROLLBACK_with_MultiBegin() {
 
-		try (DB db = new DBServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)){
 			db.beginTransaction();
 			db.add(carOwner);
 			db.beginTransaction();

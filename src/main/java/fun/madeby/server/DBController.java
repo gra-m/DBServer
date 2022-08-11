@@ -3,7 +3,7 @@ package fun.madeby.server;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.db.specific_server.DB;
-import fun.madeby.db.specific_server.DBServer;
+import fun.madeby.db.specific_server.DBSpecificServer;
 import io.javalin.http.Handler;
 
 import java.io.FileNotFoundException;
@@ -21,7 +21,7 @@ public final class DBController {
 
 	static {
 		try {
-			database = new DBServer("restTest.db");
+			database = new DBSpecificServer("restTest.db");
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}

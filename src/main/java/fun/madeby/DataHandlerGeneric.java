@@ -18,7 +18,7 @@ public interface DataHandlerGeneric {
 	byte[] readRawRecord(Long rowsBytePosition);
 	Object readFromByteStream(final DataInputStream stream) throws IOException;
 	Collection<DebugInfo> getCurrentDebugInfoRows() throws IOException;
-	Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition); // commit/rollback from DBServer
+	Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition); // commit/rollback from DBSpecificServer
 	Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition);
 
 }

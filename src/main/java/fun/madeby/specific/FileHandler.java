@@ -37,17 +37,18 @@ public class FileHandler extends BaseFileHandler {
 	 * <p>This method returns a {@code boolean} true, but testing will be added in the future.</p>
 	 *
 	 * @param dbRecord the record to be written
+	 * @param isDefrag
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public OperationUnit add(DBRecord dbRecord) throws DuplicateNameException {
+	public OperationUnit add(DBRecord dbRecord, boolean isDefrag) throws DuplicateNameException {
 		writeLock.lock();
 		Long currentPositionToInsert = null;
 		OperationUnit operationUnit = new OperationUnit();
 		String nameTest = dbRecord.getName();
 
 				if (Index.getInstance().hasNameInIndex(nameTest)) {
-					LOGGER.severe("@DBServer/add(DBRecord) Is duplicate name: " + nameTest);
+					LOGGER.severe("@DBSpecificServer/add(DBRecord) Is duplicate name: " + nameTest);
 					throw new DuplicateNameException(String.format("Name %s already exists!", nameTest));
 				}
 
@@ -66,7 +67,7 @@ public class FileHandler extends BaseFileHandler {
 				e.printStackTrace();
 			}
 			// write data
-			dbFile.writeBoolean(true); // isTemporary
+			dbFile.writeBoolean(!isDefrag); // isTemporary
 			dbFile.writeBoolean(false); // isDeleted
 			dbFile.writeInt(length); // length of record bytes
 
@@ -150,7 +151,7 @@ public class FileHandler extends BaseFileHandler {
 		OperationUnit operation = new OperationUnit();
 		try {
 			operation.deletedRowBytePosition  = (this.deleteRow(rowNumber).deletedRowBytePosition);
-			operation.addedRowBytePosition = (this.add(newRecord)).addedRowBytePosition;
+			operation.addedRowBytePosition = (this.add(newRecord, false)).addedRowBytePosition;
 			operation.successfulOperation = true;
 			return operation;
 
@@ -166,7 +167,7 @@ public class FileHandler extends BaseFileHandler {
 
 		try {
 			if (namesRowNumber == -1)
-				throw new NameDoesNotExistException(String.format("Thread issue, name %s existed @DBServer, but could not be found here", name));
+				throw new NameDoesNotExistException(String.format("Thread issue, name %s existed @DBSpecificServer, but could not be found here", name));
 			else {
 				operationUnit = updateByRow(namesRowNumber, newRecord);
 			}
