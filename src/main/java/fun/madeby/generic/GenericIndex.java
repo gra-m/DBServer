@@ -1,20 +1,32 @@
 package fun.madeby.generic;
 
 import fun.madeby.exceptions.DBException;
+import fun.madeby.util.LoggerSetUp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * Created by Gra_m on 2022 06 27
  */
 
 public final class GenericIndex {
+	private Logger LOGGER;
 
 	static{
 		genericIndexInstance = new GenericIndex();}
+
+	{
+		try {
+			LOGGER = LoggerSetUp.setUpLogger("GenericIndex");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private static final GenericIndex genericIndexInstance;
 	private Schema schema;
@@ -168,12 +180,13 @@ public final class GenericIndex {
 		}
 		rowIndex = mapRowNumberBytePosition.search(1, (k, v) -> (Objects.equals(v, position)) ? k : -1);
 		if (rowIndex != -1L) {
+			LOGGER.info("@GenericIndex/removeFilePosition: " + cHashMap.toString());
 			GenericIndexedValue = cHashMap.search(1, (k, v) -> Objects.equals(v, rowIndex) ? k : null);
 		}
 
 		if (GenericIndexedValue != null)
 			remove(rowIndex, GenericIndexedValue); // just doing this in same way for now could just pass to remove(rowIndex);
-		else throw new RuntimeException("INDEX: removeByFilePosition - rowIndex " + rowIndex + " was searched for in indexByWithMappedValueAndRowNumber, but was not found in order to be removed");
+		else throw new RuntimeException("@GenericIndex/removeByFilePosition(Long): removeByFilePosition - rowIndex " + rowIndex + " was searched for in indexByWithMappedValueAndRowNumber, but was not found in order to be removed");
 
 	}
 

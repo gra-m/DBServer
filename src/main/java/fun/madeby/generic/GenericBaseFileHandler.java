@@ -92,7 +92,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
 				// add to index
 
-				GenericIndex.getInstance().add(position);
+				GenericIndex.getInstance().add(position); // increments total number of rows
 				String genericIndexedValue = (String)object.getClass().getDeclaredField(schema.indexBy).get(object);
 				GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, GenericIndex.getInstance().getTotalNumberOfRows() - 1); // does not increment total num of rows.
 			}
@@ -306,7 +306,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	}
 
 	public Collection<DebugInfo> getCurrentDebugInfoRows() {
-		LOGGER.finest("@BFH getCurrentDebugInfoRows()");
+		LOGGER.finest("@BFH getCurrentDebugInfoRows() collecting debugInfo 1Object 2isTemporary 3isDeleted for each row in .db");
 		readLock.lock();
 		DataInputStream stream;
 		DebugInfo debugInfo;

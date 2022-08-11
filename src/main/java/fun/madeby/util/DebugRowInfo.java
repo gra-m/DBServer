@@ -27,6 +27,11 @@ public final class DebugRowInfo implements DebugInfo {
 		return isTemporary;
 	}
 
+	@Override
+	public String toString() {
+		return  "\n" + object.getClass() + " /t " + isTemporary + " /d " + isDeleted;
+	}
+
 	public boolean isDeleted() {
 		return isDeleted;
 	}

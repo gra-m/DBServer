@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,7 +86,7 @@ class DBGenericTest {
 				"The horld hemewhere",
 				"Chingu",
 				"Eats pie, seriously");
-		personSimilar = new Person("Rezzi Delamdi",
+		personSimilar = new Person("Rezzu Delamdi",
 				20,
 				"The chig hackle",
 				"F1itx234",
@@ -129,15 +128,15 @@ class DBGenericTest {
 
 
 	@Test
-	@DisplayName("testDefragmentation totalRows 2")
-	void testDefragmentation()  {
+	@DisplayName("testDefragmentation totalRows 3rows->2rows->defrag")
+	void testDefragmentationAfterDelete()  {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
 			Long recNumber = 0L;
 
 			db.beginTransaction();
 			db.add(person);
-			db.add(personSimilar);
 			db.add(personUpdated);
+			db.add(personSimilar);
 			db.commit();
 			assertEquals(3, GenericIndex.getInstance().getTotalNumberOfRows());
 
@@ -153,6 +152,27 @@ class DBGenericTest {
 
 			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
 			Assertions.assertEquals(2, debugList.size());
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+	}
+
+	@Test
+	@DisplayName("testDefragmentationEmptyTransactionBehaviour -> 0 rows no exceptions")
+	void testDefragmentationEmptyTransactionBehaviour()  {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			Long recNumber = 0L;
+
+			db.beginTransaction();
+			db.commit();
+			assertEquals(0, GenericIndex.getInstance().getTotalNumberOfRows());
+			db.defragmentDatabase();
+			recNumber = db.getTotalRecordAmount();
+			Assertions.assertEquals(0, recNumber);
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(0, debugList.size());
 
 		} catch (Exception e) {
 			Assertions.fail();

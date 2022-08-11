@@ -122,9 +122,8 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 
 	private int getObjectLength(final Object obj, final LinkedList<SchemaField> linkedList) {
-		LOGGER.finest("@GenericFileHandler getObjectLength(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
+		LOGGER.info("@GenericFileHandler getObjectLength(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
 		int result = 0;
-		int count = 0;
 
 
 		try {

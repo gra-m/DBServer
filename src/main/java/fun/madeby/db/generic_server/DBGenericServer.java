@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -52,6 +53,14 @@ public class DBGenericServer implements DBGeneric {
 		this.genericFileHandler = new GenericFileHandler(dbFileName);
 		this.genericFileHandler.setSchema(schema);
 		this.genericFileHandler.setAClass(aClass);
+		this.transactions = new LinkedHashMap<>();
+		this.initialise();
+	}
+
+	public DBGenericServer(GenericFileHandler genericFileHandler, Schema schema, Class aClass) throws FileNotFoundException {
+		this.schema = schema;
+		this.aClass = aClass;
+		this.genericFileHandler = genericFileHandler;
 		this.transactions = new LinkedHashMap<>();
 		this.initialise();
 	}
@@ -114,12 +123,18 @@ public class DBGenericServer implements DBGeneric {
 
 	@Override
 	public void commit() {
+		LinkedList<Long> deletesToBeCommitted;
+		LinkedList<Long> addsToBeCommitted;
+
 		LOGGER.finest("@DBGenericServer commit() entered");
 		ITransaction transaction = getTransaction();
 
 		if (transaction != null) {
+			addsToBeCommitted = (LinkedList<Long>) transaction.getNewRowsBytePosition();
+			deletesToBeCommitted = (LinkedList<Long>) transaction.getDeletedRowsBytePosition();
+			printBeforeCommit(addsToBeCommitted, deletesToBeCommitted);
 			Boolean successfullyCommitted = genericFileHandler.
-					commit(transaction.getNewRowsBytePosition(), transaction.getDeletedRowsBytePosition());
+					commit(addsToBeCommitted, deletesToBeCommitted);
 			if (successfullyCommitted) {
 				transactions.remove(Thread.currentThread().getId()); // cannot be retrieved..
 				transaction.clear();// clearing data in object that can no longer be retrieved...
@@ -129,8 +144,15 @@ public class DBGenericServer implements DBGeneric {
 			LOGGER.info("@DBGenericServer commit() transaction could not be found");
 	}
 
+	private void printBeforeCommit(LinkedList<Long> addsToBeCommitted, LinkedList<Long> deletesToBeCommitted) {
+		String adds = addsToBeCommitted.size() == 0 ? "none" : addsToBeCommitted.toString();
+		String deletes = deletesToBeCommitted.size() == 0 ? "none" : deletesToBeCommitted.toString();
+		LOGGER.info("Adds to be committed: " + adds + " Deletes to be committed: " + deletes);
+	}
+
 	private void initialise() {
 		GenericIndex.getInstance().initialiseGenericIndexSchema(this.schema);
+		this.genericFileHandler.setAClass(this.aClass);
 		LOGGER.finest("@DBGenericServer intialise()");
 		this.genericFileHandler.writeVersionInfoIfNewFile();
 		this.genericFileHandler.populateIndex();
@@ -146,21 +168,31 @@ public class DBGenericServer implements DBGeneric {
 		File tmpFile = File.createTempFile(prefix, suffix);
 		GenericIndex.getInstance().clear();
 
-		// open temp file:
+		// open temp file and GFH perhaps initialiseTemp??:
 		GenericFileHandler defragGFH = new GenericFileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName());
+		defragGFH.setSchema(this.schema);
+		defragGFH.setAClass(this.aClass);
+		DBGenericServer defragGenericServer = new DBGenericServer(defragGFH, this.schema, this.aClass);
 
 		Collection<DebugInfo> currentDebugInfoRows = this.genericFileHandler.getCurrentDebugInfoRows();
 
-		for (DebugInfo info : currentDebugInfoRows) {
-			if (info.isDeleted() || info.isTemporary())
-				continue;
-			Object object = info.getDbRecord();
-			defragGFH.add(object);
+
+		LOGGER.severe("->currentDebugInfoRows = " + currentDebugInfoRows.size() + currentDebugInfoRows);
+		if(currentDebugInfoRows.size() > 0) {
+			defragGenericServer.beginTransaction();
+			for (DebugInfo info : currentDebugInfoRows) {
+				if (info.isDeleted() || info.isTemporary())
+					continue;
+				Object object = info.getDbRecord();
+				defragGenericServer.add(object);
+			}
+			defragGenericServer.commit();
 		}
 
 		replaceOldFileWithNew(tmpFile);
-		defragGFH.close();
+		defragGenericServer.close();
 		GenericIndex.getInstance().clear();
+		GenericIndex.getInstance().initialiseGenericIndexSchema(this.schema);
 		this.initialise();
 	}
 
@@ -339,6 +371,8 @@ public class DBGenericServer implements DBGeneric {
 				Files.copy(tmpFile.toPath(), FileSystems.getDefault().getPath("", oldDBName),
 						StandardCopyOption.REPLACE_EXISTING);
 				this.genericFileHandler = new GenericFileHandler(oldDBName);
+				genericFileHandler.setSchema(this.schema);
+				genericFileHandler.setAClass(aClass);
 			} else {
 				boolean tmpFileDeleted = tmpFile.delete();
 				LOGGER.warning("@DBGenericServer @replaceOldFileWithNew(File tmpFile)\n->Database file could not be deleted during defragmentation ||" +
