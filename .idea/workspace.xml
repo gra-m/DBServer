@@ -13,9 +13,7 @@
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGenericServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGenericServer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericBaseFileHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericBaseFileHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericIndex.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericIndex.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/test/fun/madeby/generic_server/DBGenericTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/test/fun/madeby/generic_server/DBGenericTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericFileHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericFileHandler.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/tests/test/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" afterDir="false" />
@@ -23,12 +21,7 @@
       <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericIndex.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugRowInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugRowInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/testGeneric.db" beforeDir="false" afterPath="$PROJECT_DIR$/testGeneric.db" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -374,7 +367,7 @@
       <workItem from="1660072669903" duration="5873000" />
       <workItem from="1660078618918" duration="200000" />
       <workItem from="1660113448778" duration="8482000" />
-      <workItem from="1660198614900" duration="8771000" />
+      <workItem from="1660198614900" duration="10988000" />
     </task>
     <servers />
   </component>
@@ -429,13 +422,8 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java</url>
-          <line>262</line>
+          <line>265</line>
           <option name="timeStamp" value="45" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java</url>
-          <line>186</line>
-          <option name="timeStamp" value="80" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -36,11 +36,12 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	 *
 	 * <p>This method returns a {@code boolean} true, but testing will be added in the future.</p>
 	 *
-	 * @param object the record to be written
+	 * @param object   the record to be written
+	 * @param isDefrag
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
-	public OperationUnit add(Object object) throws DuplicateNameException, DBException {
+	public OperationUnit add(Object object, boolean isDefrag) throws DuplicateNameException, DBException {
 		LOGGER.severe("@GFH add(Object) = " + object);
 		writeLock.lock();
 		Long currentPositionToInsert = null;
@@ -69,7 +70,9 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 			//todo remove test here
 			if (length >0) {
 				this.dbFile.seek(currentPositionToInsert);
-				dbFile.writeBoolean(true); // isTemporary
+
+				// isTemporary
+				dbFile.writeBoolean(!isDefrag); // isTemporary
 				dbFile.writeBoolean(false); // isDeleted
 				dbFile.writeInt(length); // length of record bytes
 				writeObject(object, this.schema.schemaFields);
@@ -203,7 +206,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		OperationUnit operation = new OperationUnit();
 		try {
 			operation.deletedRowBytePosition  = (this.deleteRow(rowNumber).deletedRowBytePosition);
-			operation.addedRowBytePosition = (this.add(newObject)).addedRowBytePosition;
+			operation.addedRowBytePosition = (this.add(newObject, false)).addedRowBytePosition;
 			operation.successfulOperation = true;
 			return operation;
 

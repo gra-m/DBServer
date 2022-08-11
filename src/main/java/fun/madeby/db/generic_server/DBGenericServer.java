@@ -93,7 +93,7 @@ public class DBGenericServer implements DBGeneric {
 	@Override
 	public void add(Object obj) throws DuplicateNameException, DBException {
 		LOGGER.finest("@DBGenericServer @add(DBRecord) = " + obj);
-		OperationUnit operationUnit = this.genericFileHandler.add(obj);
+		OperationUnit operationUnit = this.genericFileHandler.add(obj, false);
 		getTransaction().registerAdd(operationUnit.addedRowBytePosition);
 	}
 
@@ -172,25 +172,23 @@ public class DBGenericServer implements DBGeneric {
 		GenericFileHandler defragGFH = new GenericFileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName());
 		defragGFH.setSchema(this.schema);
 		defragGFH.setAClass(this.aClass);
-		DBGenericServer defragGenericServer = new DBGenericServer(defragGFH, this.schema, this.aClass);
+		defragGFH.writeVersionInfoIfNewFile();
 
 		Collection<DebugInfo> currentDebugInfoRows = this.genericFileHandler.getCurrentDebugInfoRows();
 
 
 		LOGGER.severe("->currentDebugInfoRows = " + currentDebugInfoRows.size() + currentDebugInfoRows);
 		if(currentDebugInfoRows.size() > 0) {
-			defragGenericServer.beginTransaction();
 			for (DebugInfo info : currentDebugInfoRows) {
 				if (info.isDeleted() || info.isTemporary())
 					continue;
 				Object object = info.getDbRecord();
-				defragGenericServer.add(object);
+				defragGFH.add(object, true);
 			}
-			defragGenericServer.commit();
 		}
 
 		replaceOldFileWithNew(tmpFile);
-		defragGenericServer.close();
+		defragGFH.close();
 		GenericIndex.getInstance().clear();
 		GenericIndex.getInstance().initialiseGenericIndexSchema(this.schema);
 		this.initialise();
@@ -373,6 +371,7 @@ public class DBGenericServer implements DBGeneric {
 				this.genericFileHandler = new GenericFileHandler(oldDBName);
 				genericFileHandler.setSchema(this.schema);
 				genericFileHandler.setAClass(aClass);
+				genericFileHandler.writeVersionInfoIfNewFile();
 			} else {
 				boolean tmpFileDeleted = tmpFile.delete();
 				LOGGER.warning("@DBGenericServer @replaceOldFileWithNew(File tmpFile)\n->Database file could not be deleted during defragmentation ||" +
