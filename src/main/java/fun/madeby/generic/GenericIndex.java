@@ -46,17 +46,17 @@ public final class GenericIndex {
 		return genericIndexInstance;
 	}
 
-	public void initialiseGenericIndexSchema(Schema schema) {
+	public void initialiseGenericIndexSchema(Schema schema) throws DBException {
 		this.schema = schema;
 		String indexBy = schema.indexBy;
 
-		try {
+
 			if (indexBy == null) {
-				throw new DBException("@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field found null");
+				throw new DBException("@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field null");
+			} else if(indexBy.equals("")) {
+				throw new DBException("@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field equals\"\"");
 			}
-		}catch (DBException e) {
-			e.printStackTrace();
-		}
+
 	}
 
 	//printIndexByValues

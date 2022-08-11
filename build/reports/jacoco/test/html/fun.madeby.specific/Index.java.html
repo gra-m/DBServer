@@ -105,7 +105,7 @@ public final class Index {
 		}
 <span class="pc bpc" id="L106" title="1 of 2 branches missed.">		rowIndex = mapRowNumberBytePosition.search(1, (k, v) -&gt; (Objects.equals(v, position)) ? k : -1);</span>
 <span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if (rowIndex != -1L) {</span>
-<span class="pc bpc" id="L108" title="1 of 2 branches missed.">			rowName = mapDbRecordNameByRowNumber.search(1, (k, v) -&gt; (Objects.equals(v, rowIndex)) ? k : null);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">			rowName = mapDbRecordNameByRowNumber.search(1, (k, v) -&gt; (Objects.equals(v, rowIndex)) ? k : null);</span>
 		}
 
 <span class="pc bpc" id="L111" title="1 of 2 branches missed.">		if (rowName != null)</span>

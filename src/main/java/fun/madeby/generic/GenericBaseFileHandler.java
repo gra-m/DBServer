@@ -1,6 +1,7 @@
 package fun.madeby.generic;
 
 import fun.madeby.DataHandlerGeneric;
+import fun.madeby.exceptions.DBException;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
 import fun.madeby.util.LoggerSetUp;
@@ -50,7 +51,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	}
 
 
-	public GenericBaseFileHandler(final String fileName) throws FileNotFoundException {
+	public GenericBaseFileHandler(final String fileName) throws FileNotFoundException, DBException {
 		this.dbFile = new RandomAccessFile(fileName, "rw");
 		this.dbFileName = fileName;
 		writeVersionInfoIfNewFile();

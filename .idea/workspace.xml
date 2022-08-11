@@ -5,24 +5,65 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f884b3e-abe3-43e3-bfb4-28e4ef31545b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/defrag/DBGenericDefragTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/DBFactory.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/DBFactory.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGenericServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGenericServer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericBaseFileHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericBaseFileHandler.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericFileHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericFileHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericIndex.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericIndex.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/test/fun/madeby/DBTestSuite.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/test/fun/madeby/DBTestSuite.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/test/fun/madeby/generic_server/DBGenericTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/libs/DBServer-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/build/libs/DBServer-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/DBGenericServer.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/DBGenericServer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/DBGenericServer.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/DBGenericServer.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/index.source.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db.generic_server/index.source.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db/DBFactory.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.db/DBFactory.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/DBException.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/DBException.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/DBException.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/DBException.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/index.source.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.exceptions/index.source.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericBaseFileHandler.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericBaseFileHandler.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericBaseFileHandler.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericBaseFileHandler.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericFileHandler.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericFileHandler.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericFileHandler.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericFileHandler.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericIndex.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericIndex.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericIndex.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/GenericIndex.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/index.source.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.generic/index.source.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/Index.html~1" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/Index.html~1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/Index.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/Index.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/index.source.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.specific/index.source.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/DebugRowInfo.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/DebugRowInfo.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/DebugRowInfo.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/DebugRowInfo.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/index.source.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/fun.madeby.util/index.source.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/jacoco/test/html/jacoco-sessions.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/jacoco/test/html/jacoco-sessions.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/tests/test/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/Person.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/DBFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/DBFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testGeneric.db" beforeDir="false" afterPath="$PROJECT_DIR$/testGeneric.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericIndex.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/DBTestSuite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/DBTestSuite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/generic_server/DBGenericTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,14 +204,14 @@
       <recent name="fun.madeby.dbserver" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="fun.madeby.generic_server" />
       <recent name="fun.madeby" />
       <recent name="fun.madeby.exceptions" />
       <recent name="fun.madeby.generic" />
-      <recent name="fun.madeby.generic_server" />
       <recent name="fun.madeby.general" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.DBGenericTest.testDefragmentationAfterDelete">
+  <component name="RunManager" selected="Gradle.DBTestSuite">
     <configuration name="TestApp" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="fun.madeby.testapp.TestApp" />
       <module name="DBServer.main" />
@@ -184,7 +225,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DBGenericTest.testDefragmentation (1)" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -197,7 +238,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.DBGenericTest.testDefragmentation&quot;" />
+            <option value="&quot;fun.madeby.generic_server.DBGenericDefragTest&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -207,7 +248,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBGenericTest.testDefragmentationAfterDelete" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest.testDefragAfterRollback_Add" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -220,7 +261,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.DBGenericTest.testDefragmentationAfterDelete&quot;" />
+            <option value="&quot;fun.madeby.generic_server.DBGenericDefragTest.testDefragAfterRollback_Add&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -230,7 +271,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBGenericTest.testDefragmentationBehaviour" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest.testDefragmentationAfterDelete" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -243,7 +284,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.DBGenericTest.testDefragmentationBehaviour&quot;" />
+            <option value="&quot;fun.madeby.generic_server.DBGenericDefragTest.testDefragmentationAfterDelete&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -253,44 +294,48 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBServer [assemble]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest.testDefragmentationEmptyTransactionBehaviour" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="assemble" />
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;fun.madeby.generic_server.DBGenericDefragTest.testDefragmentationEmptyTransactionBehaviour&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBServer [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericTest.testDefragmentationEmptyTransactionBehaviour" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;fun.madeby.generic_server.DBGenericTest.testDefragmentationEmptyTransactionBehaviour&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
@@ -320,11 +365,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.DBGenericTest.testDefragmentationAfterDelete" />
-        <item itemvalue="Gradle.DBGenericTest.testDefragmentationBehaviour" />
-        <item itemvalue="Gradle.DBGenericTest.testDefragmentation (1)" />
-        <item itemvalue="Gradle.DBServer [build]" />
-        <item itemvalue="Gradle.DBServer [assemble]" />
+        <item itemvalue="Gradle.DBGenericDefragTest" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testDefragmentationEmptyTransactionBehaviour" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testDefragAfterRollback_Add" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testDefragmentationAfterDelete" />
+        <item itemvalue="Gradle.DBGenericTest.testDefragmentationEmptyTransactionBehaviour" />
       </list>
     </recent_temporary>
   </component>
@@ -367,7 +412,7 @@
       <workItem from="1660072669903" duration="5873000" />
       <workItem from="1660078618918" duration="200000" />
       <workItem from="1660113448778" duration="8482000" />
-      <workItem from="1660198614900" duration="10988000" />
+      <workItem from="1660198614900" duration="21165000" />
     </task>
     <servers />
   </component>

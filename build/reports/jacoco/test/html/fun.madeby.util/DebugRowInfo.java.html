@@ -20,15 +20,20 @@ public final class DebugRowInfo implements DebugInfo {
 <span class="fc" id="L20">	}</span>
 
 	public Object getDbRecord() {
-<span class="nc" id="L23">		return object;</span>
+<span class="fc" id="L23">		return object;</span>
 	}
 
 	public boolean isTemporary() {
 <span class="fc" id="L27">		return isTemporary;</span>
 	}
 
+	@Override
+	public String toString() {
+<span class="fc" id="L32">		return  &quot;\n&quot; + object.getClass() + &quot; /t &quot; + isTemporary + &quot; /d &quot; + isDeleted;</span>
+	}
+
 	public boolean isDeleted() {
-<span class="fc" id="L31">		return isDeleted;</span>
+<span class="fc" id="L36">		return isDeleted;</span>
 	}
 
 }

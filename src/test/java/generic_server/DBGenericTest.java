@@ -1,4 +1,4 @@
-package fun.madeby.generic_server;
+package generic_server;
 
 import fun.madeby.Dog;
 import fun.madeby.Person;
@@ -9,10 +9,7 @@ import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.generic.GenericIndex;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -28,12 +25,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("SpellCheckingInspection")
 class DBGenericTest {
 	private final String dbFileName = "testGeneric.db";
+	DBGenericServer db;
 	private Object dog;
 	private Object dogUpdated;
 	private Object dogSimilar;
 	private Object person;
 	private Object personUpdated;
 	private Object personSimilar;
+
 	private static final String DOG_SCHEMA = """
 					{
 			"version": "0.1",
@@ -57,6 +56,30 @@ class DBGenericTest {
 			]
 			}""";
 
+	private static final String PERSON_SCHEMA_NULL_INDEX_BY = """
+			{
+			"version": "0.1",
+			"schemaFields":[
+			{"fieldName":"name","fieldType":"String"},
+			{"fieldName":"age","fieldType":"int"},
+			{"fieldName":"address","fieldType":"String"},
+			{"fieldName":"pet","fieldType":"String"},
+			{"fieldName":"description","fieldType":"String"}
+			]
+			}""";
+
+	private static final String PERSON_SCHEMA_EMPTY_INDEX_BY = """
+			{
+			"version": "0.1",
+			"indexBy": "",
+			"schemaFields":[
+			{"fieldName":"name","fieldType":"String"},
+			{"fieldName":"age","fieldType":"int"},
+			{"fieldName":"address","fieldType":"String"},
+			{"fieldName":"pet","fieldType":"String"},
+			{"fieldName":"description","fieldType":"String"}
+			]
+			}""";
 
 	@BeforeEach
 	public void setUp() {
@@ -93,6 +116,7 @@ class DBGenericTest {
 				"Pret a then some");
 	    }
 
+
 	@SuppressWarnings("EmptyTryBlock")
 	private void clearDataInExistingFile() {
 		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dbFileName),
@@ -128,7 +152,7 @@ class DBGenericTest {
 
 
 	@Test
-	@DisplayName("testDefragmentation totalRows 3rows->2rows->defrag")
+	@DisplayName("@testDefragmentationAfterDelete(): totalRows 3rows->2rows->defrag")
 	void testDefragmentationAfterDelete()  {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
 			Long recNumber = 0L;
@@ -160,7 +184,122 @@ class DBGenericTest {
 	}
 
 	@Test
-	@DisplayName("testDefragmentationEmptyTransactionBehaviour -> 0 rows no exceptions")
+	@DisplayName("@testRollback_Delete(): totalRows added 1-> deleted 1 -> rolled back -> 1row")
+	void testRollback_Delete()  {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			Long recNumber = 0L;
+
+			db.beginTransaction();
+			db.add(person);
+			db.commit();
+			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
+
+			// delete first record
+			db.beginTransaction();
+			db.delete(0L);
+			db.rollback();
+
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(1, debugList.size());
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+	}
+
+	@Test
+	@DisplayName("testRollback_Add totalRows added 3-> rolled back -> 0 total no rows && 1 rows with debug info")
+	void testRollback_Add()  {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			Long recNumber = 0L;
+
+			db.beginTransaction();
+			db.add(person);
+			db.add(personUpdated);
+			db.add(personSimilar);
+			db.rollback();
+			assertEquals(0, GenericIndex.getInstance().getTotalNumberOfRows());
+
+
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(3, debugList.size());
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+	}
+
+	@Test
+	@DisplayName("testDefragAfterRollback_Add totalRows added 3-> rolled back -> 0 total no rows && 1 rows with debug info defrag -> 0 rows")
+	void testDefragAfterRollback_Add()  {
+		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+			Long recNumber = 0L;
+
+			db.beginTransaction();
+			db.add(person);
+			db.add(personUpdated);
+			db.add(personSimilar);
+			db.rollback();
+			assertEquals(0, GenericIndex.getInstance().getTotalNumberOfRows());
+
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(3, debugList.size());
+
+			Long totalRecords = db.getTotalRecordAmount();
+			Assertions.assertEquals(0, totalRecords);
+
+			db.defragmentDatabase();
+
+			assertEquals(0, GenericIndex.getInstance().getTotalNumberOfRows());
+			ArrayList<DebugInfo> debugList1 = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(0, debugList1.size());
+
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+	}
+
+	@Test
+	@DisplayName("testNullIndexInfoInSchema() ")
+	void testNullIndexInfoInSchema()   {
+		try  {
+
+			DBException dbException = Assertions.assertThrows(DBException.class, () -> {
+				DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA_NULL_INDEX_BY, Person.class);
+			});
+
+			Assertions.assertEquals(dbException.getMessage(), "@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field null");
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+	}
+
+	@Test
+	@DisplayName("testEmptyIndexInfoInSchema() ")
+	void testEmptyIndexInfoInSchema()  {
+		try  {
+
+			DBException dbException = Assertions.assertThrows(DBException.class, () -> {
+				DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA_EMPTY_INDEX_BY, Person.class);
+			});
+
+			Assertions.assertEquals(dbException.getMessage(), "@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field equals\"\"");
+
+		} catch (Exception e) {
+			Assertions.fail();
+		}
+
+	}
+
+
+	@Test
+	@DisplayName("@testDefragmentationEmptyTransactionBehaviour() -> 0 rows no exceptions")
 	void testDefragmentationEmptyTransactionBehaviour()  {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
 			Long recNumber = 0L;
@@ -182,7 +321,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("testDBVersion(): 0.1")
-	void testDBVersion() {
+	void testDBVersion() throws DBException {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
 			String version = db.getDBVersion();
 			Assertions.assertEquals("0.1", version);
@@ -273,7 +412,7 @@ class DBGenericTest {
 
 	@Test
 	@DisplayName("addDuplicateTest(): DBGenericServer AddDuplicateTest throws DuplicateNameException == OK")
-	void addDuplicateTest() {
+	void addDuplicateTest() throws DBException {
 		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
 
 			DuplicateNameException thrown = Assertions.assertThrows(DuplicateNameException.class, () -> {

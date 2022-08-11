@@ -21,7 +21,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 
 
-	public GenericFileHandler(String fileName) throws FileNotFoundException {
+	public GenericFileHandler(String fileName) throws DBException, FileNotFoundException {
 		super(fileName);
 	}
 

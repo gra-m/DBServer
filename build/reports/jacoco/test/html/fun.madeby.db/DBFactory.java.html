@@ -2,7 +2,7 @@
 
 import fun.madeby.db.generic_server.DBGenericServer;
 import fun.madeby.db.specific_server.DBServer;
-import fun.madeby.generic.Schema;
+import fun.madeby.exceptions.DBException;
 
 import java.io.FileNotFoundException;
 
@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
 <span class="fc" id="L16">		return new DBServer(dbFileName);</span>
 	}
 
-	public static DBGenericServer getGenericDB(final String dbFileName, final String schema, final Class classTemplate) throws FileNotFoundException {
+	public static DBGenericServer getGenericDB(final String dbFileName, final String schema, final Class classTemplate) throws DBException, FileNotFoundException {
 <span class="fc" id="L20">		return new DBGenericServer(dbFileName, schema,  classTemplate);</span>
 	}
 }

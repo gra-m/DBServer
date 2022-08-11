@@ -1,8 +1,6 @@
 package fun.madeby;
 
-import org.junit.platform.suite.api.SelectPackages;
-import org.junit.platform.suite.api.Suite;
-import org.junit.platform.suite.api.SuiteDisplayName;
+import org.junit.platform.suite.api.*;
 
 /**
  * Created by Gra_m on 2022 08 02
@@ -14,13 +12,17 @@ import org.junit.platform.suite.api.SuiteDisplayName;
 @SelectPackages({"fun.madeby.generic_server",
 		"fun.madeby.specific_server"})
 
+//@ExcludePackages("fun.madeby.defrag")
+
+//@ExcludeClassNamePatterns({"^.*Defrag*.$"})
+
 //@IncludeTags("production"); /@Exclude
 //@SelectClasses
 //@IncludeClassNamePatterns
 //@ExcludeClassNamePatterns
 // @Include/ExcludePackages
 @Suite
-@SuiteDisplayName("How sweet.. My first suite.")
+@SuiteDisplayName("DBServer TestSuite")
 public class DBTestSuite {
 
 }

@@ -46,7 +46,7 @@ public class DBGenericServer implements DBGeneric {
 		}
 	}
 
-	public DBGenericServer(String dbFileName, String schemaString, Class aClass) throws FileNotFoundException {
+	public DBGenericServer(String dbFileName, String schemaString, Class aClass) throws DBException, FileNotFoundException {
 		LOGGER.finest("@DBGenericServer(String dbFileName) = " + dbFileName);
 		this.schema = this.readSchema(schemaString);
 		this.aClass = aClass;
@@ -57,7 +57,7 @@ public class DBGenericServer implements DBGeneric {
 		this.initialise();
 	}
 
-	public DBGenericServer(GenericFileHandler genericFileHandler, Schema schema, Class aClass) throws FileNotFoundException {
+	public DBGenericServer(GenericFileHandler genericFileHandler, Schema schema, Class aClass) throws DBException {
 		this.schema = schema;
 		this.aClass = aClass;
 		this.genericFileHandler = genericFileHandler;
@@ -150,7 +150,7 @@ public class DBGenericServer implements DBGeneric {
 		LOGGER.info("Adds to be committed: " + adds + " Deletes to be committed: " + deletes);
 	}
 
-	private void initialise() {
+	private void initialise() throws DBException {
 		GenericIndex.getInstance().initialiseGenericIndexSchema(this.schema);
 		this.genericFileHandler.setAClass(this.aClass);
 		LOGGER.finest("@DBGenericServer intialise()");
@@ -359,7 +359,7 @@ public class DBGenericServer implements DBGeneric {
 	}
 
 
-	private void replaceOldFileWithNew(File tmpFile) {
+	private void replaceOldFileWithNew(File tmpFile) throws DBException {
 		LOGGER.finest("@DBGenericServer replaceOldFileWithNew(File tmpFile) = " + tmpFile.getName());
 		String oldDBName = this.genericFileHandler.getDbFileName();
 		boolean oldFileDeleted = this.genericFileHandler.deleteFile();
