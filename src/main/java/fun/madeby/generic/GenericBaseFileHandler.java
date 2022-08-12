@@ -253,8 +253,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 
 	public boolean isExistingData() {
 		try {
-			if (this.dbFile.length() == 0) {
-				System.out.println("BFH: populateIndex -> isExistingData() no existing data, nothing to index.");
+			if (this.dbFile.length() == HEADER_INFO_SPACE) {
+				LOGGER.severe("BFH: populateIndex -> isExistingData() no existing data, nothing to index.");
 				return false;
 			}
 		} catch (IOException e) {
@@ -382,7 +382,6 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		try {
 			this.dbFile.seek(START_OF_FILE);
 			this.dbFile.writeBytes(VERSION);
-			//this.dbFile.write(VERSION.getBytes());
 			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
 			Arrays.fill(characterFiller, ' ');
 			this.dbFile.write(new String(characterFiller).getBytes());

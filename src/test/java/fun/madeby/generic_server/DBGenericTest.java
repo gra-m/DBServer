@@ -4,6 +4,8 @@ import fun.madeby.Dog;
 import fun.madeby.Person;
 import fun.madeby.db.DBFactory;
 import fun.madeby.db.generic_server.DBGenericServer;
+import fun.madeby.db.specific_server.DB;
+import fun.madeby.db.specific_server.DBSpecificServer;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.generic.GenericIndex;
@@ -199,6 +201,24 @@ class DBGenericTest {
 		}
 
 	}
+
+
+	@Test
+	@DisplayName("@getRowsWithDebugInfoTest()")
+	void getRowsWithDebugInfoTest() throws DuplicateNameException, DBException {
+		try (DBGenericServer db = new DBGenericServer(dbFileName, PERSON_SCHEMA, Person.class)) {
+			db.beginTransaction();
+			db.add(person);
+			db.commit();
+
+			ArrayList<DebugInfo> debugList1 = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(1, debugList1.size());
+		} catch (IOException e) {
+			System.out.println("searchTest: threw Exception");
+			e.printStackTrace();
+		}
+	}
+
 
 
 	@Test

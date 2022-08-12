@@ -12,9 +12,9 @@ import java.util.Collection;
 
 public interface DataHandler {
 
-	void populateIndex();
+	void populateIndex() throws IOException;
 	void close() throws IOException;
-	boolean isExistingData();
+	boolean isExistingData() throws IOException;
 	byte[] readRawRecord(Long rowsBytePosition);
 	DBRecord readFromByteStream(final DataInputStream stream) throws IOException;
 	Collection<DebugInfo> getCurrentDebugInfoRows();

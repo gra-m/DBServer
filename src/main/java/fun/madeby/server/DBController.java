@@ -4,9 +4,11 @@ import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBSpecificServer;
+import fun.madeby.exceptions.DBException;
 import io.javalin.http.Handler;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -22,8 +24,8 @@ public final class DBController {
 	static {
 		try {
 			database = new DBSpecificServer("restTest.db");
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException("@DBController/static{dbcreate} could not create DBSpecificServer(\"restTest.db\")");
 		}
 	}
 

@@ -35,14 +35,14 @@ public final class DBSpecificServer implements DB{
 		}
 	}
 
-	public DBSpecificServer(final String dbFileName) throws FileNotFoundException {
+	public DBSpecificServer(final String dbFileName) throws IOException {
 		LOGGER.finest("@DBSpecificServer(String dbFileName) = " + dbFileName);
 		this.fileHandler = new FileHandler(dbFileName);
 		this.transactions = new LinkedHashMap<>();
 		this.initialise();
 	}
 
-	private void initialise() {
+	private void initialise() throws IOException {
 		LOGGER.finest("@DBSpecificServer intialise()");
 		this.fileHandler.writeVersionInfoIfNewFile();
 		this.fileHandler.populateIndex();
@@ -166,7 +166,7 @@ public final class DBSpecificServer implements DB{
 	}
 
 	@Override
-	public void refreshIndex() {
+	public void refreshIndex() throws IOException {
 		LOGGER.finest("@DBSpecificServer @refreshIndex()");
 		this.fileHandler.populateIndex();
 	}

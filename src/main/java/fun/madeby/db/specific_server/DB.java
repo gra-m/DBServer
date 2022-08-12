@@ -29,7 +29,7 @@ public interface DB extends Closeable {
 
 	DBRecord search (String name);
 
-	void refreshIndex();
+	void refreshIndex() throws IOException;
 
 	void defragmentDatabase() throws IOException, DuplicateNameException;
 

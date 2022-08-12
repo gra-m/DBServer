@@ -5,6 +5,7 @@ import fun.madeby.db.specific_server.DBSpecificServer;
 import fun.madeby.exceptions.DBException;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Created by Gra_m on 2022 07 30
@@ -12,7 +13,7 @@ import java.io.FileNotFoundException;
 
 public final class DBFactory {
 
-	public static DBSpecificServer getSpecificDB(final String dbFileName) throws FileNotFoundException {
+	public static DBSpecificServer getSpecificDB(final String dbFileName) throws  IOException {
 		return new DBSpecificServer(dbFileName);
 	}
 

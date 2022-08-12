@@ -50,7 +50,7 @@ public class BaseFileHandler implements DataHandler {
 
 	public void writeVersionInfoIfNewFile() {
 		try {
-			if (dbFile.length() == 0) {
+			if (dbFile.length() == START_OF_FILE) {
 				this.setDBVersion();
 			} else {
 				LOGGER.finest("@BFH writeVersionInfoIfNewFile() and dbFile.length() > 0 DBVersion is: " + VERSION);
@@ -60,6 +60,20 @@ public class BaseFileHandler implements DataHandler {
 	e.printStackTrace();
 		}
 	}
+
+
+	private void setDBVersion() {
+		try {
+			this.dbFile.seek(START_OF_FILE);
+			this.dbFile.writeBytes(VERSION);
+			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
+			Arrays.fill(characterFiller, ' ');
+			this.dbFile.write(new String(characterFiller).getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	public BaseFileHandler(RandomAccessFile randomAccessFile, final String fileName) {
 		this.dbFile = randomAccessFile;
@@ -134,7 +148,7 @@ public class BaseFileHandler implements DataHandler {
 
 
 
-	public void populateIndex() {
+	public void populateIndex() throws IOException {
 		LOGGER.severe("@BFH PopulateIndex()");
 		long rowNum = 0;
 		int recordLength = 0;
@@ -178,15 +192,11 @@ public class BaseFileHandler implements DataHandler {
 		}
 	}
 
-	public boolean isExistingData() {
-		try {
-			if (this.dbFile.length() == 0) {
-				System.out.println("BFH: populateIndex -> isExistingData() no existing data, nothing to index.");
+	public boolean isExistingData() throws IOException {
+			if (this.dbFile.length() == HEADER_INFO_SPACE) {
+				LOGGER.severe("@BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.");
 				return false;
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return true;
 	}
 
@@ -332,18 +342,6 @@ public class BaseFileHandler implements DataHandler {
 		return false;
 	}
 
-	private void setDBVersion() {
-		try {
-			this.dbFile.seek(START_OF_FILE);
-			this.dbFile.writeBytes(VERSION);
-			//this.dbFile.write(VERSION.getBytes());
-			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
-			Arrays.fill(characterFiller, ' ');
-			this.dbFile.write(new String(characterFiller).getBytes());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	private String  getDBVersion() {
 		readLock.lock();

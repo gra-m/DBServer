@@ -32,7 +32,6 @@ class DBSpecificTest {
 	private Index index;
 
 
-
 	@BeforeEach
 	public void setUp() {
 
@@ -67,9 +66,25 @@ class DBSpecificTest {
 
 
 	@Test
+	@DisplayName("@getRowsWithDebugInfoTest()")
+	void getRowsWithDebugInfoTest() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
+			db.beginTransaction();
+			db.add(carOwner);
+			db.commit();
+
+			ArrayList<DebugInfo> debugList1 = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(1, debugList1.size());
+		} catch (IOException e) {
+			System.out.println("searchTest: threw Exception");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
 	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
-	void testLevenshtein5_2() throws DuplicateNameException{
-		try (DB db = DBFactory.getSpecificDB(dbFileName)){
+	void testLevenshtein5_2() throws DuplicateNameException {
+		try (DB db = DBFactory.getSpecificDB(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"
@@ -77,7 +92,7 @@ class DBSpecificTest {
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesWithinTolerance = (ArrayList<DBRecord>) db.searchWithLevenshtein("Rezzi Delamdi", 5);
 			assertEquals(2, returnedMatchesWithinTolerance.size());
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("5Tolerance Levenshtein: threw Exception");
 			e.printStackTrace();
 		}
@@ -85,8 +100,8 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
-	void testLevenshtein4_1() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void testLevenshtein4_1() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated); //"R1zz23 D4l5mdi"
@@ -94,7 +109,7 @@ class DBSpecificTest {
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesWithinTolerance = (ArrayList<DBRecord>) db.searchWithLevenshtein("Rezzi Delamdi", 4);
 			assertEquals(1, returnedMatchesWithinTolerance.size());
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("5Tolerance Levenshtein: threw Exception");
 			e.printStackTrace();
 		}
@@ -103,8 +118,8 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("testRegEx(): 'R.*'")
-	void testRegEx() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void testRegEx() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated);
@@ -112,7 +127,7 @@ class DBSpecificTest {
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesRegex = (ArrayList<DBRecord>) db.searchWithRegex("R.*");
 			assertEquals(2, returnedMatchesRegex.size());
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("5Tolerance Levenshtein: threw Exception");
 			e.printStackTrace();
 		}
@@ -120,8 +135,8 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("testRegEx2():  'Re.*'")
-	void testRegEx2() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void testRegEx2() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.add(carOwnerUpdated);
@@ -129,7 +144,7 @@ class DBSpecificTest {
 			assertEquals(2, index.getTotalNumberOfRows());
 			ArrayList<DBRecord> returnedMatchesRegex = (ArrayList<DBRecord>) db.searchWithRegex("Re.*");
 			assertEquals(1, returnedMatchesRegex.size());
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("5Tolerance Levenshtein: threw Exception");
 			e.printStackTrace();
 		}
@@ -138,21 +153,21 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("addTest(): DBSpecificServer Add, via FileHandler test: 1 == OK")
-	void addTest() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void addTest() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("addTest: add threw Exception");
 		}
 	}
 
 	@Test
 	@DisplayName("addDuplicateThrowsDuplicateNameTest(): DBSpecificServer Add, via FileHandler test: 1 == OK")
-	void addDuplicateThrowsDuplicateNameTest(){
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void addDuplicateThrowsDuplicateNameTest() {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			DuplicateNameException thrown = Assertions.assertThrows(DuplicateNameException.class, () -> {
 				db.beginTransaction();
 				db.add(carOwner);
@@ -164,7 +179,7 @@ class DBSpecificTest {
 
 			Assertions.assertEquals("Name Rezzi Delamdi already exists!", thrown.getMessage());
 
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("(): ");
 		}
 	}
@@ -188,41 +203,43 @@ class DBSpecificTest {
 	}*/
 
 
+
+
 	@Test
 	@DisplayName("searchTest(): DBSpecificServer search, then compare retrieved")
-	void searchTest() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void searchTest() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			CarOwner retrieved = (CarOwner) db.search("Rezzi Delamdi");
 			assertNotNull(retrieved);
-			assertEquals("Rezzi Delamdi", retrieved.getName() );
+			assertEquals("Rezzi Delamdi", retrieved.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
 			assertEquals("3AR 4NVERS", retrieved.getCarPlateNumber());
 			assertEquals("The place under the bridge..", retrieved.getDescription());
 			assertEquals(34, retrieved.getAge());
 
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("searchTest: threw Exception");
 			e.printStackTrace();
 		}
 	}
 
 
-
 	@Test
-	@DisplayName("DBSpecificServer readTest : 1 == OK and then test equality of each field") //shows on fail
-	void readTest() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	@DisplayName("DBSpecificServer readTest : 1 == OK and then test equality of each field")
+		//shows on fail
+	void readTest() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
 			assertEquals(index.getTotalNumberOfRows(), 1);
 			DBRecord readCarOwner = db.read(Index.getInstance().getRowNumberByName("Rezzi Delamdi"));
 			assertNotNull(readCarOwner);
-			assertEquals("Rezzi Delamdi", readCarOwner.getName() );
+			assertEquals("Rezzi Delamdi", readCarOwner.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", readCarOwner.getAddress());
 			assertEquals("3AR 4NVERS", readCarOwner.getCarPlateNumber());
 			assertEquals("The place under the bridge..", readCarOwner.getDescription());
@@ -234,39 +251,38 @@ class DBSpecificTest {
 
 	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
-	void updateByRowTest() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void updateByRowTest() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			// normal
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			db.beginTransaction();
-			db.update(0L, carOwnerUpdated );
+			db.update(0L, carOwnerUpdated);
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			//db.defragmentDatabase(); todo get defrag working here?
 			DBRecord retrieved = db.read(Index.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
 			//DBRecord retrieved = db.read(1L);
 			assert retrieved != null;
-			assertEquals( "Razzgu Dulemdi", retrieved.getName());
+			assertEquals("Razzgu Dulemdi", retrieved.getName());
 			assertEquals("Repoke Street, Antwerp, 2000", retrieved.getAddress());
 			assertEquals("BAR ANVERS", retrieved.getCarPlateNumber());
 			assertEquals("The place under the bridge..", retrieved.getDescription());
 			assertEquals(34, carOwner.getAge());
 
-		}catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println("updateByRowTest:  threw Exception");
 			e.printStackTrace();
 		}
 	}
 
 
-
 	@Test // todo see issue 34
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
-	void updateByNameTest() throws DuplicateNameException{
-		try (DB db = new DBSpecificServer(dbFileName)){
+	void updateByNameTest() throws DuplicateNameException {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -274,7 +290,7 @@ class DBSpecificTest {
 			Long retrievedRowNum = index.getRowNumberByName("Rezzi Delamdi");
 			System.out.println("Retrieved row for 'Rezzi Delamdi' " + retrievedRowNum);
 			db.beginTransaction();
-			db.update("Rezzi Delamdi", carOwnerUpdated );
+			db.update("Rezzi Delamdi", carOwnerUpdated);
 			db.commit();
 			assertEquals(1, index.getTotalNumberOfRows());
 			DBRecord retrieved = db.read(index.getRowNumberByName("Razzgu Dulemdi"));
@@ -291,12 +307,11 @@ class DBSpecificTest {
 	}
 
 
-
 	@Test
 	@DisplayName("Searches for commited DBRecord with regex, confirms List.size() and expected name.")
 	public void transactionTest_COMMIT() {
 
-		try (DB db = new DBSpecificServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.commit();
@@ -306,7 +321,7 @@ class DBSpecificTest {
 			CarOwner carOwner = (CarOwner) result.get(0);
 			assertEquals("Rezzi Delamdi", carOwner.getName());
 
-		}catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println("transactionTest_COMMIT():  threw Exception");
 		}
 	}
@@ -315,7 +330,7 @@ class DBSpecificTest {
 	@DisplayName("COMMIT with MultiBegin.")
 	public void transactionTest_COMMIT_with_MultiBegin() {
 
-		try (DB db = new DBSpecificServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.beginTransaction();
@@ -326,7 +341,7 @@ class DBSpecificTest {
 			CarOwner carOwner = (CarOwner) result.get(0);
 			assertEquals("Rezzi Delamdi", carOwner.getName());
 
-		}catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println("transactionTest_COMMIT():  threw Exception");
 		}
 	}
@@ -334,7 +349,7 @@ class DBSpecificTest {
 	@Test
 	@DisplayName("Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info.")
 	public void transactionTest_ROLLBACK() {
-		try(DB db = new DBSpecificServer(dbFileName)) {
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.rollback();
@@ -349,7 +364,7 @@ class DBSpecificTest {
 			assertFalse(dri.isTemporary());
 			assertTrue(dri.isDeleted());
 
-		}catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println("transactionTest_ROLLBACK():  threw Exception");
 		}
 	}
@@ -358,7 +373,7 @@ class DBSpecificTest {
 	@DisplayName("ROLLBACK with MultiBegin.")
 	public void transactionTest_ROLLBACK_with_MultiBegin() {
 
-		try (DB db = new DBSpecificServer(dbFileName)){
+		try (DB db = new DBSpecificServer(dbFileName)) {
 			db.beginTransaction();
 			db.add(carOwner);
 			db.beginTransaction();
@@ -381,7 +396,7 @@ class DBSpecificTest {
 			assertFalse(dri1.isTemporary());
 			assertTrue(dri1.isDeleted());
 
-		}catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println("transactionTest_COMMIT():  threw Exception");
 		}
 	}
