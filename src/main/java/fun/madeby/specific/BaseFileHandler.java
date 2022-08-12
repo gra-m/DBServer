@@ -152,7 +152,7 @@ public class BaseFileHandler implements DataHandler {
 		LOGGER.severe("@BFH PopulateIndex()");
 		long rowNum = 0;
 		int recordLength = 0;
-		long currentPosition = 0L; // no 100L header in specific
+		long currentPosition = 100L;
 		long deletedRows = 0;
 		long temporaryRows = 0;
 

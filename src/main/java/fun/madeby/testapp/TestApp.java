@@ -36,9 +36,9 @@ public class TestApp {
 		TestApp testApp = new TestApp();
 
 		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
-		//testApp.addOneRecordWithTransaction();
-		//testApp.listAllFileRecords();
-		testApp.performTest();
+		testApp.addOneRecordWithTransaction();
+		testApp.listAllFileRecords();
+		//testApp.performTest();
 		//testApp.performDefragTest();
 		//testApp.performMultiThreadTest();
 	}

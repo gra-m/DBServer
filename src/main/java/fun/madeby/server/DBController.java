@@ -29,6 +29,9 @@ public final class DBController {
 		}
 	}
 
+
+
+	// localhost:7001/listall
 	public static Handler fetchAllRecords = ctx -> {
 		Long totalRecordNumber = database.getTotalRecordAmount();
 		ArrayList<String> allRecordList = new ArrayList<>(Math.toIntExact(totalRecordNumber));
@@ -59,7 +62,7 @@ public final class DBController {
 
 	};
 
-	// searchLevenshtein?name=test
+	// localhost:7001/searchlevenshtein?name=test
 	public static Handler searchLevenshtein = ctx -> {
 		String  name = ctx.queryParam("name");
 

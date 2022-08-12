@@ -93,7 +93,6 @@ class DBSpecificDefragTest {
 		} catch (Exception e) {
 			Assertions.fail();
 		}
-
 	}
 
 
@@ -121,7 +120,6 @@ class DBSpecificDefragTest {
 		} catch (Exception e) {
 			Assertions.fail();
 		}
-
 	}
 
 
@@ -148,7 +146,4 @@ class DBSpecificDefragTest {
 		}
 
 	}
-
-
-
 }
