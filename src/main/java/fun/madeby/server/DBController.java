@@ -1,17 +1,19 @@
 package fun.madeby.server;
 
+import com.google.gson.Gson;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBSpecificServer;
-import fun.madeby.exceptions.DBException;
+import fun.madeby.util.LoggerSetUp;
 import io.javalin.http.Handler;
 
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.logging.Logger;
 import java.util.stream.LongStream;
 
 /**
@@ -20,6 +22,15 @@ import java.util.stream.LongStream;
 
 public final class DBController {
 	private static DB database;
+	private static Logger LOGGER;
+
+	static {
+		try {
+			LOGGER = LoggerSetUp.setUpLogger("DBController");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	static {
 		try {
@@ -29,6 +40,32 @@ public final class DBController {
 		}
 	}
 
+
+
+	public static void controllerLogDbClose(String message, boolean isStopping) throws IOException {
+		if(!isStopping)
+		LOGGER.severe(message);
+		else {
+			LOGGER.severe(message);
+			database.close();
+		}
+
+
+	}
+
+	//this did not work
+	/*public static Handler exit = ctx -> {
+	// exit causes shutdownHooks to be activated halt() doesnot.
+		try {
+			ctx.json(true);
+		} finally {
+			systemExit();
+		}
+	};
+
+	private static void systemExit() {
+		System.exit(0);
+	}*/
 
 
 	// localhost:7001/listall

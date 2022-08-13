@@ -103,7 +103,7 @@ public final class DBSpecificServer implements DB{
 	}
 
 	public void close() throws IOException {
-		LOGGER.info("@DBSpecificServer close()");
+		LOGGER.severe("@DBSpecificServer closing()");
 		Index.getInstance().clear();
 		this.fileHandler.close();
 	}
