@@ -1,10 +1,11 @@
 package fun.madeby.server;
 
-import com.google.gson.Gson;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBSpecificServer;
+import fun.madeby.util.DebugInfo;
+import fun.madeby.util.DebugRowInfo;
 import fun.madeby.util.LoggerSetUp;
 import io.javalin.http.Handler;
 
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.logging.Logger;
-import java.util.stream.LongStream;
 
 /**
  * Created by Gra_m on 2022 07 19
@@ -70,11 +70,19 @@ public final class DBController {
 
 	// localhost:7001/listall
 	public static Handler fetchAllRecords = ctx -> {
-		Long totalRecordNumber = database.getTotalRecordAmount();
+		/*Long totalRecordNumber = database.getTotalRecordAmount();
 		ArrayList<String> allRecordList = new ArrayList<>(Math.toIntExact(totalRecordNumber));
 		LongStream.range(0, totalRecordNumber).forEach(i-> {
 				allRecordList.add(database.read(i).toJSON());
-		});
+		});*/
+		ArrayList<DebugInfo> debugResultList = (ArrayList<DebugInfo>) database.getRowsWithDebugInfo();
+		ArrayList<String> allRecordList = new ArrayList<>(debugResultList.size());
+		for(DebugInfo di: debugResultList) {
+			DebugRowInfo dri =  (DebugRowInfo) di;
+			if(!dri.isDeleted() && !dri.isTemporary())
+				allRecordList.add(dri.object.toString());
+		}
+
 
 	 ctx.json(allRecordList);
 	};

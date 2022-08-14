@@ -6,7 +6,7 @@ package fun.madeby.util;
  */
 
 public final class DebugRowInfo implements DebugInfo {
-	private Object object;
+	public Object object;
 	private boolean isTemporary;
 	private boolean isDeleted;
 
