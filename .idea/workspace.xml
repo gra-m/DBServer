@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f884b3e-abe3-43e3-bfb4-28e4ef31545b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/util/JSONRep.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
@@ -13,34 +12,15 @@
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/Car.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/Car.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/CarOwner.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/CarOwner.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/DBRecord.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/DBRecord.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGenericServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGenericServer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericBaseFileHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericBaseFileHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericFileHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericFileHandler.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/server/DBController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/server/DBController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/specific/BaseFileHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/specific/BaseFileHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/test/fun/madeby/Dog.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/test/fun/madeby/Dog.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/tests/test/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/Car.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/Car.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/CarOwner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/CarOwner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/DBRecord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/DBRecord.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/generic_server/DBGenericServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DBSpecificServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DBSpecificServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericFileHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/server/DBController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/server/DBController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/specific/BaseFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/specific/BaseFileHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/Dog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/Dog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/Person.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/Person.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/specific_server/defrag/DBSpecificDefragTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/specific_server/defrag/DBSpecificDefragTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugRowInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugRowInfo.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,25 +118,27 @@
     <option name="showVisibilityIcons" value="true" />
     <option name="sortByType" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
-    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Gra_m/Documents/JAVA/001_Examples/DBServer&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.excludes&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "extract.method.default.visibility": "private",
+    "last_opened_file_path": "C:/Users/Gra_m/Documents/JAVA/001_Examples/DBServer",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Problems",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Java"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="fun.madeby.generic" />
@@ -188,7 +170,7 @@
       <recent name="fun.madeby.generic" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.DBSpecificDefragTest.testSpecificDefragAfterDelete">
+  <component name="RunManager" selected="Application.RESTServer">
     <configuration name="RESTServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="fun.madeby.server.RESTServer" />
       <module name="DBServer.main" />
@@ -229,29 +211,6 @@
             <option value=":test" />
             <option value="--tests" />
             <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testDefragmentationAfterDelete&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="DBGenericTest.getRowsWithDebugInfoTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.DBGenericTest.getRowsWithDebugInfoTest&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -307,13 +266,34 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="Tests in 'DBServer.test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.Tests in 'DBServer.test'" />
+        <item itemvalue="Gradle.DBTestSuite" />
         <item itemvalue="Gradle.DBSpecificDefragTest.testSpecificDefragAfterDelete" />
         <item itemvalue="Gradle.DBGenericDefragTest.testDefragmentationAfterDelete" />
-        <item itemvalue="Gradle.DBTestSuite" />
         <item itemvalue="Application.RESTServer" />
-        <item itemvalue="Gradle.DBGenericTest.getRowsWithDebugInfoTest" />
       </list>
     </recent_temporary>
   </component>
@@ -362,7 +342,10 @@
       <workItem from="1660252880992" duration="1327000" />
       <workItem from="1660285340553" duration="21297000" />
       <workItem from="1660480326045" duration="1360000" />
-      <workItem from="1660718624141" duration="9621000" />
+      <workItem from="1660718624141" duration="14022000" />
+      <workItem from="1660745007848" duration="219000" />
+      <workItem from="1660745250090" duration="194000" />
+      <workItem from="1660745465932" duration="1252000" />
     </task>
     <servers />
   </component>
@@ -427,5 +410,9 @@
         <PinnedItemInfo parentTag="java.io.FileNotFoundException" memberName="backtrace" />
       </pinned-members>
     </pin-to-top-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

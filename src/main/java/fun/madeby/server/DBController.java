@@ -9,7 +9,6 @@ import fun.madeby.util.DebugRowInfo;
 import fun.madeby.util.JSONRep;
 import fun.madeby.util.LoggerSetUp;
 import io.javalin.http.Handler;
-import org.eclipse.jetty.util.ajax.JSONPojoConvertor;
 
 
 import java.io.IOException;
@@ -51,32 +50,11 @@ public final class DBController {
 			LOGGER.severe(message);
 			database.close();
 		}
-
-
 	}
-
-	//this did not work
-	/*public static Handler exit = ctx -> {
-	// exit causes shutdownHooks to be activated halt() doesnot.
-		try {
-			ctx.json(true);
-		} finally {
-			systemExit();
-		}
-	};
-
-	private static void systemExit() {
-		System.exit(0);
-	}*/
 
 
 	// localhost:7001/listall
 	public static Handler fetchAllRecords = ctx -> {
-		/*Long totalRecordNumber = database.getTotalRecordAmount();
-		ArrayList<String> allRecordList = new ArrayList<>(Math.toIntExact(totalRecordNumber));
-		LongStream.range(0, totalRecordNumber).forEach(i-> {
-				allRecordList.add(database.read(i).toJSON());
-		});*/
 
 		ArrayList<DebugInfo> debugResultList = (ArrayList<DebugInfo>) database.getRowsWithDebugInfo();
 		ArrayList<String> allRecordList = new ArrayList<>(debugResultList.size());
