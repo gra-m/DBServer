@@ -14,5 +14,4 @@ public interface DBRecord {
 	String getAddress();
 	String getCarPlateNumber();
 	String getDescription();
-	String toJSON();
 }

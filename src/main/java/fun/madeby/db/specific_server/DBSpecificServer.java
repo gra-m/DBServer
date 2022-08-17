@@ -119,6 +119,7 @@ public final class DBSpecificServer implements DB{
 
 		// open temp file:
 		FileHandler defragFH = new FileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName());
+		defragFH.writeVersionInfoIfNewFile();
 
 		Collection<DebugInfo> currentDebugInfoRows = this.fileHandler.getCurrentDebugInfoRows();
 
@@ -145,6 +146,7 @@ public final class DBSpecificServer implements DB{
 				Files.copy(tmpFile.toPath(), FileSystems.getDefault().getPath("", oldDBName),
 						StandardCopyOption.REPLACE_EXISTING);
 				this.fileHandler = new FileHandler(oldDBName);
+				fileHandler.writeVersionInfoIfNewFile();
 			} else {
 				boolean tmpFileDeleted = tmpFile.delete();
 				LOGGER.warning("@DBSpecificServer @replaceOldFileWithNew(File tmpFile)\n->Database file could not be deleted during defragmentation ||" +

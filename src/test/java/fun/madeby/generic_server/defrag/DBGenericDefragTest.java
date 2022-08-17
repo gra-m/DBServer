@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("SpellCheckingInspection")
 class DBGenericDefragTest {
 	private final String dbFileName = "testGenericDefrag.db";
-	DBGenericServer db;
 	private Object dog;
 	private Object dogUpdated;
 	private Object dogSimilar;
@@ -154,7 +153,6 @@ class DBGenericDefragTest {
 			recNumber = db.getTotalRecordAmount();
 			Assertions.assertEquals(2, recNumber);
 
-			// Strange behaviour, same Assertion in equivalent Specific Test marks test as ignored/ fails to build
 			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
 			Assertions.assertEquals(2, debugList.size());
 

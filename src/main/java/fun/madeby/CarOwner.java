@@ -1,12 +1,13 @@
 package fun.madeby;
 
 import com.google.gson.JsonObject;
+import fun.madeby.util.JSONRep;
 
 /**
  * Created by Gra_m on 2022 06 24
  */
 
-public class CarOwner implements DBRecord {
+public class CarOwner implements DBRecord, JSONRep {
 	private String name;
 	private int age;
 	private String address;

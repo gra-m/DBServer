@@ -1,12 +1,13 @@
 package fun.madeby;
 
 import com.google.gson.JsonObject;
+import fun.madeby.util.JSONRep;
 
 /**
  * Created by Gra_m on 2022 06 24
  */
 
-public class Person {
+public class Person implements JSONRep {
 	public String name;
 	public int age;
 	public String address;

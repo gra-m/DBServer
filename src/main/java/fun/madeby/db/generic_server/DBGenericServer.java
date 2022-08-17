@@ -168,7 +168,6 @@ public class DBGenericServer implements DBGeneric {
 		File tmpFile = File.createTempFile(prefix, suffix);
 		GenericIndex.getInstance().clear();
 
-		// open temp file and GFH perhaps initialiseTemp??:
 		GenericFileHandler defragGFH = new GenericFileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName());
 		defragGFH.setSchema(this.schema);
 		defragGFH.setAClass(this.aClass);

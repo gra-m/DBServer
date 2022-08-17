@@ -6,8 +6,10 @@ import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBSpecificServer;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
+import fun.madeby.util.JSONRep;
 import fun.madeby.util.LoggerSetUp;
 import io.javalin.http.Handler;
+import org.eclipse.jetty.util.ajax.JSONPojoConvertor;
 
 
 import java.io.IOException;
@@ -75,12 +77,13 @@ public final class DBController {
 		LongStream.range(0, totalRecordNumber).forEach(i-> {
 				allRecordList.add(database.read(i).toJSON());
 		});*/
+
 		ArrayList<DebugInfo> debugResultList = (ArrayList<DebugInfo>) database.getRowsWithDebugInfo();
 		ArrayList<String> allRecordList = new ArrayList<>(debugResultList.size());
 		for(DebugInfo di: debugResultList) {
 			DebugRowInfo dri =  (DebugRowInfo) di;
 			if(!dri.isDeleted() && !dri.isTemporary())
-				allRecordList.add(dri.object.toString());
+				allRecordList.add(((JSONRep)dri.object).toJSON());
 		}
 
 
@@ -119,7 +122,7 @@ public final class DBController {
 		Collection<DBRecord> levenshteinReturn = database.searchWithLevenshtein(name, 1);
 		LinkedList<String> result = new LinkedList<>();
 		levenshteinReturn.forEach(i -> {
-			result.add(i.toJSON());
+			result.add(((JSONRep)i).toJSON());
 		});
 
 		ctx.json(result);

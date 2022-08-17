@@ -83,12 +83,16 @@ class DBSpecificDefragTest {
 
 			// call defrag
 			db.defragmentDatabase();
+
+			//test against total records
 			recNumber = db.getTotalRecordAmount();
 			Assertions.assertEquals(1, recNumber);
 
-			//makes execution fail
-			//ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
-			//Assertions.assertEquals(1, debugList.size());
+			//test against rows with debug info
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			Assertions.assertEquals(1, debugList.size());
+
+
 
 		} catch (Exception e) {
 			Assertions.fail();

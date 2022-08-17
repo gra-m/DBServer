@@ -313,7 +313,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		DebugInfo debugInfo;
 		ArrayList<DebugInfo> returnArrayList = null;
 		try {
-			if (dbFile.length() == 0)
+			if (dbFile.length() == HEADER_INFO_SPACE)
 				return new ArrayList<>();
 			else {
 				boolean isTemporary;

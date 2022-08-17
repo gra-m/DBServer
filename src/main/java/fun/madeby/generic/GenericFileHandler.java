@@ -32,12 +32,9 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	/**
 	 * Writes a DbRecord to the RandomAccessFile dbFile.
 	 *
-	 * <p>First writes boolean isDeleted false, then own length, then actual record data. </p>
-	 *
-	 * <p>This method returns a {@code boolean} true, but testing will be added in the future.</p>
 	 *
 	 * @param object   the record to be written
-	 * @param isDefrag
+	 * @param isDefrag default == false, sent as true when part of defragmentation process and isTemporary needs to be false.
 	 * @return not testing currently true
 	 * @throws IOException if there is one
 	 */
