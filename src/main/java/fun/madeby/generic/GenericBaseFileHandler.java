@@ -240,7 +240,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 						GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, rowNum++);
 					}
 					currentPosition += recordLength;
-					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d \n", rowNum, deletedRows, temporaryRows);
+					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d %n", rowNum, deletedRows, temporaryRows);
 				}
 			} catch (IOException | NoSuchFieldException | IllegalAccessException e) {
 				e.printStackTrace();

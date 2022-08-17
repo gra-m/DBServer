@@ -182,7 +182,7 @@ public class BaseFileHandler implements DataHandler {
 						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
 					}
 					currentPosition += recordLength;
-					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d \n", rowNum, deletedRows, temporaryRows);
+					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d %n", rowNum, deletedRows, temporaryRows);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

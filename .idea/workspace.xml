@@ -11,16 +11,55 @@
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/server/DBController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/server/DBController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/Car.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/CarOwner.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/DBRecord.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/DataHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/DataHandlerGeneric.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/DBFactory.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGeneric.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/generic_server/DBGenericServer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/db/specific_server/DB.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/exceptions/DBException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/exceptions/DuplicateNameException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/exceptions/NameDoesNotExistException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericBaseFileHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericFileHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/GenericIndex.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/Schema.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/generic/SchemaField.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/resttestapp/RESTTestApp$BuiltParameter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/resttestapp/RESTTestApp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/server/DBController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/server/RESTServer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/specific/BaseFileHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/specific/FileHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/specific/Index.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/testapp/TestApp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/transaction/ITransaction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/transaction/Transaction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/util/DebugInfo.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/util/DebugRowInfo.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/util/Levenshtein.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/util/LoggerSetUp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/fun/madeby/util/OperationUnit.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/libs/DBServer-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/build/libs/DBServer-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/tests/test/css/base-style.css" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/css/base-style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/tests/test/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/css/style.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/tests/test/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/tests/test/js/report.js" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/js/report.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DBSpecificServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/specific_server/DBSpecificServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/server/DBController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/server/DBController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugRowInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/util/DebugRowInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileTestJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/generic/GenericBaseFileHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/specific/BaseFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/specific/BaseFileHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/transaction/Transaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/transaction/Transaction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/util/LoggerSetUp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/util/LoggerSetUp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +175,7 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Java"
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -345,7 +384,7 @@
       <workItem from="1660718624141" duration="14022000" />
       <workItem from="1660745007848" duration="219000" />
       <workItem from="1660745250090" duration="194000" />
-      <workItem from="1660745465932" duration="1252000" />
+      <workItem from="1660745465932" duration="5983000" />
     </task>
     <servers />
   </component>

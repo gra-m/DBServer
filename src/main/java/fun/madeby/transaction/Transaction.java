@@ -46,7 +46,8 @@ public final class Transaction implements ITransaction{
 
 	@Override
 	public Collection<Long> getDeletedRowsBytePosition() {
-		return this.deletedRows;
+		LinkedList<Long> copy = new LinkedList(this.deletedRows);
+		return copy;
 	}
 
 	private Double getRandomNumber() {

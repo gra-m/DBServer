@@ -19,7 +19,11 @@ public final class LoggerSetUp {
 		Logger LOGGER = Logger.getLogger(name);
 		Properties logProperties = new Properties();
 		String logLevel = "";
-		logProperties.load(new FileInputStream(LOG_PROPS_FILE_NAME));
+
+		try (FileInputStream fis = new FileInputStream(LOG_PROPS_FILE_NAME)) {
+		logProperties.load(fis);
+		}
+
 		boolean hasLogLevel = logProperties.containsKey(LOG_LEVEL);
 		if (hasLogLevel) {
 			logLevel = (logProperties.getProperty(LOG_LEVEL).trim());
