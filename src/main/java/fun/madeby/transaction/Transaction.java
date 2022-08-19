@@ -41,7 +41,8 @@ public final class Transaction implements ITransaction{
 
 	@Override
 	public Collection<Long> getNewRowsBytePosition() {
-		return this.newRows;
+		LinkedList<Long> copy = new LinkedList(this.newRows);
+		return copy;
 	}
 
 	@Override

@@ -51,7 +51,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(testName)) {
 					LOGGER.severe(String.format("@GenericFileHandler/add(Object)  Name/GenericIndexedValue '%s' already exists", testName));
-					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName())); // todo name mess
+					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName()));
 				}
 			}catch(NoSuchFieldException e) {
 				throw new DBException("@GenericFileHandler/add(Object) noSuchField");
@@ -64,7 +64,6 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 			length = getObjectLength(object, this.schema.schemaFields);
 
 
-			//todo remove test here
 			if (length >0) {
 				this.dbFile.seek(currentPositionToInsert);
 
@@ -92,7 +91,8 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		return operationUnit;
 	}
 
-	private void writeObject(final Object obj, final LinkedList<SchemaField> linkedList) {
+	private void writeObject(final Object obj, final LinkedList<SchemaField> linkedList) throws DBException
+		{
 		LOGGER.finest("@GenericFileHandler writeObject(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
 
 		try {
@@ -113,6 +113,10 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 					case "long" -> {
 						this.dbFile.writeLong((Long) objectValue);
 					}
+					default -> {
+						String unfoundFieldType = "fieldType_of_" + field.fieldType + "_of_name_" + field.fieldName + "_not_found";
+						throw new DBException("@GFH/writeObject(): Field type not recognised by switch " + unfoundFieldType);
+					}
 				}
 			}
 		}catch (NoSuchFieldException | IllegalAccessException | IOException e) {
@@ -121,7 +125,8 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	}
 
 
-	private int getObjectLength(final Object obj, final LinkedList<SchemaField> linkedList) {
+	private int getObjectLength(final Object obj, final LinkedList<SchemaField> linkedList) throws DBException
+		{
 		LOGGER.info("@GenericFileHandler getObjectLength(obj, LinkedList)" + obj.getClass().getSimpleName() + " " + linkedList.toString());
 		int result = 0;
 
@@ -143,6 +148,10 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 					case "long" -> {
 						result += LONG_LENGTH_IN_BYTES;
 					}
+					default -> {
+						String unfoundFieldType = "fieldType_of_" + field.fieldType + "_of_name_" + field.fieldName + "_not_found";
+						throw new DBException("@GFH/getObjectLength(): Field type not recognised by switch " + unfoundFieldType);
+					}
 				}
 			}
 		}catch (NoSuchFieldException | IllegalAccessException e) {
@@ -153,7 +162,8 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	}
 
 
-	public Object readRow(Long rowNumber) {
+	public Object readRow(Long rowNumber) throws DBException
+		{
 		LOGGER.finest("@GFH readRow(rowNumber) " + rowNumber);
 		readLock.lock();
 		Object result = null;
@@ -232,14 +242,16 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		return operationUnit;
 	}
 
-	public Object search(String indexedFieldName) {
+	public Object search(String indexedFieldName) throws DBException
+		{
 		Long rowNumber = GenericIndex.getInstance().getRowNumberByName(indexedFieldName);
 		if (rowNumber == -1)
 			return null;
 		return this.readRow(rowNumber);
 	}
 
-	public Collection<Object> searchWithLevenshtein(String indexedFieldName, int tolerance) {
+	public Collection<Object> searchWithLevenshtein(String indexedFieldName, int tolerance) throws DBException
+		{
 		Collection<Object> result = new ArrayList<>();
 		Set<String> names = (Set<String>) GenericIndex.getInstance().getGenericIndexedValues();
 		Collection<String> exactOrCloseFitNames = new ArrayList<>();
@@ -255,7 +267,8 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		return result;
 	}
 
-	public Collection<Object> searchWithRegex(String regEx) {
+	public Collection<Object> searchWithRegex(String regEx) throws DBException
+		{
 		Collection<Object> result = new ArrayList<>();
 		Object ifArrayListSkip = GenericIndex.getInstance().getGenericIndexedValues();
 		Set<String> names;

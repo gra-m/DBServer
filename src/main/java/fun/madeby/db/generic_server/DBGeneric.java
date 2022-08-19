@@ -23,27 +23,27 @@ public interface DBGeneric extends Closeable {
 
 	void delete(Long rowNumber);
 
-	Object read(Long rowNumber);
+	Object read(Long rowNumber) throws DBException;
 
 	void close() throws IOException;
 
-	Object search (String name);
+	Object search (String name) throws DBException;
 
-	void refreshGenericIndex();
+	void refreshGenericIndex() throws DBException;
 
 	void defragmentDatabase() throws IOException, DuplicateNameException, DBException;
 
-	Collection<DebugInfo> getRowsWithDebugInfo();
+	Collection<DebugInfo> getRowsWithDebugInfo() throws DBException;
 
-	Collection<Object> searchWithLevenshtein(final String indexedFieldName, int tolerance);
+	Collection<Object> searchWithLevenshtein(final String indexedFieldName, int tolerance) throws DBException;
 
-	Collection<Object> searchWithRegex(final String regEx);
+	Collection<Object> searchWithRegex(final String regEx) throws DBException;
 
 	ITransaction beginTransaction();
 
-	void commit();
+	void commit() throws DBException;
 
-	void rollback();
+	void rollback() throws DBException;
 
 	Long getTotalRecordAmount();
 }

@@ -366,24 +366,6 @@ class DBGenericTest {
 		}
 	}
 
-/*	@Test //todo see issue 34
-	@DisplayName("deleteTest(): DBSpecificServer Add then delete separate transactions")
-	void deleteTest() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, fun.madeby.Dog.class)){
-			db.beginTransaction();
-			db.add(dog);
-			db.commit();
-			assertEquals(1, GenericIndex.getTotalNumberOfRows());
-			db.beginTransaction();
-			db.delete(0L);
-			db.commit();
-			assertEquals(0, GenericIndex.getTotalNumberOfRows());
-		}catch(IOException e) {
-			System.out.println("deleteTest: threw Exception");
-			e.printStackTrace();
-		}
-	}*/
-
 
 	@Test
 	@DisplayName("searchTest(): DBSpecificServer search, then compare retrieved")
@@ -430,16 +412,16 @@ class DBGenericTest {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
 			// normal
 			db.beginTransaction();
-			db.add(dog);
+			db.add(dog); // written @0
 			db.commit();
 			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
 			db.beginTransaction();
 			db.update(0L, dogUpdated);
 			db.commit();
 			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
-			//db.defragmentDatabase(); // todo defrag breaks this test (adding as bug @issue 35) retrieved == null
-			//Object retrieved = db.read(GenericIndex.getInstance().getRowNumberByName("Razzgu Dulemdi")); // worked fine
-			Dog retrieved = (Dog) db.read(1L);
+			long retrievedRowNumByName = GenericIndex.getInstance().getRowNumberByName("Chingu");
+			Assertions.assertEquals(1, retrievedRowNumByName);
+			Dog retrieved = (Dog) db.read(retrievedRowNumByName);
 			assert retrieved != null;
 			assertEquals("Chingu", retrieved.pName);
 			assertEquals(4, retrieved.age);

@@ -37,6 +37,7 @@ public final class LoggerSetUp {
 				case "FINEST" -> LOGGER.setLevel(Level.FINEST); // xx
 				case "OFF" -> LOGGER.setLevel(Level.OFF);
 				case "ALL" -> LOGGER.setLevel(Level.ALL);
+				default -> LOGGER.setLevel(Level.SEVERE);
 			}
 		} else LOGGER.setLevel(Level.SEVERE);
 		LOGGER.finest("@setUpLogger(name): Set logger name: " + name + " to level " + logLevel);

@@ -1,5 +1,6 @@
 package fun.madeby.resttestapp;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.util.LoggerSetUp;
 
 import java.io.*;
@@ -22,6 +23,7 @@ import static java.lang.Thread.currentThread;
  * Created by Gra_m on 2022 07 21
  */
 
+@SuppressFBWarnings({"DMI_THREAD_PASSED_WHERE_RUNNABLE_EXPECTED", "DMI_RANDOM_USED_ONLY_ONCE"})
 public class RESTTestApp {
 	private static Logger LOGGER;
 
@@ -74,6 +76,7 @@ public class RESTTestApp {
 				}
 			}
 		});
+
 
 		executorService.submit(searchTest);
 		executorService.submit(returnAllRecordsTest);

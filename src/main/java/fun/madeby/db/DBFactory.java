@@ -13,7 +13,8 @@ import java.io.IOException;
 
 public final class DBFactory {
 
-	public static DBSpecificServer getSpecificDB(final String dbFileName) throws  IOException {
+	public static DBSpecificServer getSpecificDB(final String dbFileName) throws IOException, DBException
+		{
 		return new DBSpecificServer(dbFileName);
 	}
 

@@ -1,5 +1,6 @@
 package fun.madeby;
 
+import fun.madeby.exceptions.DBException;
 import fun.madeby.util.DebugInfo;
 
 import java.io.DataInputStream;
@@ -12,13 +13,13 @@ import java.util.Collection;
 
 public interface DataHandlerGeneric {
 
-	void populateIndex();
+	void populateIndex() throws DBException;
 	void close() throws IOException;
 	boolean isExistingData();
-	byte[] readRawRecord(Long rowsBytePosition);
-	Object readFromByteStream(final DataInputStream stream) throws IOException;
-	Collection<DebugInfo> getCurrentDebugInfoRows() throws IOException;
-	Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition); // commit/rollback from DBSpecificServer
-	Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition);
+	byte[] readRawRecord(Long rowsBytePosition) throws DBException;
+	Object readFromByteStream(final DataInputStream stream) throws IOException, DBException;
+	Collection<DebugInfo> getCurrentDebugInfoRows() throws IOException, DBException;
+	Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) throws DBException; // commit/rollback from DBSpecificServer
+	Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) throws DBException;
 
 }

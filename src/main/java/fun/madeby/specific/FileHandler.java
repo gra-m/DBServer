@@ -1,6 +1,7 @@
 package fun.madeby.specific;
 
 import fun.madeby.DBRecord;
+import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
 import fun.madeby.util.Levenshtein;
@@ -101,7 +102,8 @@ public class FileHandler extends BaseFileHandler {
 	}
 
 
-	public DBRecord readRow(Long rowNumber) {
+	public DBRecord readRow(Long rowNumber) throws DBException
+		{
 		LOGGER.severe("@FH readRow(rowNumber) " + rowNumber);
 		readLock.lock();
 		DBRecord result = null;
@@ -179,14 +181,16 @@ public class FileHandler extends BaseFileHandler {
 		return operationUnit;
 	}
 
-	public DBRecord search(String name) {
+	public DBRecord search(String name) throws DBException
+		{
 		Long rowNumber = Index.getInstance().getRowNumberByName(name);
 		if (rowNumber == -1)
 			return null;
 		return this.readRow(rowNumber);
 	}
 
-	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) {
+	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) throws DBException
+		{
 		Collection<DBRecord> result = new ArrayList<>();
 		Set<String> names = (Set<String>) Index.getInstance().getNames();
 		Collection<String> exactOrCloseFitNames = new ArrayList<>();
@@ -202,7 +206,8 @@ public class FileHandler extends BaseFileHandler {
 		return result;
 	}
 
-	public Collection<DBRecord> searchWithRegex(String regEx) {
+	public Collection<DBRecord> searchWithRegex(String regEx) throws DBException
+		{
 		Collection<DBRecord> result = new ArrayList<>();
 		Set<String> names = (Set<String>) Index.getInstance().getNames();
 		Collection<String> matchesRegEx = new ArrayList<>();

@@ -4,6 +4,7 @@ import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.db.specific_server.DB;
 import fun.madeby.db.specific_server.DBSpecificServer;
+import fun.madeby.exceptions.DBException;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
 import fun.madeby.util.JSONRep;
@@ -36,7 +37,7 @@ public final class DBController {
 	static {
 		try {
 			database = new DBSpecificServer("restTest.db");
-		} catch (IOException e) {
+		} catch (IOException | DBException e) {
 			throw new RuntimeException("@DBController/static{dbcreate} could not create DBSpecificServer(\"restTest.db\")");
 		}
 	}

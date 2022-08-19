@@ -1,8 +1,10 @@
 package fun.madeby.testapp;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.db.specific_server.DBSpecificServer;
+import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.specific.Index;
 import fun.madeby.db.specific_server.DB;
@@ -26,13 +28,15 @@ import java.util.stream.IntStream;
  * Created by Gra_m on 2022 06 25
  */
 
+@SuppressFBWarnings({"DMI_RANDOM_USED_ONLY_ONCE", "DMI_RANDOM_USED_ONLY_ONCE"})
 @SuppressWarnings("InfiniteLoopStatement")
 public class TestApp {
 	final static int AMOUNT_OF_EACH = 2;
 	final static String dbFile = "DBSpecificServer.db";
 
 
-	public static void main(String[] args) throws DuplicateNameException{
+	public static void main(String[] args) throws DuplicateNameException, DBException
+		{
 		TestApp testApp = new TestApp();
 
 		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
@@ -43,7 +47,9 @@ public class TestApp {
 		//testApp.performMultiThreadTest();
 	}
 
-	private void performMultiThreadTest() throws DuplicateNameException {
+	@SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
+	private void performMultiThreadTest() throws DuplicateNameException, DBException
+		{
 		CountDownLatch cl = new CountDownLatch(3);
 		Runnable runnableAdd = null;
 		Runnable runnableUpdate = null;
@@ -77,7 +83,11 @@ public class TestApp {
 
 			runnableListAll = () -> {
 				while (true) {
-					listAllFileRecords();
+					try {
+						listAllFileRecords();
+					} catch (DBException e) {
+						throw new RuntimeException(e);
+					}
 				}
 			};
 
@@ -93,7 +103,8 @@ public class TestApp {
 
 
 
-	private void performDefragTest() throws DuplicateNameException {
+	private void performDefragTest() throws DuplicateNameException, DBException
+		{
 		clearDataInExistingFile();
 		fragementDatabase();
 		listAllFileRecords();
@@ -103,7 +114,8 @@ public class TestApp {
 
 	}
 
-	private void defragmentDatabase() throws DuplicateNameException {
+	private void defragmentDatabase() throws DuplicateNameException, DBException
+		{
 			try (DB dbServer = new DBSpecificServer(dbFile)) {
 				dbServer.defragmentDatabase();
 			} catch (IOException e) {
@@ -111,7 +123,8 @@ public class TestApp {
 			}
 	}
 
-	private void fragementDatabase() throws DuplicateNameException{
+	private void fragementDatabase() throws DuplicateNameException, DBException
+		{
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 
 			// create 100 records
@@ -137,7 +150,8 @@ public class TestApp {
 		}
 	}
 
-	private void performTest() throws DuplicateNameException{
+	private void performTest() throws DuplicateNameException, DBException
+		{
 		clearDataInExistingFile();
 		fillDB();
 			/*delete(0); // todo Never works row numbers change after first delete..
@@ -154,7 +168,8 @@ public class TestApp {
 
 	}
 
-	private void testRegEx() {
+	private void testRegEx() throws DBException
+		{
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			ArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithRegex("Fra.*");
 			System.out.println("---------searchWithRegEx()-----------");
@@ -170,7 +185,8 @@ public class TestApp {
 		Levenshtein.levenshteinDistance("ziggy", "zaggys", true);
 	}
 
-	private void testLevenshtein() {
+	private void testLevenshtein() throws DBException
+		{
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			ArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithLevenshtein("Frank Demian1", 0);
 			System.out.println("---------searchWithLevenshtein()-----------");
@@ -182,7 +198,8 @@ public class TestApp {
 		}
 	}
 
-	private void addOneRecordWithTransaction() throws DuplicateNameException{
+	private void addOneRecordWithTransaction() throws DuplicateNameException, DBException
+		{
 
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			ITransaction transaction = dbServer.beginTransaction();
@@ -199,7 +216,8 @@ public class TestApp {
 		}
 	}
 
-	private void testSearch(String name) throws DuplicateNameException{
+	private void testSearch(String name) throws DuplicateNameException, DBException
+		{
 
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			System.out.println("TEST SEARCH: ");
@@ -224,7 +242,8 @@ public class TestApp {
 	}
 
 
-	private void listAllFileRecords() {
+	private void listAllFileRecords() throws DBException
+		{
 
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			long count = 1L;
@@ -257,7 +276,8 @@ public class TestApp {
 		System.out.println(formatted);
 	}
 
-	void delete(long rowNumber) {
+	void delete(long rowNumber) throws DBException
+		{
 
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			dbServer.delete(rowNumber);
@@ -266,7 +286,8 @@ public class TestApp {
 		}
 	}
 
-	void delete(String name) {
+	void delete(String name) throws DBException
+		{
 		try (DB dbServer = new DBSpecificServer(dbFile)) {
 			dbServer.beginTransaction();
 			dbServer.delete(Index.getInstance().getRowNumberByName(name));
@@ -276,7 +297,8 @@ public class TestApp {
 		}
 	}
 
-	void fillDB() throws DuplicateNameException{
+	void fillDB() throws DuplicateNameException, DBException
+		{
 		int count = 0;
 
 

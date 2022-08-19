@@ -4,6 +4,7 @@ import fun.madeby.DataHandlerGeneric;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
+import fun.madeby.util.GeneralUtils;
 import fun.madeby.util.LoggerSetUp;
 
 import java.io.*;
@@ -81,7 +82,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 
 
 	@Override
-	public Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+	public Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) throws DBException
+		{
 		writeLock.lock();
 		try {
 			// commit new Rows
@@ -114,7 +116,9 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 
 
 
-	public Object readFromByteStream(final DataInputStream stream) throws IOException {
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("SF_SWITCH_NO_DEFAULT")
+	public Object readFromByteStream(final DataInputStream stream) throws IOException, DBException
+		{
 		Object object = null;
 		// Get empty object of class passed via reflection, via constructor now as safer.
 		try {
@@ -129,11 +133,12 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 
 			switch (field.fieldType.toLowerCase()) {
 				case "string" -> {
+					String value = null;
 					int fieldLength = stream.readInt();
 					byte[] bArray = new byte[fieldLength];
-					stream.read(bArray);// IJ always complains about this but XXX below makes genericIndexedValue the length of the String
-					String value = new String(bArray);
-					//String value = (String.valueOf(stream.read(bArray))); //XXX
+					int length = stream.read(bArray);
+					if (GeneralUtils.testInputStreamReadLength("GBFH/readFromByteStream", length, fieldLength))
+						value = new String(bArray);
 					object.getClass()
 							.getDeclaredField(field.fieldName)
 							.set(object, value);
@@ -158,6 +163,10 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 							.getDeclaredField(field.fieldName)
 							.set(object, value);
 				}
+				default -> {
+					String unfoundFieldType = "fieldType_of_" + field.fieldType + "_of_name_" + field.fieldName + "_not_found";
+					throw new DBException("@GBFH/readFromByteStream: Field type not recognised by switch " + unfoundFieldType);
+				}
 			}
 		}
 
@@ -171,7 +180,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	}
 
 	@Override
-	public Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+	public Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) throws DBException
+		{
 		writeLock.lock();
 		try {
 			// rollback new Rows
@@ -205,7 +215,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	}
 
 
-	public void populateIndex() {
+	public void populateIndex() throws DBException
+		{
 		LOGGER.finest("@GBFH PopulateIndex()");
 		long rowNum = 0;
 		int recordLength = 0;
@@ -234,7 +245,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 					if (!isDeleted) {
 						this.dbFile.seek(currentPosition);
 						byte[] byteArrayOfObject = new byte[recordLength];
-						dbFile.read(byteArrayOfObject);
+						int readLength = dbFile.read(byteArrayOfObject);
+						GeneralUtils.testInputStreamReadLength("@GBFH/populateIndex", readLength, readLength);
 						Object retrievedObject = readFromByteStream(new DataInputStream(new ByteArrayInputStream(byteArrayOfObject)));
 						String genericIndexedValue = (String) retrievedObject.getClass().getDeclaredField(schema.indexBy).get(retrievedObject);
 						GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, rowNum++);
@@ -271,7 +283,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 3 bytes representing the genericIndexedValue
 	 * length int.
 	 */
-	public byte[] readRawRecord(Long rowsBytePosition) {
+	public byte[] readRawRecord(Long rowsBytePosition) throws DBException
+		{
 		byte[] data = null;
 
 		readLock.lock();
@@ -291,7 +304,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				int recordLength = dbFile.readInt();
 				dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 6 bytes boolean + int
 				data = new byte[recordLength];
-				this.dbFile.read(data);
+				int length = this.dbFile.read(data);
+				GeneralUtils.testInputStreamReadLength("@GBFH/readRawRecord", length, recordLength);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -306,7 +320,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		this.dbFile.close();
 	}
 
-	public Collection<DebugInfo> getCurrentDebugInfoRows() {
+	public Collection<DebugInfo> getCurrentDebugInfoRows() throws DBException
+		{
 		LOGGER.finest("@BFH getCurrentDebugInfoRows() collecting debugInfo 1Object 2isTemporary 3isDeleted for each row in .db");
 		readLock.lock();
 		DataInputStream stream;
@@ -335,7 +350,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 					recordLength = dbFile.readInt();
 					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES);
 					byte[] rowDataOnly = new byte[recordLength];
-					dbFile.read(rowDataOnly);
+					int readLength = dbFile.read(rowDataOnly);
+					GeneralUtils.testInputStreamReadLength("@GBFH/getCurrentDebugInfoRows", readLength, readLength);
 					stream = new DataInputStream(new ByteArrayInputStream(rowDataOnly));
 					object = readFromByteStream(stream);
 
@@ -390,12 +406,14 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		}
 	}
 
-	public String getDBVersion() {
+	public String getDBVersion() throws DBException
+		{
 		readLock.lock();
 		try {
 			this.dbFile.seek(START_OF_FILE);
 			byte[] bytes = new byte[HEADER_INFO_SPACE];
-			this.dbFile.read(bytes);
+			int readLength = this.dbFile.read(bytes);
+			GeneralUtils.testInputStreamReadLength("@GBFH/getDBVersion", readLength, HEADER_INFO_SPACE);
 			return new String(bytes).trim();
 		} catch (IOException e) {
 			e.printStackTrace();

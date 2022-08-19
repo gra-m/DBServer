@@ -1,6 +1,7 @@
 package fun.madeby.db.specific_server;
 
 import fun.madeby.DBRecord;
+import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.specific.FileHandler;
 import fun.madeby.specific.Index;
@@ -35,7 +36,7 @@ public final class DBSpecificServer implements DB {
 		}
 	}
 
-	public DBSpecificServer(final String dbFileName) throws IOException
+	public DBSpecificServer(final String dbFileName) throws IOException, DBException
 		{
 			LOGGER.finest("@DBSpecificServer(String dbFileName) = " + dbFileName);
 			this.fileHandler = new FileHandler(dbFileName);
@@ -43,7 +44,7 @@ public final class DBSpecificServer implements DB {
 			this.initialise();
 		}
 
-	private void initialise() throws IOException
+	private void initialise() throws IOException, DBException
 		{
 			LOGGER.finest("@DBSpecificServer intialise()");
 			this.fileHandler.writeVersionInfoIfNewFile();
@@ -66,7 +67,7 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public void commit()
+	public void commit() throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer commit() entered");
 			ITransaction transaction = getTransaction();
@@ -84,7 +85,7 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public void rollback()
+	public void rollback() throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer rollback() entered");
 			ITransaction transaction = getTransaction();
@@ -116,7 +117,7 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public void defragmentDatabase() throws IOException, DuplicateNameException
+	public void defragmentDatabase() throws IOException, DuplicateNameException, DBException
 		{
 			LOGGER.finest("@DBSpecificServer defragmentDatabase()");
 			String prefix = "defrag";
@@ -144,7 +145,7 @@ public final class DBSpecificServer implements DB {
 			this.initialise();
 		}
 
-	private void replaceOldFileWithNew(File tmpFile)
+	private void replaceOldFileWithNew(File tmpFile) throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer replaceOldFileWithNew(File tmpFile) = " + tmpFile.getName());
 			String oldDBName = this.fileHandler.getDbFileName();
@@ -169,7 +170,7 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public DBRecord search(String name)
+	public DBRecord search(String name) throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer @search(String name) = " + name);
 			DBRecord object = this.fileHandler.search(name);
@@ -178,21 +179,21 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public void refreshIndex() throws IOException
+	public void refreshIndex() throws IOException, DBException
 		{
 			LOGGER.finest("@DBSpecificServer @refreshIndex()");
 			this.fileHandler.populateIndex();
 		}
 
 	@Override
-	public Collection<DebugInfo> getRowsWithDebugInfo()
+	public Collection<DebugInfo> getRowsWithDebugInfo() throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer @getData()");
 			return this.fileHandler.getCurrentDebugInfoRows();
 		}
 
 	@Override
-	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance)
+	public Collection<DBRecord> searchWithLevenshtein(String name, int tolerance) throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer @searchWithLevenshtein(String name, int tolerance) = " + name + " " + tolerance);
 			Collection<DBRecord> recordCollection = this.fileHandler.searchWithLevenshtein(name, tolerance);
@@ -201,7 +202,7 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public Collection<DBRecord> searchWithRegex(String regEx)
+	public Collection<DBRecord> searchWithRegex(String regEx) throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer @searchWithRegex(String regEx) = " + regEx);
 			Collection<DBRecord> recordCollection = fileHandler.searchWithRegex(regEx);
@@ -219,7 +220,7 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public void update(Long rowNumber, final DBRecord newRecord) throws DuplicateNameException
+	public void update(Long rowNumber, final DBRecord newRecord) throws DuplicateNameException, DBException
 		{
 			LOGGER.finest("@DBSpecificServer @update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " " + newRecord);
 			String name;
@@ -274,7 +275,7 @@ public final class DBSpecificServer implements DB {
 		}
 
 	@Override
-	public DBRecord read(Long rowNumber)
+	public DBRecord read(Long rowNumber) throws DBException
 		{
 			LOGGER.finest("@DBSpecificServer @read(rowNumber) = " + rowNumber);
 			DBRecord object = null;

@@ -3,8 +3,10 @@ package fun.madeby.specific;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.DataHandler;
+import fun.madeby.exceptions.DBException;
 import fun.madeby.util.DebugInfo;
 import fun.madeby.util.DebugRowInfo;
+import fun.madeby.util.GeneralUtils;
 import fun.madeby.util.LoggerSetUp;
 
 import java.io.*;
@@ -81,7 +83,8 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 	@Override
-	public Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+	public Boolean commit(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) throws DBException
+		{
 		writeLock.lock();
 		try {
 			// commit new Rows
@@ -114,7 +117,8 @@ public class BaseFileHandler implements DataHandler {
 
 
 	@Override
-	public Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) {
+	public Boolean rollback(Collection<Long> newRowsBytePosition, Collection<Long> deletedRowsBytePosition) throws DBException
+		{
 		writeLock.lock();
 		try {
 			// rollback new Rows
@@ -148,7 +152,8 @@ public class BaseFileHandler implements DataHandler {
 
 
 
-	public void populateIndex() throws IOException {
+	public void populateIndex() throws IOException, DBException
+		{
 		LOGGER.severe("@BFH PopulateIndex()");
 		long rowNum = 0;
 		int recordLength = 0;
@@ -177,7 +182,8 @@ public class BaseFileHandler implements DataHandler {
 					if (!isDeleted) {
 						this.dbFile.seek(currentPosition);
 						byte[] retrieveRecord = new byte[recordLength];
-						dbFile.read(retrieveRecord);
+						int readLength = dbFile.read(retrieveRecord);
+						GeneralUtils.testInputStreamReadLength("@BFH/populateIndex", readLength, recordLength);
 						DBRecord retrievedRecord = readFromByteStream(new DataInputStream(new ByteArrayInputStream(retrieveRecord)));
 						Index.getInstance().addNameToIndex(retrievedRecord.getName(), rowNum++);
 					}
@@ -207,7 +213,8 @@ public class BaseFileHandler implements DataHandler {
 	 * @return empty byte[] if boolean(deleted),  byte[] of row requested beginning with 3 bytes representing the name
 	 * length int.
 	 */
-	public byte[] readRawRecord(Long rowsBytePosition) {
+	public byte[] readRawRecord(Long rowsBytePosition) throws DBException
+		{
 		byte[] data = null;
 
 		readLock.lock();
@@ -227,7 +234,8 @@ public class BaseFileHandler implements DataHandler {
 				int recordLength = dbFile.readInt();
 				dbFile.seek(rowsBytePosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES); // 6 bytes boolean + int
 				data = new byte[recordLength];
-				this.dbFile.read(data);
+				int readLength = this.dbFile.read(data);
+				GeneralUtils.testInputStreamReadLength("@BFH/readRawRecord", readLength, recordLength);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -238,29 +246,36 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public DBRecord readFromByteStream(final DataInputStream stream) throws IOException {
+	// todo refactor into Util method String name = GeneralUtil.readString(int length)
+	public DBRecord readFromByteStream(final DataInputStream stream) throws IOException, DBException
+		{
 
 		int nameLength = stream.readInt();
 		byte[] nameBytes = new byte[nameLength];
-		stream.read(nameBytes); // fill array, advance pointer
+		int readLength = stream.read(nameBytes); // fill array, advance pointer
+		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/nameLength", readLength, nameLength);
 		String name = new String(nameBytes);
 
 		int age = stream.readInt();
 
-		byte[] addressBytes = new byte[stream.readInt()];
-		//noinspection ResultOfMethodCallIgnored
-		stream.read(addressBytes); // fill array, advance pointer
+		int addressLength = stream.readInt();
+		byte[] addressBytes = new byte[addressLength];
+		readLength = stream.read(addressBytes); // fill array, advance pointer
+		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/addressLength", readLength, addressLength);
 		String address = new String(addressBytes);
 
-		byte[] carPlateBytes = new byte[stream.readInt()];
-		//noinspection ResultOfMethodCallIgnored
-		stream.read(carPlateBytes); // fill array, advance pointer
+		int carPlateLength = stream.readInt();
+		byte[] carPlateBytes = new byte[carPlateLength];
+		readLength = stream.read(carPlateBytes); // fill array, advance pointer
+		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/carPlateLength", readLength, carPlateLength);
 		String carPlateNumber = new String(carPlateBytes);
 
-		byte[] descriptionBytes = new byte[stream.readInt()];
-		//noinspection ResultOfMethodCallIgnored
-		stream.read(descriptionBytes); // fill array, advance pointer
+
+
+		int descriptionLength = stream.readInt();
+		byte[] descriptionBytes = new byte[descriptionLength];
+		readLength = stream.read(descriptionBytes); // fill array, advance pointer
+		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/descriptionLength", readLength, descriptionLength);
 		String description = new String(descriptionBytes);
 
 		return new CarOwner(name, age, address, carPlateNumber, description);
@@ -270,8 +285,9 @@ public class BaseFileHandler implements DataHandler {
 	public void close() throws IOException {
 		this.dbFile.close();
 	}
-
-	public Collection<DebugInfo> getCurrentDebugInfoRows() {
+//todo test length here test suddenly 'ignored'
+	public Collection<DebugInfo> getCurrentDebugInfoRows() throws DBException
+		{
 		LOGGER.finest("@BFH getCurrentDebugInfoRows()");
 		readLock.lock();
 		DataInputStream stream;
@@ -300,7 +316,8 @@ public class BaseFileHandler implements DataHandler {
 					recordLength = dbFile.readInt();
 					dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES + INTEGER_LENGTH_IN_BYTES);
 					byte[] rowDataOnly = new byte[recordLength];
-					dbFile.read(rowDataOnly);
+					int readLength = dbFile.read(rowDataOnly);
+					GeneralUtils.testInputStreamReadLength("@BFH/GetCurrentDebugInfoRows", readLength, readLength);
 					stream = new DataInputStream(new ByteArrayInputStream(rowDataOnly));
 					object = readFromByteStream(stream);
 
@@ -343,12 +360,14 @@ public class BaseFileHandler implements DataHandler {
 	}
 
 
-	private String  getDBVersion() {
+	private String  getDBVersion() throws DBException
+		{
 		readLock.lock();
 		try {
 			this.dbFile.seek(START_OF_FILE);
 			byte[] bytes = new byte[HEADER_INFO_SPACE];
-			this.dbFile.read(bytes);
+			int readLength = this.dbFile.read(bytes);
+			GeneralUtils.testInputStreamReadLength("@BFH/getDBVersion", readLength, HEADER_INFO_SPACE);
 			return new String(bytes).trim();
 		}catch(IOException e) {
 			e.printStackTrace();

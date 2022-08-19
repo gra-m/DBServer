@@ -85,7 +85,6 @@ public class DBGenericServer implements DBGeneric {
 		//	sb.append("[").append(obj.getClass().getSimpleName()).append("]").append("Read Object: ").append(obj).append(System.getProperty("line"));
 		sb.append(obj.toString()).append(System.getProperty("line separator"));
 		}
-		// todo check output, not seen
 		LOGGER.finest("[" + this.getClass().getSimpleName() + "]" + "Read Object: " + sb);
 	}
 
@@ -122,7 +121,8 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void commit() {
+	public void commit() throws DBException
+		{
 		LinkedList<Long> deletesToBeCommitted;
 		LinkedList<Long> addsToBeCommitted;
 
@@ -206,7 +206,8 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public Collection<DebugInfo> getRowsWithDebugInfo() {
+	public Collection<DebugInfo> getRowsWithDebugInfo() throws DBException
+		{
 		LOGGER.finest("@DBGenericServer @getData()");
 		return this.genericFileHandler.getCurrentDebugInfoRows();
 	}
@@ -219,7 +220,8 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public Object read(Long rowNumber) {
+	public Object read(Long rowNumber) throws DBException
+		{
 		LOGGER.finest("@DBGenericServer @read(rowNumber) = " + rowNumber);
 		Object obj = null;
 		if (checkRowNumber(rowNumber)) {
@@ -232,14 +234,16 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public void refreshGenericIndex() {
+	public void refreshGenericIndex() throws DBException
+		{
 		LOGGER.finest("@DBGenericServer @refreshGenericIndex()");
 		this.genericFileHandler.populateIndex();
 	}
 
 
 	@Override
-	public void rollback() {
+	public void rollback() throws DBException
+		{
 		LOGGER.finest("@DBGenericServer rollback() entered");
 		ITransaction transaction = getTransaction();
 		if (transaction == null)
@@ -274,7 +278,8 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public Object search(String GenericIndexedFieldName) {
+	public Object search(String GenericIndexedFieldName) throws DBException
+		{
 		LOGGER.finest("@DBGenericServer @search(String GenericIndexedFieldName) = " + GenericIndexedFieldName);
 		Object object = this.genericFileHandler.search(GenericIndexedFieldName);
 		LOGGER.info("@DBGenericServer search(String GenericIndexedFieldName) return. GenericIndexedFieldName = " + GenericIndexedFieldName + " " + object);
@@ -283,7 +288,8 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public Collection<Object> searchWithLevenshtein(String GenericIndexedFieldName, int tolerance) {
+	public Collection<Object> searchWithLevenshtein(String GenericIndexedFieldName, int tolerance) throws DBException
+		{
 		LOGGER.finest("@DBGenericServer @searchWithLevenshtein(String name, int tolerance) = " + GenericIndexedFieldName + " " + tolerance);
 		Collection<Object> recordCollection = this.genericFileHandler.searchWithLevenshtein(GenericIndexedFieldName, tolerance);
 		LOGGER.info("@DBGenericServer [New Alternative output below:] @searchWithLevenshtein(String name, int tolerance) + returned Collection<DBRecord> = " + GenericIndexedFieldName + " " + tolerance + "\n" + getCollectionContents(recordCollection));
@@ -293,7 +299,8 @@ public class DBGenericServer implements DBGeneric {
 
 
 	@Override
-	public Collection<Object> searchWithRegex(String regEx) {
+	public Collection<Object> searchWithRegex(String regEx) throws DBException
+		{
 		LOGGER.finest("@DBGenericServer @searchWithRegex(String regEx) = " + regEx);
 		Collection<Object> recordCollection = genericFileHandler.searchWithRegex(regEx);
 		LOGGER.info("@DBGenericServer @searchWithRegex(String regEx) + returned Collection<DBRecord> = " + regEx + "\n" + getCollectionContents(recordCollection));
@@ -306,7 +313,7 @@ public class DBGenericServer implements DBGeneric {
 		LOGGER.finest("@DBGenericServer @update(Long rowNumberOldRecord, DBRecord newRecord) = " + rowNumber + " " + newObj);
 		String GenericIndexedFieldName;
 		try {
-			if (checkRowNumber(rowNumber)) { //todo extra. Checks GenericIndexedFieldName is in GenericIndex before going ahead with del
+			if (checkRowNumber(rowNumber)) {
 				Object existingRowNumberRecord = read(rowNumber);
 				assert existingRowNumberRecord != null;
 				GenericIndexedFieldName = (String) existingRowNumberRecord.getClass().getDeclaredField("pName").get(existingRowNumberRecord);
@@ -383,7 +390,8 @@ public class DBGenericServer implements DBGeneric {
 		}
 	}
 
-	public String getDBVersion() {
+	public String getDBVersion() throws DBException
+		{
 		return this.genericFileHandler.getDBVersion();
 	}
 }
