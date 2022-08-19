@@ -1,5 +1,6 @@
 package fun.madeby.generic;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
@@ -17,6 +18,7 @@ import java.util.Set;
  * Created by Gra_m on 2022 06 24
  */
 
+@SuppressFBWarnings({"NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "DM_DEFAULT_ENCODING"})
 public class GenericFileHandler extends GenericBaseFileHandler {
 
 
@@ -102,7 +104,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 				switch (field.fieldType) {
 					case "String" -> {
 						this.dbFile.writeInt(((String)objectValue).length());
-						this.dbFile.write(((String)objectValue).getBytes());
+						this.dbFile.write(((String)objectValue).getBytes("UTF-8")); // fixme == fixed I18N
 					}
 					case "boolean" -> {
 						this.dbFile.writeBoolean((Boolean) objectValue);

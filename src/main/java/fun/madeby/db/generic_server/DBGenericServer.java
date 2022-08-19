@@ -1,6 +1,7 @@
 package fun.madeby.db.generic_server;
 
 import com.google.gson.Gson;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.exceptions.NameDoesNotExistException;
@@ -31,6 +32,7 @@ import java.util.logging.Logger;
  * Created by Gra_m on 2022 07 30
  */
 
+@SuppressFBWarnings("EI_EXPOSE_REP2")
 public class DBGenericServer implements DBGeneric {
 	private GenericFileHandler genericFileHandler;
 	private Schema schema;

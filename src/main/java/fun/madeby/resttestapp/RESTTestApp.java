@@ -1,6 +1,7 @@
 package fun.madeby.resttestapp;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import fun.madeby.specific.Index;
 import fun.madeby.util.LoggerSetUp;
 
 import java.io.*;
@@ -8,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +97,7 @@ public class RESTTestApp {
 			sb.append("http://localhost:7001/").append(path);
 
 		if (parameters != null)
-			sb.append("?").append(new BuiltParameter().getParametersAsString(parameters));
+			sb.append("?").append(BuiltParameter.getParametersAsString(parameters));
 
 		try{
 			URL url = new URL(sb.toString());
@@ -150,7 +152,7 @@ public class RESTTestApp {
 	}
 
 	private String readResponseStream(InputStream inputStream) {
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8"))); // fixme == fixed I18N
 		StringBuilder sb = new StringBuilder(500);
 		String line;
 
@@ -165,9 +167,9 @@ public class RESTTestApp {
 		return sb.toString();
 	}
 
-	private class BuiltParameter {
+	private  static class BuiltParameter {
 
-		String getParametersAsString(Map<String, String> parameters) {
+		static String getParametersAsString(Map<String, String> parameters) {
 			StringBuilder sb = new StringBuilder(500);
 
 			for(Map.Entry<String, String> entry: parameters.entrySet()) {

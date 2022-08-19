@@ -1,5 +1,6 @@
 package fun.madeby.generic;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.util.LoggerSetUp;
 
@@ -14,6 +15,7 @@ import java.util.logging.Logger;
  * Created by Gra_m on 2022 06 27
  */
 
+@SuppressFBWarnings("MS_EXPOSE_REP")
 public final class GenericIndex {
 	private Logger LOGGER;
 

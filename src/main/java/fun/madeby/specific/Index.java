@@ -1,5 +1,6 @@
 package fun.madeby.specific;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.DBRecord;
 
 import java.util.Collection;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Gra_m on 2022 06 27
  */
 
+@SuppressFBWarnings("MS_EXPOSE_REP")
 public final class Index {
 
 	static{indexInstance = new Index();}

@@ -23,8 +23,8 @@ import java.util.logging.Logger;
  */
 
 public final class DBController {
-	private static DB database;
-	private static Logger LOGGER;
+	private static final DB DATABASE;
+	private static  Logger LOGGER;
 
 	static {
 		try {
@@ -36,7 +36,7 @@ public final class DBController {
 
 	static {
 		try {
-			database = new DBSpecificServer("restTest.db");
+			DATABASE = new DBSpecificServer("restTest.db");
 		} catch (IOException | DBException e) {
 			throw new RuntimeException("@DBController/static{dbcreate} could not create DBSpecificServer(\"restTest.db\")");
 		}
@@ -49,15 +49,15 @@ public final class DBController {
 		LOGGER.severe(message);
 		else {
 			LOGGER.severe(message);
-			database.close();
+			DATABASE.close();
 		}
 	}
 
 
 	// localhost:7001/listall
-	public static Handler fetchAllRecords = ctx -> {
+	public static final Handler fetchAllRecords = ctx -> {
 
-		ArrayList<DebugInfo> debugResultList = (ArrayList<DebugInfo>) database.getRowsWithDebugInfo();
+		ArrayList<DebugInfo> debugResultList = (ArrayList<DebugInfo>) DATABASE.getRowsWithDebugInfo();
 		ArrayList<String> allRecordList = new ArrayList<>(debugResultList.size());
 		for(DebugInfo di: debugResultList) {
 			DebugRowInfo dri =  (DebugRowInfo) di;
@@ -70,7 +70,7 @@ public final class DBController {
 	};
 
 	// localhost:7001/add?name=test&age=45&address=somewheretest&carplate=qqq-123&description=testEntry
-	public static Handler addCarOwner = ctx -> {
+	public static final Handler addCarOwner = ctx -> {
 		String name = ctx.queryParam("name");
 		int age = Integer.parseInt(ctx.queryParam("age"));
 		String address = ctx.queryParam("address");
@@ -80,9 +80,9 @@ public final class DBController {
 		if(name == null || address == null || carPlate == null || description == null)
 			ctx.json("{Error: Parameter is missing}");
 		else {
-			database.beginTransaction();
-			database.add(new CarOwner(name, age, address, carPlate, description));
-			database.commit();
+			DATABASE.beginTransaction();
+			DATABASE.add(new CarOwner(name, age, address, carPlate, description));
+			DATABASE.commit();
 		}
 
 		ctx.json(true);
@@ -90,7 +90,7 @@ public final class DBController {
 	};
 
 	// localhost:7001/searchlevenshtein?name=test
-	public static Handler searchLevenshtein = ctx -> {
+	public static final Handler searchLevenshtein = ctx -> {
 		String  name = ctx.queryParam("name");
 
 		if (name == null) {
@@ -98,7 +98,7 @@ public final class DBController {
 			return;
 		}
 
-		Collection<DBRecord> levenshteinReturn = database.searchWithLevenshtein(name, 1);
+		Collection<DBRecord> levenshteinReturn = DATABASE.searchWithLevenshtein(name, 1);
 		LinkedList<String> result = new LinkedList<>();
 		levenshteinReturn.forEach(i -> {
 			result.add(((JSONRep)i).toJSON());

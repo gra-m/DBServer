@@ -1,5 +1,6 @@
 package fun.madeby.generic;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.DataHandlerGeneric;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.util.DebugInfo;
@@ -17,22 +18,25 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import static fun.madeby.db.DBFactory.DEFAULT_ENCODING;
+
 /**
  * Created by Gra_m on 2022 06 30
  */
 
+@SuppressFBWarnings({"NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "EI_EXPOSE_REP2"})
 public class GenericBaseFileHandler implements DataHandlerGeneric {
 	RandomAccessFile dbFile;
 	String dbFileName;
-	private final String VERSION = "0.1";
+	private static final String VERSION = "0.1";
 	private static final int START_OF_FILE = 0;
 	private static final int HEADER_INFO_SPACE = 100;
 	final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 	final Lock readLock = readWriteLock.readLock();
 	final Lock writeLock = readWriteLock.writeLock();
-	protected final int LONG_LENGTH_IN_BYTES = 8;
-	protected final int INTEGER_LENGTH_IN_BYTES = 4;
-	protected final int BOOLEAN_LENGTH_IN_BYTES = 1;
+	protected static final int LONG_LENGTH_IN_BYTES = 8;
+	protected static final int INTEGER_LENGTH_IN_BYTES = 4;
+	protected static final int BOOLEAN_LENGTH_IN_BYTES = 1;
 	protected Schema schema;
 	protected Class aClass;
 	Logger LOGGER;
@@ -138,7 +142,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 					byte[] bArray = new byte[fieldLength];
 					int length = stream.read(bArray);
 					if (GeneralUtils.testInputStreamReadLength("GBFH/readFromByteStream", length, fieldLength))
-						value = new String(bArray);
+						value =  new String(bArray, 0, length, DEFAULT_ENCODING); // fixme fixed == I18N
 					object.getClass()
 							.getDeclaredField(field.fieldName)
 							.set(object, value);
@@ -394,13 +398,14 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		return false;
 	}
 
+	@SuppressFBWarnings("DM_DEFAULT_ENCODING")
 	private void setDBVersion() {
 		try {
 			this.dbFile.seek(START_OF_FILE);
 			this.dbFile.writeBytes(VERSION);
 			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
 			Arrays.fill(characterFiller, ' ');
-			this.dbFile.write(new String(characterFiller).getBytes());
+			this.dbFile.write(new String(characterFiller).getBytes(DEFAULT_ENCODING)); //fixme == fixed I18N
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -414,7 +419,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 			byte[] bytes = new byte[HEADER_INFO_SPACE];
 			int readLength = this.dbFile.read(bytes);
 			GeneralUtils.testInputStreamReadLength("@GBFH/getDBVersion", readLength, HEADER_INFO_SPACE);
-			return new String(bytes).trim();
+			return new String(bytes, 0, readLength, DEFAULT_ENCODING).trim(); // fixme == fixed I18N
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

@@ -1,5 +1,6 @@
 package fun.madeby.specific;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.madeby.CarOwner;
 import fun.madeby.DBRecord;
 import fun.madeby.DataHandler;
@@ -18,21 +19,24 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import static fun.madeby.db.DBFactory.DEFAULT_ENCODING;
+
 /**
  * Created by Gra_m on 2022 06 30
  */
 
+@SuppressFBWarnings("EI_EXPOSE_REP2")
 public class BaseFileHandler implements DataHandler {
 	RandomAccessFile dbFile;
 	String dbFileName;
-	private final String VERSION = "0.1";
+	private static  final String VERSION = "0.1";
 	private static final int START_OF_FILE = 0;
 	private static final int HEADER_INFO_SPACE = 100;
 	final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 	final Lock readLock = readWriteLock.readLock();
 	final Lock writeLock = readWriteLock.writeLock();
-	private final int INTEGER_LENGTH_IN_BYTES = 4;
-	final int BOOLEAN_LENGTH_IN_BYTES = 1;
+	private static  final int INTEGER_LENGTH_IN_BYTES = 4;
+	protected static final int BOOLEAN_LENGTH_IN_BYTES = 1;
 	Logger LOGGER;
 
 	{
@@ -70,7 +74,7 @@ public class BaseFileHandler implements DataHandler {
 			this.dbFile.writeBytes(VERSION);
 			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
 			Arrays.fill(characterFiller, ' ');
-			this.dbFile.write(new String(characterFiller).getBytes());
+			this.dbFile.write(new String(characterFiller).getBytes(DEFAULT_ENCODING)); // fixme == fixed I18N
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -254,7 +258,7 @@ public class BaseFileHandler implements DataHandler {
 		byte[] nameBytes = new byte[nameLength];
 		int readLength = stream.read(nameBytes); // fill array, advance pointer
 		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/nameLength", readLength, nameLength);
-		String name = new String(nameBytes);
+		String name = new String(nameBytes, 0, readLength, DEFAULT_ENCODING); // fixme == fixed I18N
 
 		int age = stream.readInt();
 
@@ -262,13 +266,13 @@ public class BaseFileHandler implements DataHandler {
 		byte[] addressBytes = new byte[addressLength];
 		readLength = stream.read(addressBytes); // fill array, advance pointer
 		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/addressLength", readLength, addressLength);
-		String address = new String(addressBytes);
+		String address = new String(addressBytes, 0, readLength, DEFAULT_ENCODING);
 
 		int carPlateLength = stream.readInt();
 		byte[] carPlateBytes = new byte[carPlateLength];
 		readLength = stream.read(carPlateBytes); // fill array, advance pointer
 		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/carPlateLength", readLength, carPlateLength);
-		String carPlateNumber = new String(carPlateBytes);
+		String carPlateNumber = new String(carPlateBytes, 0, readLength, DEFAULT_ENCODING);
 
 
 
@@ -276,7 +280,7 @@ public class BaseFileHandler implements DataHandler {
 		byte[] descriptionBytes = new byte[descriptionLength];
 		readLength = stream.read(descriptionBytes); // fill array, advance pointer
 		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/descriptionLength", readLength, descriptionLength);
-		String description = new String(descriptionBytes);
+		String description = new String(descriptionBytes, 0, readLength, DEFAULT_ENCODING);
 
 		return new CarOwner(name, age, address, carPlateNumber, description);
 
@@ -368,7 +372,7 @@ public class BaseFileHandler implements DataHandler {
 			byte[] bytes = new byte[HEADER_INFO_SPACE];
 			int readLength = this.dbFile.read(bytes);
 			GeneralUtils.testInputStreamReadLength("@BFH/getDBVersion", readLength, HEADER_INFO_SPACE);
-			return new String(bytes).trim();
+			return new String(bytes, 0, readLength, DEFAULT_ENCODING).trim(); // fixme == fixed I18N
 		}catch(IOException e) {
 			e.printStackTrace();
 		}finally {

@@ -12,6 +12,7 @@ import java.io.IOException;
  */
 
 public final class DBFactory {
+	public static final String DEFAULT_ENCODING = "UTF-8";
 
 	public static DBSpecificServer getSpecificDB(final String dbFileName) throws IOException, DBException
 		{

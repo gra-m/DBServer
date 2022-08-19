@@ -74,22 +74,22 @@ public class FileHandler extends BaseFileHandler {
 
 			String name = returnedRec.getName();
 			dbFile.writeInt(name.length());
-			dbFile.write(name.getBytes());
+			dbFile.write(name.getBytes("UTF-8"));
 
 			int age = returnedRec.getAge();
 			dbFile.writeInt(age);
 
 			String address = returnedRec.getAddress();
 			dbFile.writeInt(address.length());
-			dbFile.write(address.getBytes());
+			dbFile.write(address.getBytes("UTF-8"));
 
 			String carPlateNumber = returnedRec.getCarPlateNumber();
 			dbFile.writeInt(carPlateNumber.length());
-			dbFile.write(carPlateNumber.getBytes());
+			dbFile.write(carPlateNumber.getBytes("UTF-8"));
 
 			String description = returnedRec.getDescription();
 			dbFile.writeInt(description.length());
-			dbFile.write(description.getBytes());
+			dbFile.write(description.getBytes("UTF-8"));
 
 		}catch (IOException e) {
 			e.printStackTrace();
