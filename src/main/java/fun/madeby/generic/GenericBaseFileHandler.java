@@ -398,7 +398,6 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		return false;
 	}
 
-	@SuppressFBWarnings("DM_DEFAULT_ENCODING")
 	private void setDBVersion() {
 		try {
 			this.dbFile.seek(START_OF_FILE);

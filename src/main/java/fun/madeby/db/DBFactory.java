@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 
 public final class DBFactory {
-	public static final String DEFAULT_ENCODING = "UTF-8";
+	public static final String DEFAULT_ENCODING = "UTF-8"; // NOTE, changing this to UTF-16 will break all boolean reads as minimum byte size in utf16 == 2.
 
 	public static DBSpecificServer getSpecificDB(final String dbFileName) throws IOException, DBException
 		{
