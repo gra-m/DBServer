@@ -19,7 +19,7 @@ public final class DBFactory {
 		return new DBSpecificServer(dbFileName);
 	}
 
-	public static DBGenericServer getGenericDB(final String dbFileName, final String schema, final Class classTemplate) throws DBException, FileNotFoundException {
-		return new DBGenericServer(dbFileName, schema,  classTemplate);
+	public static DBGenericServer getGenericDB() throws  FileNotFoundException {
+		return new DBGenericServer();
 	}
 }

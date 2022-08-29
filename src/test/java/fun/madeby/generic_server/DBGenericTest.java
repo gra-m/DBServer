@@ -433,7 +433,7 @@ class DBGenericTest {
 	}
 
 
-	@Test // todo see issue 34
+	@Test
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() throws DuplicateNameException, DBException {
 		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {

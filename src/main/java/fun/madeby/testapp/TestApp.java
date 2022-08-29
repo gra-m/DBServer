@@ -154,9 +154,6 @@ public class TestApp {
 		{
 		clearDataInExistingFile();
 		fillDB();
-			/*delete(0); // todo Never works row numbers change after first delete..
-			delete(1);
-			delete(2);*/
 		delete("Frank Demian");
 		delete("Frank Demlan");
 		delete("Funk Adelic");

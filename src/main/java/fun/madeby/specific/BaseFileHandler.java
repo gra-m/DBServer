@@ -74,7 +74,7 @@ public class BaseFileHandler implements DataHandler {
 			this.dbFile.writeBytes(VERSION);
 			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
 			Arrays.fill(characterFiller, ' ');
-			this.dbFile.write(new String(characterFiller).getBytes(DEFAULT_ENCODING)); // fixme == fixed I18N
+			this.dbFile.write(new String(characterFiller).getBytes(DEFAULT_ENCODING));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -258,7 +258,7 @@ public class BaseFileHandler implements DataHandler {
 		byte[] nameBytes = new byte[nameLength];
 		int readLength = stream.read(nameBytes); // fill array, advance pointer
 		GeneralUtils.testInputStreamReadLength("@BFH/readFromByteStream/nameLength", readLength, nameLength);
-		String name = new String(nameBytes, 0, readLength, DEFAULT_ENCODING); // fixme == fixed I18N
+		String name = new String(nameBytes, 0, readLength, DEFAULT_ENCODING);
 
 		int age = stream.readInt();
 
@@ -289,7 +289,6 @@ public class BaseFileHandler implements DataHandler {
 	public void close() throws IOException {
 		this.dbFile.close();
 	}
-//todo test length here test suddenly 'ignored'
 	public Collection<DebugInfo> getCurrentDebugInfoRows() throws DBException
 		{
 		LOGGER.finest("@BFH getCurrentDebugInfoRows()");
@@ -372,7 +371,7 @@ public class BaseFileHandler implements DataHandler {
 			byte[] bytes = new byte[HEADER_INFO_SPACE];
 			int readLength = this.dbFile.read(bytes);
 			GeneralUtils.testInputStreamReadLength("@BFH/getDBVersion", readLength, HEADER_INFO_SPACE);
-			return new String(bytes, 0, readLength, DEFAULT_ENCODING).trim(); // fixme == fixed I18N
+			return new String(bytes, 0, readLength, DEFAULT_ENCODING).trim();
 		}catch(IOException e) {
 			e.printStackTrace();
 		}finally {

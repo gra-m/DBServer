@@ -23,12 +23,12 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 
 
-	public GenericFileHandler(String fileName) throws DBException, FileNotFoundException {
-		super(fileName);
+	public GenericFileHandler(String fileName, GenericIndex index) throws DBException, FileNotFoundException {
+		super(fileName, index);
 	}
 
-	public GenericFileHandler(RandomAccessFile randomAccessFile, String fileName) {
-		super(randomAccessFile, fileName);
+	public GenericFileHandler(RandomAccessFile randomAccessFile, String fileName, GenericIndex index) {
+		super(randomAccessFile, fileName, index);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 			try {
 				String testName = (String)object.getClass().getDeclaredField(schema.indexBy).get(object);
 
-				if (GenericIndex.getInstance().hasGenericIndexedValueInGenericIndex(testName)) {
+				if (this.index.hasGenericIndexedValueInGenericIndex(testName)) {
 					LOGGER.severe(String.format("@GenericFileHandler/add(Object)  Name/GenericIndexedValue '%s' already exists", testName));
 					throw new DuplicateNameException(String.format("TODO: Name '%s' already exists!", object.getClass().getName()));
 				}
@@ -104,7 +104,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 				switch (field.fieldType) {
 					case "String" -> {
 						this.dbFile.writeInt(((String)objectValue).length());
-						this.dbFile.write(((String)objectValue).getBytes("UTF-8")); // fixme == fixed I18N
+						this.dbFile.write(((String)objectValue).getBytes("UTF-8"));
 					}
 					case "boolean" -> {
 						this.dbFile.writeBoolean((Boolean) objectValue);
@@ -170,7 +170,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		readLock.lock();
 		Object result = null;
 		try {
-			Long rowsBytePosition = GenericIndex.getInstance().getRowsBytePosition(rowNumber);
+			Long rowsBytePosition = this.index.getRowsBytePosition(rowNumber);
 			if (rowsBytePosition == -1L) {
 				LOGGER.finest("@GFH readRow. getRowsBytePosition == -1L");
 				return null;
@@ -191,8 +191,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		OperationUnit operationUnit = new OperationUnit();
 		Long rowsBytePosition = null;
 		try {
-			GenericIndex indexInstance = GenericIndex.getInstance();
-			rowsBytePosition = indexInstance.getRowsBytePosition(rowNumber);
+			rowsBytePosition = this.index.getRowsBytePosition(rowNumber);
 			if (rowsBytePosition == -1)
 				throw new IOException("Row does not exist in index");
 			this.dbFile.seek(rowsBytePosition);
@@ -227,7 +226,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	public OperationUnit updateByIndexedFieldName(String indexedFieldName, Object newObject)
 			throws DuplicateNameException, DBException {
 		writeLock.lock();
-		Long namesRowNumber = GenericIndex.getInstance().getRowNumberByName(indexedFieldName);
+		Long namesRowNumber = this.index.getRowNumberByName(indexedFieldName);
 		OperationUnit operationUnit = new OperationUnit();
 
 		try {
@@ -246,7 +245,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 
 	public Object search(String indexedFieldName) throws DBException
 		{
-		Long rowNumber = GenericIndex.getInstance().getRowNumberByName(indexedFieldName);
+		Long rowNumber = this.index.getRowNumberByName(indexedFieldName);
 		if (rowNumber == -1)
 			return null;
 		return this.readRow(rowNumber);
@@ -255,7 +254,7 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	public Collection<Object> searchWithLevenshtein(String indexedFieldName, int tolerance) throws DBException
 		{
 		Collection<Object> result = new ArrayList<>();
-		Set<String> names = (Set<String>) GenericIndex.getInstance().getGenericIndexedValues();
+		Set<String> names = (Set<String>) this.index.getGenericIndexedValues();
 		Collection<String> exactOrCloseFitNames = new ArrayList<>();
 
 		for(String storedName: names) {
@@ -272,11 +271,11 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 	public Collection<Object> searchWithRegex(String regEx) throws DBException
 		{
 		Collection<Object> result = new ArrayList<>();
-		Object ifArrayListSkip = GenericIndex.getInstance().getGenericIndexedValues();
+		Object ifArrayListSkip = this.index.getGenericIndexedValues();
 		Set<String> names;
 
 		if(ifArrayListSkip.getClass() != ArrayList.class) {
-			names = (Set<String>) GenericIndex.getInstance().getGenericIndexedValues();
+			names = (Set<String>) this.index.getGenericIndexedValues();
 			Collection<String> matchesRegEx = new ArrayList<>();
 
 			for (String storedName : names) {
@@ -291,4 +290,8 @@ public class GenericFileHandler extends GenericBaseFileHandler {
 		return result;
 	}
 
+	public void setTableVersion()
+		{
+
+		}
 }

@@ -19,8 +19,6 @@ import java.util.logging.Logger;
 public final class GenericIndex {
 	private Logger LOGGER;
 
-	static{
-		genericIndexInstance = new GenericIndex();}
 
 	{
 		try {
@@ -30,35 +28,30 @@ public final class GenericIndex {
 		}
 	}
 
-	private static final GenericIndex genericIndexInstance;
 	private Schema schema;
 	private ConcurrentHashMap<Long, Long> mapRowNumberBytePosition;
 	private Long totalNumberOfRows = 0L;
-	// Updated String indexedBy[name], CHM<String value, Long rowNum>
 	private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> indexByWithMappedValueAndRowNumber;
 
 
 
-	private GenericIndex() {
+	// todo 119 new constructor added for GenIndexPool // package protected or public tbc
+	public GenericIndex(final Schema schema) throws DBException
+		{
+		testSchema(schema.indexBy);
 		this.mapRowNumberBytePosition = new ConcurrentHashMap<>();
 		this.indexByWithMappedValueAndRowNumber = new ConcurrentHashMap<>();
-	}
-
-	public static GenericIndex getInstance() {
-		return genericIndexInstance;
-	}
-
-	public void initialiseGenericIndexSchema(Schema schema) throws DBException {
 		this.schema = schema;
-		String indexBy = schema.indexBy;
+	}
 
 
-			if (indexBy == null) {
-				throw new DBException("@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field null");
-			} else if(indexBy.equals("")) {
-				throw new DBException("@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field equals\"\"");
-			}
-
+	private void testSchema(final String indexBy) throws DBException
+		{
+		if (indexBy == null) {
+			throw new DBException("@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field null");
+		} else if(indexBy.equals("")) {
+			throw new DBException("@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field equals\"\"");
+		}
 	}
 
 	//printIndexByValues

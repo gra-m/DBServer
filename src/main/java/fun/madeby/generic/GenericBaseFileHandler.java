@@ -39,6 +39,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	protected static final int BOOLEAN_LENGTH_IN_BYTES = 1;
 	protected Schema schema;
 	protected Class aClass;
+	protected GenericIndex index;
 	Logger LOGGER;
 
 	{
@@ -50,15 +51,18 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	}
 
 
-	public GenericBaseFileHandler(RandomAccessFile randomAccessFile, final String fileName) {
+	public GenericBaseFileHandler(RandomAccessFile randomAccessFile, final String fileName, final GenericIndex index) {
 		this.dbFile = randomAccessFile;
 		this.dbFileName = fileName;
+		this.index = index;
 	}
 
 
-	public GenericBaseFileHandler(final String fileName) throws FileNotFoundException, DBException {
+	public GenericBaseFileHandler(final String fileName, GenericIndex index) throws FileNotFoundException
+		{
 		this.dbFile = new RandomAccessFile(fileName, "rw");
 		this.dbFileName = fileName;
+		this.index = index;
 		writeVersionInfoIfNewFile();
 	}
 
@@ -99,16 +103,16 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
 				// add to index
 
-				GenericIndex.getInstance().add(position); // increments total number of rows
+				this.index.add(position); // increments total number of rows
 				String genericIndexedValue = (String)object.getClass().getDeclaredField(schema.indexBy).get(object);
-				GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, GenericIndex.getInstance().getTotalNumberOfRows() - 1); // does not increment total num of rows.
+				this.index.addGenericIndexedValue(genericIndexedValue, this.index.getTotalNumberOfRows() - 1); // does not increment total num of rows.
 			}
 
 			// commit deletedRows
 			for (Long position : deletedRowsBytePosition) {
 				this.dbFile.seek(position);
 				dbFile.writeBoolean(false); // !isTemporary
-				GenericIndex.getInstance().removeByFilePosition(position);
+				this.index.removeByFilePosition(position);
 			}
 		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
@@ -142,7 +146,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 					byte[] bArray = new byte[fieldLength];
 					int length = stream.read(bArray);
 					if (GeneralUtils.testInputStreamReadLength("GBFH/readFromByteStream", length, fieldLength))
-						value =  new String(bArray, 0, length, DEFAULT_ENCODING); // fixme fixed == I18N
+						value =  new String(bArray, 0, length, DEFAULT_ENCODING);
 					object.getClass()
 							.getDeclaredField(field.fieldName)
 							.set(object, value);
@@ -195,7 +199,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				this.dbFile.seek(position + BOOLEAN_LENGTH_IN_BYTES);
 				dbFile.writeBoolean(true); // isDeleted
 
-				GenericIndex.getInstance().removeByFilePosition(position);
+				this.index.removeByFilePosition(position);
 			}
 			// rollback deletedRows
 			for (Long position : deletedRowsBytePosition) {
@@ -207,8 +211,8 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 				byte[] b = this.readRawRecord(position);
 				Object object = readFromByteStream(new DataInputStream(new ByteArrayInputStream(b)));
 				String genericIndexedValue = (String) object.getClass().getDeclaredField(schema.indexBy).get(object);
-				GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, GenericIndex.getInstance().getTotalNumberOfRows()); // does not increment total num of rows.
-				GenericIndex.getInstance().add(position); //
+				this.index.addGenericIndexedValue(genericIndexedValue, this.index.getTotalNumberOfRows()); // does not increment total num of rows.
+				this.index.add(position); //
 			}
 		} catch (IOException | IllegalAccessException | NoSuchFieldException e) {
 			e.printStackTrace();
@@ -231,7 +235,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 		if (isExistingData()) {
 			writeLock.lock();
 			try {
-				GenericIndex.getInstance().resetTotalNumberOfRows();
+				this.index.resetTotalNumberOfRows();
 				while (currentPosition < this.dbFile.length()) {
 					this.dbFile.seek(currentPosition);
 					boolean isTemporary = this.dbFile.readBoolean(); // new read ifTemporary
@@ -240,7 +244,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 					this.dbFile.seek(currentPosition + BOOLEAN_LENGTH_IN_BYTES);
 					boolean isDeleted = this.dbFile.readBoolean();
 					if (!isDeleted) {
-						GenericIndex.getInstance().add(currentPosition);
+						this.index.add(currentPosition);
 					} else deletedRows++;
 
 					currentPosition += BOOLEAN_LENGTH_IN_BYTES + BOOLEAN_LENGTH_IN_BYTES;
@@ -253,7 +257,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 						GeneralUtils.testInputStreamReadLength("@GBFH/populateIndex", readLength, readLength);
 						Object retrievedObject = readFromByteStream(new DataInputStream(new ByteArrayInputStream(byteArrayOfObject)));
 						String genericIndexedValue = (String) retrievedObject.getClass().getDeclaredField(schema.indexBy).get(retrievedObject);
-						GenericIndex.getInstance().addGenericIndexedValue(genericIndexedValue, rowNum++);
+						this.index.addGenericIndexedValue(genericIndexedValue, rowNum++);
 					}
 					currentPosition += recordLength;
 					System.out.printf("BFH: PopulateIndex(): total rows - %d | total deleted - %d | total - temporary - %d %n", rowNum, deletedRows, temporaryRows);
@@ -375,7 +379,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 	}
 
 
-	public String getDbFileName() {
+	public String getTableName() {
 		return dbFileName;
 	}
 
@@ -404,7 +408,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 			this.dbFile.writeBytes(VERSION);
 			char[] characterFiller = new char[HEADER_INFO_SPACE - VERSION.length()];
 			Arrays.fill(characterFiller, ' ');
-			this.dbFile.write(new String(characterFiller).getBytes(DEFAULT_ENCODING)); //fixme == fixed I18N
+			this.dbFile.write(new String(characterFiller).getBytes(DEFAULT_ENCODING));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -418,7 +422,7 @@ public class GenericBaseFileHandler implements DataHandlerGeneric {
 			byte[] bytes = new byte[HEADER_INFO_SPACE];
 			int readLength = this.dbFile.read(bytes);
 			GeneralUtils.testInputStreamReadLength("@GBFH/getDBVersion", readLength, HEADER_INFO_SPACE);
-			return new String(bytes, 0, readLength, DEFAULT_ENCODING).trim(); // fixme == fixed I18N
+			return new String(bytes, 0, readLength, DEFAULT_ENCODING).trim();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
