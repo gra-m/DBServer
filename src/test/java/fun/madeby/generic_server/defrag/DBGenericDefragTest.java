@@ -130,6 +130,7 @@ class DBGenericDefragTest {
 
 
 
+/*
 	@Test
 	@DisplayName("@testDefragmentationAfterDelete(): totalRows 3rows->2rows->defrag")
 	void testDefragmentationAfterDelete()  {
@@ -217,6 +218,6 @@ class DBGenericDefragTest {
 
 	}
 
-
+ */
 
 }

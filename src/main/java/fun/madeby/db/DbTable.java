@@ -29,8 +29,8 @@ import java.util.logging.Logger;
  */
 
 public class DbTable implements Table{
-
 	private GenericFileHandler genericFileHandler;
+
 	private Schema schema;
 	private Class aClass;
 	private Logger LOGGER;
@@ -39,24 +39,34 @@ public class DbTable implements Table{
 
 	{
 		try {
-			LOGGER = LoggerSetUp.setUpLogger("DbGenericServer");
+			LOGGER = LoggerSetUp.setUpLogger("DbTable");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	// Used by DBServer
 	public DbTable(String dbFileName, String schemaString, Class aClass, GenericIndexPool indexPool) throws DBException, FileNotFoundException
 		{
 		LOGGER.finest("@DBGenericServer(String dbFileName) = " + dbFileName);
 		this.schema = this.readSchema(schemaString);
 		this.aClass = aClass;
-		this.genericFileHandler.setSchema(schema);
-		this.genericFileHandler.setAClass(aClass);
 		this.index = indexPool.createIndex(dbFileName, schema);
 		this.genericFileHandler = new GenericFileHandler(dbFileName, index);
 		this.transactions = new LinkedHashMap<>();
 		this.initialise();
 	}
+
+	private void initialise() throws DBException {
+		LOGGER.finest("@DBGenericServer intialise()");
+		this.genericFileHandler.setSchema(this.schema);
+		this.genericFileHandler.setAClass(this.aClass);
+		this.genericFileHandler.writeVersionInfoIfNewFile();
+		this.genericFileHandler.populateIndex();
+	}
+
+
+	// Used by?? todo
 
 	public DbTable(String dbFileName, String schemaString, Class aClass) throws DBException, FileNotFoundException
 		{
@@ -71,6 +81,7 @@ public class DbTable implements Table{
 		}
 
 
+	// Used by?? todo
 
 	public DbTable(GenericFileHandler genericFileHandler, Schema schema, Class aClass) throws DBException {
 		this.schema = schema;
@@ -135,16 +146,18 @@ public class DbTable implements Table{
 	}
 
 
+
 	@Override
-	public void close() throws DBException
+	public void close() throws IOException
 		{
 		LOGGER.info("@DBGenericServer close()");
 		this.index.clear();
-			try {
 				this.genericFileHandler.close();
-			} catch (IOException e) {
-				throw new DBException("IOe thrown on genericFileHandler.close();" + e.getMessage());
-			}
+		}
+
+		@Override
+		public void suspend() {
+		LOGGER.severe("@DbTable/suspend() table has been suspended -> actually means nothing, it is still open in the background, it is just not 'Field Table: currentlyInUse'");
 		}
 
 
@@ -176,13 +189,6 @@ public class DbTable implements Table{
 		String adds = addsToBeCommitted.size() == 0 ? "none" : addsToBeCommitted.toString();
 		String deletes = deletesToBeCommitted.size() == 0 ? "none" : deletesToBeCommitted.toString();
 		LOGGER.info("Adds to be committed: " + adds + " Deletes to be committed: " + deletes);
-	}
-
-	private void initialise() throws DBException {
-		LOGGER.finest("@DBGenericServer intialise()");
-		this.genericFileHandler.setAClass(this.aClass);
-		this.genericFileHandler.writeVersionInfoIfNewFile();
-		this.genericFileHandler.populateIndex();
 	}
 
 

@@ -27,6 +27,10 @@ public final class GenericIndexPool {
 		return genIndex;
 	}
 
+	public GenericIndex getIndex(final String tableName) {
+		return indexStore.get(tableName);
+	}
+
 	public void deleteIndex(final String tableName) {
 		GenericIndex _index = indexStore.remove(tableName);
 		_index.clear();

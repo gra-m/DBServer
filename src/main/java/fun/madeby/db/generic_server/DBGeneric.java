@@ -16,5 +16,7 @@ public interface DBGeneric extends Closeable {
 	Table useTable(final String tableName, final String tableSchema, final Class aClass) throws DBException, FileNotFoundException;
 	Boolean dropCurrentTable() throws IOException, DBException;
 	void close() throws IOException;
+	void closeCurrentTable() throws IOException, DBException;
 
+	void suspendCurrentTable();
 }

@@ -41,14 +41,12 @@ public final class Transaction implements ITransaction{
 
 	@Override
 	public Collection<Long> getNewRowsBytePosition() {
-		LinkedList<Long> copy = new LinkedList(this.newRows);
-		return copy;
+		return new LinkedList<>(this.newRows);
 	}
 
 	@Override
 	public Collection<Long> getDeletedRowsBytePosition() {
-		LinkedList<Long> copy = new LinkedList(this.deletedRows);
-		return copy;
+		return new LinkedList<>(this.deletedRows);
 	}
 
 	private Double getRandomNumber() {

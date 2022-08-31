@@ -3,14 +3,11 @@ package fun.madeby.generic_server;
 import fun.madeby.Dog;
 import fun.madeby.Person;
 import fun.madeby.db.DBFactory;
+import fun.madeby.db.Table;
 import fun.madeby.db.generic_server.DBGenericServer;
-import fun.madeby.db.specific_server.DB;
-import fun.madeby.db.specific_server.DBSpecificServer;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.generic.GenericIndex;
-import fun.madeby.util.DebugInfo;
-import fun.madeby.util.DebugRowInfo;
 import org.junit.jupiter.api.*;
 
 import java.io.BufferedWriter;
@@ -19,21 +16,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 class DBGenericTest {
-	private final String dbFileName = "testGeneric.db";
-	DBGenericServer db;
+	// table names passed without .filetype:
+	private final String dogTableName = "testDog";
+	private final String personTableName = "testPerson";
 	private Object dog;
 	private Object dogUpdated;
 	private Object dogSimilar;
 	private Object person;
 	private Object personUpdated;
 	private Object personSimilar;
+	private DBGenericServer db;
+	private Table tableInUse;
+	private GenericIndex index;
 
 	private static final String DOG_SCHEMA = """
 					{
@@ -121,8 +120,15 @@ class DBGenericTest {
 
 	@SuppressWarnings("EmptyTryBlock")
 	private void clearDataInExistingFile() {
-		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dbFileName),
+/*		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dogTableName + ".db"),
 				StandardOpenOption.TRUNCATE_EXISTING)) {
+			// ignored
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
+		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + personTableName + ".db"),
+			  StandardOpenOption.TRUNCATE_EXISTING)) {
+			// ignored
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -131,33 +137,43 @@ class DBGenericTest {
 	@Test
 	@DisplayName("testPopulateIndex totalRows 2")
 	void testPopulateIndex() throws DuplicateNameException, DBException, FileNotFoundException {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
-			db.beginTransaction();
-			db.add(person);
-			db.add(personSimilar);
-			db.commit();
-			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
+		try (DBGenericServer db = DBFactory.getGenericDB()) {
+
+
+				tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+				tableInUse.beginTransaction();
+				tableInUse.add(person);
+				tableInUse.add(personSimilar);
+				tableInUse.commit();
+				index = db.getIndex(personTableName + ".db");
+				assertEquals(2, index.getTotalNumberOfRows());
+				// can close table but closing DBGenericServer loses tablePool
+				db.suspendCurrentTable();
+
+
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			index = db.getIndex(personTableName + ".db");
+			if(index != null) {
+				assertEquals(2, index.getTotalNumberOfRows());
+			}
+			Long recNumber = tableInUse.getTotalRecordAmount();
+			Assertions.assertEquals(2, recNumber);
+			db.dropCurrentTable();
 
 		} catch (Exception e) {
-			Assertions.fail();
-		}
-
-		// reopen db
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
-			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
-			Long recNumber = db.getTotalRecordAmount();
-			Assertions.assertEquals(2,recNumber);
-		} catch (Exception e) {
-			Assertions.fail();
-		}
+		Assertions.fail();
+	}
 	}
 
 
 
-	@Test
+
+
+	/*@Test
 	@DisplayName("@testRollback_Delete(): totalRows added 1-> deleted 1 -> rolled back -> 1row")
 	void testRollback_Delete()  {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+		try (DBGenericServer db = DBFactory.getGenericDB() {
+
 			Long recNumber = 0L;
 
 			db.beginTransaction();
@@ -554,5 +570,7 @@ class DBGenericTest {
 			Assertions.fail();
 		}
 	}
+
+	 */
 
 }

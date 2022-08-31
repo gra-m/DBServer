@@ -2,10 +2,10 @@ package fun.madeby.db;
 
 import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
-import fun.madeby.generic.GenericIndexPool;
 import fun.madeby.transaction.ITransaction;
 import fun.madeby.util.DebugInfo;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -13,7 +13,7 @@ import java.util.Collection;
  * Created by Gra_m on 2022 08 29
  */
 
-public interface Table {
+public interface Table extends Closeable {
 
 	String getTableName();
 
@@ -27,7 +27,9 @@ public interface Table {
 
 	Object read(Long rowNumber) throws DBException;
 
-	void close() throws DBException, IOException;
+	void close() throws IOException;
+
+	void suspend();
 
 	Object search (String name) throws DBException;
 
@@ -48,5 +50,8 @@ public interface Table {
 	void rollback() throws DBException;
 
 	Long getTotalRecordAmount();
+
+	// fixme poss making init public | DB Server has not been closed // Table.db has not been dropped
+	//Boolean reinitialiseTable();
 
 }
