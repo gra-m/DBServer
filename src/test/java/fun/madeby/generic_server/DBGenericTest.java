@@ -3,11 +3,14 @@ package fun.madeby.generic_server;
 import fun.madeby.Dog;
 import fun.madeby.Person;
 import fun.madeby.db.DBFactory;
+import fun.madeby.db.DbTable;
 import fun.madeby.db.Table;
 import fun.madeby.db.generic_server.DBGenericServer;
 import fun.madeby.exceptions.DBException;
 import fun.madeby.exceptions.DuplicateNameException;
 import fun.madeby.generic.GenericIndex;
+import fun.madeby.util.DebugInfo;
+import fun.madeby.util.DebugRowInfo;
 import org.junit.jupiter.api.*;
 
 import java.io.BufferedWriter;
@@ -16,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,6 +29,7 @@ class DBGenericTest {
 	// table names passed without .filetype:
 	private final String dogTableName = "testDog";
 	private final String personTableName = "testPerson";
+	private final String fileType = ".db";
 	private Object dog;
 	private Object dogUpdated;
 	private Object dogSimilar;
@@ -120,13 +126,13 @@ class DBGenericTest {
 
 	@SuppressWarnings("EmptyTryBlock")
 	private void clearDataInExistingFile() {
-/*		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dogTableName + ".db"),
+		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dogTableName + fileType),
 				StandardOpenOption.TRUNCATE_EXISTING)) {
 			// ignored
 		} catch (IOException e) {
 			e.printStackTrace();
-		}*/
-		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + personTableName + ".db"),
+		}
+		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + personTableName + fileType),
 			  StandardOpenOption.TRUNCATE_EXISTING)) {
 			// ignored
 		} catch (IOException e) {
@@ -139,20 +145,20 @@ class DBGenericTest {
 	void testPopulateIndex() throws DuplicateNameException, DBException, FileNotFoundException {
 		try (DBGenericServer db = DBFactory.getGenericDB()) {
 
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			index = db.getIndex(personTableName + fileType);
 
-				tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
 				tableInUse.beginTransaction();
 				tableInUse.add(person);
 				tableInUse.add(personSimilar);
 				tableInUse.commit();
-				index = db.getIndex(personTableName + ".db");
 				assertEquals(2, index.getTotalNumberOfRows());
 				// can close table but closing DBGenericServer loses tablePool
 				db.suspendCurrentTable();
 
 
 			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
-			index = db.getIndex(personTableName + ".db");
+
 			if(index != null) {
 				assertEquals(2, index.getTotalNumberOfRows());
 			}
@@ -165,28 +171,26 @@ class DBGenericTest {
 	}
 	}
 
-
-
-
-
-	/*@Test
+	@Test
 	@DisplayName("@testRollback_Delete(): totalRows added 1-> deleted 1 -> rolled back -> 1row")
 	void testRollback_Delete()  {
-		try (DBGenericServer db = DBFactory.getGenericDB() {
-
+		try (DBGenericServer db = DBFactory.getGenericDB()) {
 			Long recNumber = 0L;
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			index = db.getIndex(personTableName + fileType);
 
-			db.beginTransaction();
-			db.add(person);
-			db.commit();
-			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
+			tableInUse.beginTransaction();
+			tableInUse.add(person);
+			tableInUse.commit();
+
+			assertEquals(1, index.getTotalNumberOfRows());
 
 			// delete first record
-			db.beginTransaction();
-			db.delete(0L);
-			db.rollback();
+			tableInUse.beginTransaction();
+			tableInUse.delete(0L);
+			tableInUse.rollback();
 
-			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) tableInUse.getRowsWithDebugInfo();
 			Assertions.assertEquals(1, debugList.size());
 
 		} catch (Exception e) {
@@ -198,36 +202,37 @@ class DBGenericTest {
 	@Test
 	@DisplayName("testRollback_Add totalRows added 3-> rolled back -> 0 total no rows && 1 rows with debug info")
 	void testRollback_Add()  {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
+		try (DBGenericServer db = DBFactory.getGenericDB()) {
 			Long recNumber = 0L;
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			index = db.getIndex(personTableName + fileType);
+			
+			tableInUse.beginTransaction();
+			tableInUse.add(person);
+			tableInUse.add(personUpdated);
+			tableInUse.add(personSimilar);
+			tableInUse.rollback();
+			assertEquals(0, index.getTotalNumberOfRows());
 
-			db.beginTransaction();
-			db.add(person);
-			db.add(personUpdated);
-			db.add(personSimilar);
-			db.rollback();
-			assertEquals(0, GenericIndex.getInstance().getTotalNumberOfRows());
-
-
-			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			ArrayList<DebugInfo> debugList = (ArrayList<DebugInfo>) tableInUse.getRowsWithDebugInfo();
 			Assertions.assertEquals(3, debugList.size());
 
 		} catch (Exception e) {
 			Assertions.fail();
 		}
-
 	}
-
 
 	@Test
 	@DisplayName("@getRowsWithDebugInfoTest()")
 	void getRowsWithDebugInfoTest() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, PERSON_SCHEMA, Person.class)) {
-			db.beginTransaction();
-			db.add(person);
-			db.commit();
+		try (DBGenericServer db = new DBGenericServer()) {
 
-			ArrayList<DebugInfo> debugList1 = (ArrayList<DebugInfo>) db.getRowsWithDebugInfo();
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			tableInUse.beginTransaction();
+			tableInUse.add(person);
+			tableInUse.commit();
+
+			ArrayList<DebugInfo> debugList1 = (ArrayList<DebugInfo>) tableInUse.getRowsWithDebugInfo();
 			Assertions.assertEquals(1, debugList1.size());
 		} catch (IOException e) {
 			System.out.println("searchTest: threw Exception");
@@ -236,14 +241,14 @@ class DBGenericTest {
 	}
 
 
-
 	@Test
 	@DisplayName("testNullIndexInfoInSchema() ")
 	void testNullIndexInfoInSchema()   {
 		try  {
 
 			DBException dbException = Assertions.assertThrows(DBException.class, () -> {
-				DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA_NULL_INDEX_BY, Person.class);
+				DBGenericServer db = DBFactory.getGenericDB();
+				db.useTable(personTableName, PERSON_SCHEMA_NULL_INDEX_BY, Person.class);
 			});
 
 			Assertions.assertEquals(dbException.getMessage(), "@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field null");
@@ -254,13 +259,16 @@ class DBGenericTest {
 
 	}
 
+
+
 	@Test
 	@DisplayName("testEmptyIndexInfoInSchema() ")
 	void testEmptyIndexInfoInSchema()  {
 		try  {
 
 			DBException dbException = Assertions.assertThrows(DBException.class, () -> {
-				DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA_EMPTY_INDEX_BY, Person.class);
+				DBGenericServer db = DBFactory.getGenericDB();
+				db.useTable(personTableName, PERSON_SCHEMA_EMPTY_INDEX_BY, Person.class);
 			});
 
 			Assertions.assertEquals(dbException.getMessage(), "@GenericIndex/initialiseIndexSchema(Schema) -> Schema's indexBy field equals\"\"");
@@ -271,12 +279,14 @@ class DBGenericTest {
 
 	}
 
-
 	@Test
 	@DisplayName("testDBVersion(): 0.1")
 	void testDBVersion() throws DBException {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, PERSON_SCHEMA, Person.class)) {
-			String version = db.getDBVersion();
+		try (DBGenericServer db = DBFactory.getGenericDB()) {
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			DbTable dbTableMethod = (DbTable)  tableInUse; // todo poss add getDBVersion to Table API
+
+			String version = dbTableMethod.getDBVersion();
 			Assertions.assertEquals("0.1", version);
 
 		} catch (IOException e) {
@@ -284,32 +294,38 @@ class DBGenericTest {
 		}
 	}
 
+
 	@Test
 	@DisplayName("testLevenshtein5_2(): 5 tolerance return 2")
 	void testLevenshtein5_2() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.add(dogSimilar); //"xtirF"
-			db.commit();
-			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
-			ArrayList<Object> returnedMatchesWithinTolerance = (ArrayList<Object>) db.searchWithLevenshtein("Fritx", 5);
+		try (DBGenericServer db = DBFactory.getGenericDB()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.add(dogSimilar); //"xtirF"
+			tableInUse.commit();
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<Object> returnedMatchesWithinTolerance = (ArrayList<Object>) tableInUse.searchWithLevenshtein("Fritx", 5);
 			assertEquals(2, returnedMatchesWithinTolerance.size());
 		} catch (IOException e) {
 			Assertions.fail();
 		}
 	}
-
 	@Test
 	@DisplayName("testLevenshtein4_1():  4 tolerance return 1")
 	void testLevenshtein4_1() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.add(dogUpdated); //"xtirF"
-			db.commit();
-			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
-			ArrayList<Object> returnedMatchesWithinTolerance = (ArrayList<Object>) db.searchWithLevenshtein("Fritx", 4);
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.add(dogUpdated); //"xtirF"
+			tableInUse.commit();
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<Object> returnedMatchesWithinTolerance = (ArrayList<Object>) tableInUse.searchWithLevenshtein("Fritx", 4);
 			assertEquals(1, returnedMatchesWithinTolerance.size());
 		} catch (IOException e) {
 			Assertions.fail();
@@ -320,13 +336,16 @@ class DBGenericTest {
 	@Test
 	@DisplayName("testRegEx(): 'F.*'")
 	void testRegEx() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.add(dogSimilar);
-			db.commit();
-			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
-			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("F.*");
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.add(dogSimilar);
+			tableInUse.commit();
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) tableInUse.searchWithRegex("F.*");
 			assertEquals(2, returnedMatchesRegex.size());
 		} catch (IOException e) {
 			Assertions.fail();
@@ -336,28 +355,34 @@ class DBGenericTest {
 	@Test
 	@DisplayName("testRegEx2():  'Fr.*'")
 	void testRegEx2() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.add(dogUpdated);
-			db.commit();
-			assertEquals(2, GenericIndex.getInstance().getTotalNumberOfRows());
-			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) db.searchWithRegex("Fr.*");
+		try (DBGenericServer db = new DBGenericServer()) {
+
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.add(dogUpdated);
+			tableInUse.commit();
+			assertEquals(2, index.getTotalNumberOfRows());
+			ArrayList<Object> returnedMatchesRegex = (ArrayList<Object>) tableInUse.searchWithRegex("Fr.*");
 			assertEquals(1, returnedMatchesRegex.size());
 		} catch (IOException e) {
 			Assertions.fail();
 		}
 	}
 
-
 	@Test
 	@DisplayName("addTest(): DBGenericServer Add, via FileHandler test: 1 == OK")
 	void addTest() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.commit();
-			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
+		try (DBGenericServer db = DBFactory.getGenericDB()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.commit();
+			assertEquals(1, index.getTotalNumberOfRows());
 		} catch (IOException e) {
 			Assertions.fail();
 		}
@@ -366,15 +391,17 @@ class DBGenericTest {
 	@Test
 	@DisplayName("addDuplicateTest(): DBGenericServer AddDuplicateTest throws DuplicateNameException == OK")
 	void addDuplicateTest() throws DBException {
-		try (DBGenericServer db = DBFactory.getGenericDB(dbFileName, DOG_SCHEMA, Dog.class)) {
+		try (DBGenericServer db = DBFactory.getGenericDB()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
 
 			DuplicateNameException thrown = Assertions.assertThrows(DuplicateNameException.class, () -> {
-				db.beginTransaction();
-				db.add(dog);
-				db.commit();
-				db.beginTransaction();
-				db.add(dog);
-				db.commit();
+				tableInUse.beginTransaction();
+				tableInUse.add(dog);
+				tableInUse.commit();
+				tableInUse.beginTransaction();
+				tableInUse.add(dog);
+				tableInUse.commit();
 			});
 
 		} catch (IOException e) {
@@ -386,12 +413,15 @@ class DBGenericTest {
 	@Test
 	@DisplayName("searchTest(): DBSpecificServer search, then compare retrieved")
 	void searchTest() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.commit();
-			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
-			Dog retrieved = (Dog) db.search("Fritx");
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.commit();
+			assertEquals(1, index.getTotalNumberOfRows());
+			Dog retrieved = (Dog) tableInUse.search("Fritx");
 			assertNotNull(retrieved);
 			assertEquals("Fritx", retrieved.pName);
 			assertEquals(3, retrieved.age);
@@ -407,12 +437,15 @@ class DBGenericTest {
 	@DisplayName("DBSpecificServer readTest : 1 == OK and then test equality of each field")
 		//shows on fail
 	void readTest() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.commit();
-			assertEquals(GenericIndex.getInstance().getTotalNumberOfRows(), 1);
-			Dog readdog = (Dog) db.read(GenericIndex.getInstance().getRowNumberByName("Fritx"));
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.commit();
+			assertEquals(index.getTotalNumberOfRows(), 1);
+			Dog readdog = (Dog) tableInUse.read(index.getRowNumberByName("Fritx"));
 			assertNotNull(readdog);
 			assertEquals("Fritx", readdog.pName);
 			assertEquals(3, readdog.age);
@@ -425,19 +458,22 @@ class DBGenericTest {
 	@Test
 	@DisplayName("UpdateByRowTest(): Sets existing row 0L to deleted in .db file, then creates new row with modified data")
 	void updateByRowTest() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
 			// normal
-			db.beginTransaction();
-			db.add(dog); // written @0
-			db.commit();
-			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
-			db.beginTransaction();
-			db.update(0L, dogUpdated);
-			db.commit();
-			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
-			long retrievedRowNumByName = GenericIndex.getInstance().getRowNumberByName("Chingu");
+			tableInUse.beginTransaction();
+			tableInUse.add(dog); // written @0
+			tableInUse.commit();
+			assertEquals(1, index.getTotalNumberOfRows());
+			tableInUse.beginTransaction();
+			tableInUse.update(0L, dogUpdated);
+			tableInUse.commit();
+			assertEquals(1, index.getTotalNumberOfRows());
+			long retrievedRowNumByName = index.getRowNumberByName("Chingu");
 			Assertions.assertEquals(1, retrievedRowNumByName);
-			Dog retrieved = (Dog) db.read(retrievedRowNumByName);
+			Dog retrieved = (Dog) tableInUse.read(retrievedRowNumByName);
 			assert retrieved != null;
 			assertEquals("Chingu", retrieved.pName);
 			assertEquals(4, retrieved.age);
@@ -452,19 +488,23 @@ class DBGenericTest {
 	@Test
 	@DisplayName("UpdateByNameTest: Sets existing row 0L (found by name) to deleted in .db file, then creates new row with modified data")
 	void updateByNameTest() throws DuplicateNameException, DBException {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.commit();
-			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
-			Long retrievedRowNum = GenericIndex.getInstance().getRowNumberByName("Fritx");
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
+
+
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.commit();
+			assertEquals(1, index.getTotalNumberOfRows());
+			Long retrievedRowNum = index.getRowNumberByName("Fritx");
 			System.out.println("Retrieved row for 'Fritx' " + retrievedRowNum);
 			assertTrue(retrievedRowNum >= 0);
-			db.beginTransaction();
-			db.update("Fritx", dogUpdated);
-			db.commit();
-			assertEquals(1, GenericIndex.getInstance().getTotalNumberOfRows());
-			Dog retrieved = (Dog) db.read(GenericIndex.getInstance().getRowNumberByName("Chingu"));
+			tableInUse.beginTransaction();
+			tableInUse.update("Fritx", dogUpdated);
+			tableInUse.commit();
+			assertEquals(1, index.getTotalNumberOfRows());
+			Dog retrieved = (Dog) tableInUse.read(index.getRowNumberByName("Chingu"));
 			if (retrieved != null) {
 				assertEquals("Chingu", retrieved.pName);
 				assertEquals(4, retrieved.age);
@@ -480,12 +520,15 @@ class DBGenericTest {
 	@DisplayName("Searches for commited Object with regex, confirms List.size() and expected name.")
 	public void transactionTest_COMMIT() {
 
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.commit();
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
 
-			List<Object> result = (List<Object>) db.searchWithRegex("Fr.*");
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.commit();
+
+			List<Object> result = (List<Object>) tableInUse.searchWithRegex("Fr.*");
 			assertEquals(1, result.size());
 			Dog dog = (Dog) result.get(0);
 			assertEquals("Fritx", dog.pName);
@@ -499,13 +542,16 @@ class DBGenericTest {
 	@DisplayName("COMMIT with MultiBegin.")
 	public void transactionTest_COMMIT_with_MultiBegin() {
 
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.beginTransaction();
-			db.commit();
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
 
-			List<Object> result = (List<Object>) db.searchWithRegex("Fr.*");
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.beginTransaction();
+			tableInUse.commit();
+
+			List<Object> result = (List<Object>) tableInUse.searchWithRegex("Fr.*");
 			assertEquals(1, result.size());
 			Dog dog = (Dog) result.get(0);
 			assertEquals("Fritx", dog.pName);
@@ -518,14 +564,17 @@ class DBGenericTest {
 	@Test
 	@DisplayName("Transaction add is started but rolled back, confirms record cannot be retrieved, confirms record is included in debug info.")
 	public void transactionTest_ROLLBACK() {
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.rollback();
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
 
-			List<Object> result = (List<Object>) db.searchWithRegex("Fr.*");
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.rollback();
+
+			List<Object> result = (List<Object>) tableInUse.searchWithRegex("Fr.*");
 			assertEquals(0, result.size());
-			List<DebugInfo> info = (List<DebugInfo>) db.getRowsWithDebugInfo();
+			List<DebugInfo> info = (List<DebugInfo>) tableInUse.getRowsWithDebugInfo();
 			assertEquals(1, info.size());
 
 
@@ -543,18 +592,21 @@ class DBGenericTest {
 	@DisplayName("ROLLBACK with MultiBegin.")
 	public void transactionTest_ROLLBACK_with_MultiBegin() {
 
-		try (DBGenericServer db = new DBGenericServer(dbFileName, DOG_SCHEMA, Dog.class)) {
-			db.beginTransaction();
-			db.add(dog);
-			db.beginTransaction();
-			db.add(dogUpdated);
-			db.rollback();
+		try (DBGenericServer db = new DBGenericServer()) {
+			tableInUse = db.useTable(dogTableName, DOG_SCHEMA, Dog.class);
+			index = db.getIndex(dogTableName + fileType);
 
-			List<Object> result = (List<Object>) db.searchWithRegex("Re.*");
+			tableInUse.beginTransaction();
+			tableInUse.add(dog);
+			tableInUse.beginTransaction();
+			tableInUse.add(dogUpdated);
+			tableInUse.rollback();
+
+			List<Object> result = (List<Object>) tableInUse.searchWithRegex("Re.*");
 			assertEquals(0, result.size());
-			List<Object> result1 = (List<Object>) db.searchWithRegex("Ra.*");
+			List<Object> result1 = (List<Object>) tableInUse.searchWithRegex("Ra.*");
 			assertEquals(0, result1.size());
-			List<DebugInfo> info = (List<DebugInfo>) db.getRowsWithDebugInfo();
+			List<DebugInfo> info = (List<DebugInfo>) tableInUse.getRowsWithDebugInfo();
 			assertEquals(2, info.size());
 
 
@@ -570,7 +622,5 @@ class DBGenericTest {
 			Assertions.fail();
 		}
 	}
-
-	 */
 
 }

@@ -35,7 +35,7 @@ public interface Table extends Closeable {
 
 	void refreshTableIndex_WasGenericIndex() throws DBException;
 
-	void defragmentTable_Tables_Question() throws IOException, DuplicateNameException, DBException;
+	void defragmentTable() throws IOException, DuplicateNameException, DBException;
 
 	Collection<DebugInfo> getRowsWithDebugInfo() throws DBException;
 
@@ -50,6 +50,8 @@ public interface Table extends Closeable {
 	void rollback() throws DBException;
 
 	Long getTotalRecordAmount();
+
+//	String getDBVersion() throws DBException;
 
 	// fixme poss making init public | DB Server has not been closed // Table.db has not been dropped
 	//Boolean reinitialiseTable();

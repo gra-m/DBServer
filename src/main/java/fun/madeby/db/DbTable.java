@@ -193,14 +193,14 @@ public class DbTable implements Table{
 
 
 	@Override
-	public void defragmentTable_Tables_Question() throws IOException, DuplicateNameException, DBException {
+	public void defragmentTable() throws IOException, DuplicateNameException, DBException {
 		LOGGER.finest("@DBGenericServer defragmentDatabase()");
 		String prefix = "defrag";
 		String suffix = "dat";
 
 		File tmpFile = File.createTempFile(prefix, suffix);
 		this.index.clear();
-		// todo this.index null at this point
+
 		GenericFileHandler defragGFH = new GenericFileHandler(new RandomAccessFile(tmpFile, "rw"), tmpFile.getName(), this.index);
 		defragGFH.setSchema(this.schema);
 		defragGFH.setAClass(this.aClass);
@@ -222,7 +222,6 @@ public class DbTable implements Table{
 		replaceOldFileWithNew(tmpFile);
 		defragGFH.close();
 		this.index.clear();
-		//this.index.initialiseGenericIndexSchema(this.schema);
 		this.initialise();
 	}
 
