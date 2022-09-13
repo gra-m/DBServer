@@ -5,11 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f884b3e-abe3-43e3-bfb4-28e4ef31545b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/tests/test/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/DbTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/DbTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/Table.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/DBGenericTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/util/DBTestSuite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/util/DBTestSuite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/util/LevenshteinTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/LevenshteinTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -194,7 +204,7 @@
       <recent name="fun.madeby.generic" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.DBServer [build]">
+  <component name="RunManager" selected="Gradle.DBTestSuite">
     <configuration name="TestApp" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="fun.madeby.testapp.TestApp" />
       <module name="DBServer.main" />
@@ -208,7 +218,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DBGenericDefragTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest.testDefragmentationAfterDelete" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -221,7 +231,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest&quot;" />
+            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testDefragmentationAfterDelete&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -231,7 +241,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBGenericDefragTest.testDefragAfterRollback_Add" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBTestSuite" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -244,7 +254,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testDefragAfterRollback_Add&quot;" />
+            <option value="&quot;util.DBTestSuite&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -254,76 +264,82 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBServer [assemble]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="LevenshteinTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="assemble" />
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;util.LevenshteinTest&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBServer [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="Tests in 'fun.madeby.generic_server'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;fun.madeby.generic_server.*&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBServer [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="Tests in 'fun.madeby.specific_server'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="clean" />
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;fun.madeby.specific_server.*&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.DBServer [build]" />
-        <item itemvalue="Gradle.DBGenericDefragTest" />
-        <item itemvalue="Gradle.DBServer [assemble]" />
-        <item itemvalue="Gradle.DBServer [clean]" />
-        <item itemvalue="Gradle.DBGenericDefragTest.testDefragAfterRollback_Add" />
+        <item itemvalue="Gradle.DBTestSuite" />
+        <item itemvalue="Gradle.LevenshteinTest" />
+        <item itemvalue="Gradle.Tests in 'fun.madeby.specific_server'" />
+        <item itemvalue="Gradle.Tests in 'fun.madeby.generic_server'" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testDefragmentationAfterDelete" />
       </list>
     </recent_temporary>
   </component>
@@ -381,7 +397,10 @@
       <workItem from="1661760617103" duration="23153000" />
       <workItem from="1661840513632" duration="18777000" />
       <workItem from="1661927660755" duration="7749000" />
-      <workItem from="1662009471571" duration="10107000" />
+      <workItem from="1662009471571" duration="21463000" />
+      <workItem from="1662119581485" duration="1770000" />
+      <workItem from="1662449602437" duration="30000" />
+      <workItem from="1663072627432" duration="408000" />
     </task>
     <servers />
   </component>
@@ -433,6 +452,16 @@
           <properties class="java.lang.StackOverflowError" package="java.lang" />
           <option name="timeStamp" value="16" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java</url>
+          <line>177</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java</url>
+          <line>174</line>
+          <option name="timeStamp" value="50" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>
@@ -443,9 +472,15 @@
     <watches-manager>
       <configuration name="GradleRunConfiguration">
         <watch expression="tableInUse" language="JAVA" />
+        <watch expression="testDefragmentationAfterDelete();" language="JAVA" />
         <watch expression="index" language="JAVA" />
+        <watch expression="testDefragmentationEmptyTransactionBehaviour();" language="JAVA" />
+        <watch expression="testDefragAfterRollback_Add();" language="JAVA" />
+        <watch expression="oldDBName" language="JAVA" />
         <watch expression="dbFile" language="JAVA" />
+        <watch expression="dbFileName" language="JAVA" />
         <watch expression="db" language="JAVA" />
+        <watch expression="dbFileName = &quot;&quot;" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>

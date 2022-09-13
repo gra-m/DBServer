@@ -1,4 +1,4 @@
-package util;
+package fun.madeby;
 
 import fun.madeby.util.Levenshtein;
 import org.junit.jupiter.api.Test;

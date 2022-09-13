@@ -10,7 +10,7 @@ import org.junit.platform.suite.api.*;
  */
 
 @SelectPackages({"fun.madeby.generic_server", "fun.madeby.generic_server.defrag",
-		"fun.madeby.specific_server", "fun.madeby.specific_server.defrag"})
+		"fun.madeby.specific_server", "fun.madeby.specific_server.defrag", "fun.madeby.specific_server.LevenshteinTest"})
 
 //@ExcludePackages("fun.madeby.defrag")
 

@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class DBGenericDefragTest {
 	private final String dogTableName = "testDogDefrag";
 	private final String personTableName = "testPersonDefrag";
-	private final String personTableName2 = "testPersonDefrag2";
-	private final String personTableName3 = "testPersonDefrag3";
+	/*private final String personTableName2 = "testPersonDefrag2";
+	private final String personTableName3 = "testPersonDefrag3";*/
 	private final String fileType = ".db";
 	private Object dog;
 	private Object dogUpdated;
@@ -128,7 +128,7 @@ class DBGenericDefragTest {
 			e.printStackTrace();
 		}
 
-		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + personTableName2 + fileType),
+		/*try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + personTableName2 + fileType),
 			  StandardOpenOption.TRUNCATE_EXISTING)) {
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -138,7 +138,7 @@ class DBGenericDefragTest {
 			  StandardOpenOption.TRUNCATE_EXISTING)) {
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 		/* Dog table not being tested at present
 		try (BufferedWriter ignored = Files.newBufferedWriter(Path.of("./" + dogTableName + fileType),
@@ -184,13 +184,13 @@ class DBGenericDefragTest {
 
 	}
 
-	@Test
+	/*@Test
 	@DisplayName("testDefragAfterRollback_Add totalRows added 3-> rolled back -> 0 total no rows && 1 rows with debug info defrag -> 0 rows")
 	void testDefragAfterRollback_Add()  {
 		try (DBGenericServer db = DBFactory.getGenericDB()) {
 			Long recNumber = 0L;
-			tableInUse = db.useTable(personTableName2, PERSON_SCHEMA, Person.class);
-			index = db.getIndex(personTableName2 + fileType);
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			index = db.getIndex(personTableName + fileType);
 
 			tableInUse.beginTransaction();
 			tableInUse.add(person);
@@ -224,8 +224,8 @@ class DBGenericDefragTest {
 	void testDefragmentationEmptyTransactionBehaviour()  {
 		try (DBGenericServer db = DBFactory.getGenericDB()) {
 			Long recNumber = 0L;
-			tableInUse = db.useTable(personTableName3, PERSON_SCHEMA, Person.class);
-			index = db.getIndex(personTableName3 + fileType);
+			tableInUse = db.useTable(personTableName, PERSON_SCHEMA, Person.class);
+			index = db.getIndex(personTableName + fileType);
 
 			tableInUse.beginTransaction();
 			tableInUse.commit();
@@ -240,6 +240,6 @@ class DBGenericDefragTest {
 		} catch (Exception e) {
 			Assertions.fail();
 		}
-	}
+	}*/
 
 }

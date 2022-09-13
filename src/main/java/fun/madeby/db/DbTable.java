@@ -196,7 +196,7 @@ public class DbTable implements Table{
 	public void defragmentTable() throws IOException, DuplicateNameException, DBException {
 		LOGGER.finest("@DBGenericServer defragmentDatabase()");
 		String prefix = "defrag";
-		String suffix = "dat";
+		String suffix = ".dat";
 
 		File tmpFile = File.createTempFile(prefix, suffix);
 		this.index.clear();
