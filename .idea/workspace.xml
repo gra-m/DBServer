@@ -11,15 +11,13 @@
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/tests/test/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/db/DbTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/db/DbTable.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/util/DBTestSuite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/util/DBTestSuite.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/util/LevenshteinTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/LevenshteinTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -204,7 +202,7 @@
       <recent name="fun.madeby.generic" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.DBTestSuite">
+  <component name="RunManager" selected="Gradle.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag">
     <configuration name="TestApp" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="fun.madeby.testapp.TestApp" />
       <module name="DBServer.main" />
@@ -217,6 +215,29 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
     </configuration>
     <configuration name="DBGenericDefragTest.testDefragmentationAfterDelete" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -241,7 +262,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="DBTestSuite" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest.testGetRowsWithDebugInfo" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -254,7 +275,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;util.DBTestSuite&quot;" />
+            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetRowsWithDebugInfo&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -264,7 +285,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="LevenshteinTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest.testGetTotalNumberOfRows" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -277,7 +298,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;util.LevenshteinTest&quot;" />
+            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetTotalNumberOfRows&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -287,7 +308,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="Tests in 'fun.madeby.generic_server'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="DBGenericDefragTest.testGetTotalRecordAmount" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -300,30 +321,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;fun.madeby.generic_server.*&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="Tests in 'fun.madeby.specific_server'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;fun.madeby.specific_server.*&quot;" />
+            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetTotalRecordAmount&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -335,11 +333,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.DBTestSuite" />
-        <item itemvalue="Gradle.LevenshteinTest" />
-        <item itemvalue="Gradle.Tests in 'fun.madeby.specific_server'" />
-        <item itemvalue="Gradle.Tests in 'fun.madeby.generic_server'" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag" />
         <item itemvalue="Gradle.DBGenericDefragTest.testDefragmentationAfterDelete" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testGetTotalRecordAmount" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testGetRowsWithDebugInfo" />
+        <item itemvalue="Gradle.DBGenericDefragTest.testGetTotalNumberOfRows" />
       </list>
     </recent_temporary>
   </component>
@@ -400,7 +398,7 @@
       <workItem from="1662009471571" duration="21463000" />
       <workItem from="1662119581485" duration="1770000" />
       <workItem from="1662449602437" duration="30000" />
-      <workItem from="1663072627432" duration="408000" />
+      <workItem from="1663072627432" duration="3582000" />
     </task>
     <servers />
   </component>
@@ -452,16 +450,6 @@
           <properties class="java.lang.StackOverflowError" package="java.lang" />
           <option name="timeStamp" value="16" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java</url>
-          <line>177</line>
-          <option name="timeStamp" value="49" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java</url>
-          <line>174</line>
-          <option name="timeStamp" value="50" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>
