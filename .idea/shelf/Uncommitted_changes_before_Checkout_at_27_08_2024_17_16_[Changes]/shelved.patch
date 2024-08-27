@@ -1,0 +1,520 @@
+Index: src/main/java/fun/madeby/testapp/TestApp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fun.madeby.testapp;\r\n\r\nimport edu.umd.cs.findbugs.annotations.SuppressFBWarnings;\r\nimport fun.madeby.CarOwner;\r\nimport fun.madeby.DBRecord;\r\nimport fun.madeby.db.specific_server.DBSpecificServer;\r\nimport fun.madeby.exceptions.DBException;\r\nimport fun.madeby.exceptions.DuplicateNameException;\r\nimport fun.madeby.specific.Index;\r\nimport fun.madeby.db.specific_server.DB;\r\nimport fun.madeby.transaction.ITransaction;\r\nimport fun.madeby.util.DebugInfo;\r\nimport fun.madeby.util.Levenshtein;\r\n\r\nimport java.io.BufferedWriter;\r\nimport java.io.IOException;\r\nimport java.nio.file.Files;\r\nimport java.nio.file.Path;\r\nimport java.nio.file.StandardOpenOption;\r\nimport java.util.ArrayList;\r\nimport java.util.Random;\r\nimport java.util.concurrent.CountDownLatch;\r\nimport java.util.concurrent.ExecutorService;\r\nimport java.util.concurrent.Executors;\r\nimport java.util.stream.IntStream;\r\n\r\n/**\r\n * Created by Gra_m on 2022 06 25\r\n */\r\n\r\n@SuppressFBWarnings({\"DMI_RANDOM_USED_ONLY_ONCE\", \"DMI_RANDOM_USED_ONLY_ONCE\"})\r\n@SuppressWarnings(\"InfiniteLoopStatement\")\r\npublic class TestApp {\r\n\tfinal static int AMOUNT_OF_EACH = 2;\r\n\tfinal static String dbFile = \"DBSpecificServer.db\";\r\n\r\n\r\n\tpublic static void main(String[] args) throws DuplicateNameException, DBException\r\n\t\t{\r\n\t\tTestApp testApp = new TestApp();\r\n\r\n\t\ttestApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable\r\n\t\ttestApp.addOneRecordWithTransaction();\r\n\t\ttestApp.listAllFileRecords();\r\n\t\t//testApp.performTest();\r\n\t\t//testApp.performDefragTest();\r\n\t\t//testApp.performMultiThreadTest();\r\n\t}\r\n\r\n\t@SuppressFBWarnings(\"DMI_RANDOM_USED_ONLY_ONCE\")\r\n\tprivate void performMultiThreadTest() throws DuplicateNameException, DBException\r\n\t\t{\r\n\t\tCountDownLatch cl = new CountDownLatch(3);\r\n\t\tRunnable runnableAdd = null;\r\n\t\tRunnable runnableUpdate = null;\r\n\t\tRunnable runnableListAll = null;\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\trunnableAdd = () -> {\r\n\t\t\t\twhile (true) {\r\n\t\t\t\t\tint i = new Random().nextInt(0, 4000);\r\n\t\t\t\t\tCarOwner c = new CarOwner(\"John\" + i, 44, \"Berlin\", \"VJW707S\", \"This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...\");\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tdbServer.add(c);\r\n\t\t\t\t\t} catch (DuplicateNameException e) {\r\n\t\t\t\t\t\tthrow new RuntimeException(\"@PerformMultiThreadTest()/runnableAdd threw DuplicateNameException\");\r\n\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t};\r\n\r\n\t\t\trunnableUpdate = ()  -> {\r\n\t\t\t\twhile (true) {\r\n\t\t\t\t\tint i = new Random().nextInt(0, 4000);\r\n\t\t\t\t\tCarOwner c = new CarOwner(\"John\" + i, 44, \"Berlin\", \"VJW707S\", \"This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...\");\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tdbServer.update(\"John\" + i, c);\r\n\t\t\t\t\t} catch (DuplicateNameException e) {\r\n\t\t\t\t\t\tthrow new RuntimeException(\"@PerformMultiThreadTest()/runnableUpdate threw DuplicateNameException\");\r\n\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t};\r\n\r\n\t\t\trunnableListAll = () -> {\r\n\t\t\t\twhile (true) {\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tlistAllFileRecords();\r\n\t\t\t\t\t} catch (DBException e) {\r\n\t\t\t\t\t\tthrow new RuntimeException(e);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t};\r\n\r\n\t\t\tExecutorService executorService = Executors.newFixedThreadPool(3);\r\n\t\t\texecutorService.submit(runnableAdd);\r\n\t\t\texecutorService.submit(runnableUpdate);\r\n\t\t\texecutorService.submit(runnableListAll);\r\n\t\t\tcl.await();\r\n\t\t} catch (InterruptedException | IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\r\n\r\n\tprivate void performDefragTest() throws DuplicateNameException, DBException\r\n\t\t{\r\n\t\tclearDataInExistingFile();\r\n\t\tfragementDatabase();\r\n\t\tlistAllFileRecords();\r\n\t\tSystem.out.println(\"\\n\\n-------------------NOW  DEFRAGGING----------------------\\n\\n\");\r\n\t\tdefragmentDatabase();\r\n\t\t//listAllFileRecords();\r\n\r\n\t}\r\n\r\n\tprivate void defragmentDatabase() throws DuplicateNameException, DBException\r\n\t\t{\r\n\t\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\t\tdbServer.defragmentDatabase();\r\n\t\t\t} catch (IOException e) {\r\n\t\t\t\te.printStackTrace();\r\n\t\t\t}\r\n\t}\r\n\r\n\tprivate void fragementDatabase() throws DuplicateNameException, DBException\r\n\t\t{\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\r\n\t\t\t// create 100 records\r\n\t\t\tdbServer.beginTransaction();\r\n\t\t\tfor (int i : IntStream.range(0, 2).toArray()) {\r\n\t\t\t\tCarOwner c = new CarOwner(\"John\" + i, 44, \"Berlin\", \"VJW707S\", \"This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...\");\r\n\t\t\t\tdbServer.add(c);\r\n\t\t\t}\r\n\t\t\tdbServer.commit();\r\n\r\n\t\t\t//listAllFileRecords();\r\n\r\n\t\t\t// update half of them\r\n\t\t\tdbServer.beginTransaction();\r\n\t\t\tfor (long i : IntStream.range(0, 2).toArray()) {\r\n\t\t\t\tif (i % 2 == 0) {\r\n\t\t\t\t\tdbServer.update(i, new CarOwner(\"Rupert\" + i + \"__Updated\", 44, \"Berlin\", \"VJW707S\", \"This is a very enjoyable description, I only hope you enjoyed reading it as much as I enjoyed...\"));\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t\tdbServer.commit();\r\n\t\t} catch(IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tprivate void performTest() throws DuplicateNameException, DBException\r\n\t\t{\r\n\t\tclearDataInExistingFile();\r\n\t\tfillDB();\r\n\t\tdelete(\"Frank Demian\");\r\n\t\tdelete(\"Frank Demlan\");\r\n\t\tdelete(\"Funk Adelic\");\r\n\t\tlistAllFileRecords();\r\n\t\ttestSearch(\"Frank Demian\");\r\n\t\ttestLevenshtein();\r\n\t\tprintLevenshtein();\r\n\t\ttestRegEx();\r\n\r\n\t}\r\n\r\n\tprivate void testRegEx() throws DBException\r\n\t\t{\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\tArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithRegex(\"Fra.*\");\r\n\t\t\tSystem.out.println(\"---------searchWithRegEx()-----------\");\r\n\t\t\tfor(DBRecord record: result) {\r\n\t\t\t\tSystem.out.println(record);\r\n\t\t\t}\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tprivate void printLevenshtein() {\r\n\t\tLevenshtein.levenshteinDistance(\"ziggy\", \"zaggys\", true);\r\n\t}\r\n\r\n\tprivate void testLevenshtein() throws DBException\r\n\t\t{\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\tArrayList<DBRecord> result = (ArrayList<DBRecord>) dbServer.searchWithLevenshtein(\"Frank Demian1\", 0);\r\n\t\t\tSystem.out.println(\"---------searchWithLevenshtein()-----------\");\r\n\t\t\tfor(DBRecord record: result) {\r\n\t\t\t\tSystem.out.println(record);\r\n\t\t\t}\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tprivate void addOneRecordWithTransaction() throws DuplicateNameException, DBException\r\n\t\t{\r\n\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\tITransaction transaction = dbServer.beginTransaction();\r\n\t\t\tDBRecord carOwner = new CarOwner(\"Frank Demian\",\r\n\t\t\t\t\t20,\r\n\t\t\t\t\t\"Herbert Street, Antwerp, 2000\",\r\n\t\t\t\t\t\"VJW707S\",\r\n\t\t\t\t\t\"Doesn't know we have a file on him at all\");\r\n\t\t\tdbServer.add(carOwner);\r\n\t\t\tdbServer.commit();\r\n\t\t\t//dbServer.rollback();\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tprivate void testSearch(String name) throws DuplicateNameException, DBException\r\n\t\t{\r\n\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\tSystem.out.println(\"TEST SEARCH: \");\r\n\t\t\taddOneRecordWithTransaction();\r\n\t\t\tdbServer.refreshIndex();\r\n\t\t\tCarOwner cO = (CarOwner) dbServer.search(name);\r\n\t\t\tSystem.out.println(\"Found carOwner: \" + cO);\r\n\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tprivate void clearDataInExistingFile() {\r\n\t\ttry (BufferedWriter ignored = Files.newBufferedWriter(Path.of(\"./\" + dbFile),\r\n\t\t\t\tStandardOpenOption.TRUNCATE_EXISTING)) {\r\n\t\t\tSystem.out.println(\"CLEARING EXISTING RECORDS..\");\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\r\n\t}\r\n\r\n\r\n\tprivate void listAllFileRecords() throws DBException\r\n\t\t{\r\n\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\tlong count = 1L;\r\n\t\t\tlong rowPosition = 0L;\r\n\t\t\tArrayList<DebugInfo> data = (ArrayList<DebugInfo>) dbServer.getRowsWithDebugInfo();\r\n\t\t\tfor (DebugInfo di : data) {\r\n\t\t\t\tprettyPrint(di, count, rowPosition);\r\n\t\t\t\tcount++;\r\n\t\t\t\trowPosition++;\r\n\t\t\t}\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tprivate void prettyPrint(DebugInfo di, long count, long rowPosition) {\r\n\t\tCarOwner carOwner = (CarOwner) di.getDbRecord();\r\n\t\tString debugCharTemp = di.isTemporary() ? \"temp\" : \"final\";\r\n\t\tString debugCharDeleted = di.isDeleted() ? \"-\" : \"+\";\r\n\t\tString formatted = String.format(\"%d %d %s %s name: %s age: %d address: %s carplateNumber %s description %s\",\r\n\t\t\t\tcount,\r\n\t\t\t\trowPosition,\r\n\t\t\t\tdebugCharTemp,\r\n\t\t\t\tdebugCharDeleted,\r\n\t\t\t\tcarOwner.getName(),\r\n\t\t\t\tcarOwner.getAge(),\r\n\t\t\t\tcarOwner.getAddress(),\r\n\t\t\t\tcarOwner.getCarPlateNumber(),\r\n\t\t\t\tcarOwner.getDescription());\r\n\t\tSystem.out.println(formatted);\r\n\t}\r\n\r\n\tvoid delete(long rowNumber) throws DBException\r\n\t\t{\r\n\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\tdbServer.delete(rowNumber);\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tvoid delete(String name) throws DBException\r\n\t\t{\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\tdbServer.beginTransaction();\r\n\t\t\tdbServer.delete(Index.getInstance().getRowNumberByName(name));\r\n\t\t\tdbServer.commit();\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\tvoid fillDB() throws DuplicateNameException, DBException\r\n\t\t{\r\n\t\tint count = 0;\r\n\r\n\r\n\t\ttry (DB dbServer = new DBSpecificServer(dbFile)) {\r\n\t\t\t\tfor (int i = 0; i < 1; i++) {\r\n\t\t\t\t\tDBRecord carOwner = new CarOwner(\"Frank Demian\",\r\n\t\t\t\t\t\t\t20,\r\n\t\t\t\t\t\t\t\"Herbert Street, Antwerp, 2000\",\r\n\t\t\t\t\t\t\t\"VJW707S\",\r\n\t\t\t\t\t\t\t\"Doesn't know we have a file on him at all\");\r\n\t\t\t\t\tDBRecord carOwner2 = new CarOwner(\r\n\t\t\t\t\t\t\t\"Frank Demlan\",\r\n\t\t\t\t\t\t\t20,\r\n\t\t\t\t\t\t\t\"Herbert Street, Antwerp, 2000\",\r\n\t\t\t\t\t\t\t\"VJW7076\",\r\n\t\t\t\t\t\t\t\"Doesn't know that we know that he knows we have a file on him\");\r\n\t\t\t\t\tDBRecord carOwner3 = new CarOwner(\r\n\t\t\t\t\t\t\t\"Funk Adelic\",\r\n\t\t\t\t\t\t\t20,\r\n\t\t\t\t\t\t\t\"Herbert Street, Antwerp, 2000\",\r\n\t\t\t\t\t\t\t\"VJW7076\",\r\n\t\t\t\t\t\t\t\"Doesn't know that we know that he knows we have a file on him\"\r\n\t\t\t\t\t);\r\n\r\n\t\t\t\t\tdbServer.beginTransaction();\r\n\t\t\t\t\tdbServer.add(carOwner);\r\n\t\t\t\t\tdbServer.add(carOwner2);\r\n\t\t\t\t\tdbServer.add(carOwner3);\r\n\t\t\t\t\tdbServer.commit();\r\n\t\t\t\t\tcount++;\r\n\t\t\t}\r\n\t\t\tfor (int i = 0; i < AMOUNT_OF_EACH; i++) {\r\n\t\t\t\tDBRecord carOwner = new CarOwner(\r\n\t\t\t\t\t\t\"Frank Demian\" + i,\r\n\t\t\t\t\t\t23 + i,\r\n\t\t\t\t\t\t\"Herbert Street, Antwerp, 2000\",\r\n\t\t\t\t\t\t\"VJW707S\",\r\n\t\t\t\t\t\t\"Doesn't know we have a file on him at all\");\r\n\t\t\t\tDBRecord carOwner2 = new CarOwner(\r\n\t\t\t\t\t\t\"Frank Demlan\" + i,\r\n\t\t\t\t\t\t23 + i,\r\n\t\t\t\t\t\t\"Herbert Street, Antwerp, 2000\",\r\n\t\t\t\t\t\t\"VJW7076\",\r\n\t\t\t\t\t\t\"Doesn't know that we know that he knows we have a file on him\");\r\n\t\t\t\tDBRecord carOwner3 = new CarOwner(\r\n\t\t\t\t\t\t\"Funk Adelic\" + i,\r\n\t\t\t\t\t\t23 + i,\r\n\t\t\t\t\t\t\"Herbert Street, Antwerp, 2000\",\r\n\t\t\t\t\t\t\"VJW7076\",\r\n\t\t\t\t\t\t\"Doesn't know that we know that he knows we have a file on him\"\r\n\t\t\t\t);\r\n\r\n\t\t\t\tdbServer.beginTransaction();\r\n\t\t\t\tdbServer.add(carOwner);\r\n\t\t\t\tdbServer.add(carOwner2);\r\n\t\t\t\tdbServer.add(carOwner3);\r\n\t\t\t\tdbServer.commit();\r\n\t\t\t}\r\n\t\t} catch (IOException e) {\r\n\t\t\te.printStackTrace();\r\n\t\t}\r\n\t}\r\n\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/fun/madeby/testapp/TestApp.java b/src/main/java/fun/madeby/testapp/TestApp.java
+--- a/src/main/java/fun/madeby/testapp/TestApp.java	(revision fc5d4724054a7cc99035a2c9da9bb2eb891529ac)
++++ b/src/main/java/fun/madeby/testapp/TestApp.java	(date 1724771722348)
+@@ -39,9 +39,9 @@
+ 		{
+ 		TestApp testApp = new TestApp();
+ 
+-		testApp.clearDataInExistingFile(); // @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
+-		testApp.addOneRecordWithTransaction();
+-		testApp.listAllFileRecords();
++		//testApp.clearDataInExistingFile(); // DBSpecificServer.db @ #14 this causes IOException when file empty, this is the #13 bug helped by extending closeable
++		//testApp.addOneRecordWithTransaction();
++		// testApp.listAllFileRecords();
+ 		//testApp.performTest();
+ 		//testApp.performDefragTest();
+ 		//testApp.performMultiThreadTest();
+Index: .gradle/buildOutputCleanup/cache.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Tue Sep 13 15:38:37 CEST 2022\r\ngradle.version=7.4.2\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/.gradle/buildOutputCleanup/cache.properties b/.gradle/buildOutputCleanup/cache.properties
+--- a/.gradle/buildOutputCleanup/cache.properties	(revision fc5d4724054a7cc99035a2c9da9bb2eb891529ac)
++++ b/.gradle/buildOutputCleanup/cache.properties	(date 1724411776488)
+@@ -1,2 +1,2 @@
+-#Tue Sep 13 15:38:37 CEST 2022
+-gradle.version=7.4.2
++#Fri Aug 23 13:16:16 CEST 2024
++gradle.version=7.4
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"5f884b3e-abe3-43e3-bfb4-28e4ef31545b\" name=\"Changes\" comment=\"\">\r\n      <change beforePath=\"$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/build/reports/tests/test/index.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/build/reports/tests/test/index.html\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/build/test-results/test/binary/output.bin\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/build/test-results/test/binary/output.bin\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/build/test-results/test/binary/results.bin\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/build/test-results/test/binary/results.bin\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ExternalProjectsData\">\r\n    <projectState path=\"$PROJECT_DIR$\">\r\n      <ProjectState />\r\n    </projectState>\r\n  </component>\r\n  <component name=\"ExternalProjectsManager\">\r\n    <system id=\"GRADLE\">\r\n      <state>\r\n        <task path=\"$PROJECT_DIR$\">\r\n          <activation />\r\n        </task>\r\n        <projects_view>\r\n          <tree_state>\r\n            <expand>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Tasks\" type=\"e4a08cd1:TasksNode\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Tasks\" type=\"e4a08cd1:TasksNode\" />\r\n                <item name=\"build\" type=\"c8890929:TasksNode$1\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Tasks\" type=\"e4a08cd1:TasksNode\" />\r\n                <item name=\"build setup\" type=\"c8890929:TasksNode$1\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Tasks\" type=\"e4a08cd1:TasksNode\" />\r\n                <item name=\"help\" type=\"c8890929:TasksNode$1\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Tasks\" type=\"e4a08cd1:TasksNode\" />\r\n                <item name=\"other\" type=\"c8890929:TasksNode$1\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Tasks\" type=\"e4a08cd1:TasksNode\" />\r\n                <item name=\"verification\" type=\"c8890929:TasksNode$1\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Dependencies\" type=\"6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Dependencies\" type=\"6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode\" />\r\n                <item name=\"compileClasspath\" type=\"62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Dependencies\" type=\"6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode\" />\r\n                <item name=\"runtimeClasspath\" type=\"62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Dependencies\" type=\"6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode\" />\r\n                <item name=\"testCompileClasspath\" type=\"62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Dependencies\" type=\"6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode\" />\r\n                <item name=\"testRuntimeClasspath\" type=\"62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode\" />\r\n              </path>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"DBServer\" type=\"f1a62948:ProjectNode\" />\r\n                <item name=\"Run Configurations\" type=\"7b0102dc:RunConfigurationsNode\" />\r\n              </path>\r\n            </expand>\r\n            <select />\r\n          </tree_state>\r\n        </projects_view>\r\n      </state>\r\n    </system>\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"JUnit5 Test Class\" />\r\n        <option value=\"Interface\" />\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"HighlightingSettingsPerFile\">\r\n    <setting file=\"file://$PROJECT_DIR$/config.properties\" root0=\"SKIP_INSPECTION\" />\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"2B2057x8zanlrtsq53MNYHv90HF\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n    <option name=\"showMembers\" value=\"true\" />\r\n    <option name=\"showVisibilityIcons\" value=\"true\" />\r\n    <option name=\"sortByType\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,\r\n    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,\r\n    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,\r\n    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/Gra_m/Documents/JAVA/001_Examples/DBServer&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,\r\n    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CreateClassDialog.RecentsKey\">\r\n      <recent name=\"fun.madeby.generic\" />\r\n      <recent name=\"fun.madeby.dbserver\" />\r\n    </key>\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\Gra_m\\Documents\\JAVA\\001_Examples\\DBServer\" />\r\n      <recent name=\"C:\\Users\\Gra_m\\Documents\\JAVA\\001_Examples\\DBServer\\src\\main\\java\\fun\\madeby\\testapp\" />\r\n    </key>\r\n    <key name=\"CreateTestDialog.Recents.Supers\">\r\n      <recent name=\"\" />\r\n    </key>\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\Gra_m\\Documents\\JAVA\\001_Examples\\DBServer\\src\\test\\java\" />\r\n      <recent name=\"C:\\Users\\Gra_m\\Documents\\JAVA\\001_Examples\\DBServer\\src\\main\\java\\fun\\madeby\" />\r\n      <recent name=\"C:\\Users\\Gra_m\\Documents\\JAVA\\001_Examples\\DBServer\\src\\main\\java\\fun\\madeby\\db\" />\r\n      <recent name=\"C:\\Users\\Gra_m\\Documents\\JAVA\\001_Examples\\DBServer\\src\\test\" />\r\n    </key>\r\n    <key name=\"CreateTestDialog.RecentsKey\">\r\n      <recent name=\"fun.madeby.util\" />\r\n      <recent name=\"fun.madeby\" />\r\n      <recent name=\"fun.madeby.dbserver\" />\r\n    </key>\r\n    <key name=\"CopyClassDialog.RECENTS_KEY\">\r\n      <recent name=\"fun.madeby.specific_server\" />\r\n      <recent name=\"fun.madeby.generic_server\" />\r\n      <recent name=\"fun.madeby\" />\r\n      <recent name=\"fun.madeby.exceptions\" />\r\n      <recent name=\"fun.madeby.generic\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"Gradle.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag\">\r\n    <configuration name=\"TestApp\" type=\"Application\" factoryName=\"Application\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"fun.madeby.testapp.TestApp\" />\r\n      <module name=\"DBServer.main\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"fun.madeby.testapp.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" value=\"\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\":test\" />\r\n            <option value=\"--tests\" />\r\n            <option value=\"&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag&quot;\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"DBGenericDefragTest.testDefragmentationAfterDelete\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" value=\"\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\":test\" />\r\n            <option value=\"--tests\" />\r\n            <option value=\"&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testDefragmentationAfterDelete&quot;\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"DBGenericDefragTest.testGetRowsWithDebugInfo\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" value=\"\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\":test\" />\r\n            <option value=\"--tests\" />\r\n            <option value=\"&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetRowsWithDebugInfo&quot;\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"DBGenericDefragTest.testGetTotalNumberOfRows\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" value=\"\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\":test\" />\r\n            <option value=\"--tests\" />\r\n            <option value=\"&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetTotalNumberOfRows&quot;\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"DBGenericDefragTest.testGetTotalRecordAmount\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" value=\"\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\":test\" />\r\n            <option value=\"--tests\" />\r\n            <option value=\"&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetTotalRecordAmount&quot;\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Gradle.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag\" />\r\n        <item itemvalue=\"Gradle.DBGenericDefragTest.testDefragmentationAfterDelete\" />\r\n        <item itemvalue=\"Gradle.DBGenericDefragTest.testGetTotalRecordAmount\" />\r\n        <item itemvalue=\"Gradle.DBGenericDefragTest.testGetRowsWithDebugInfo\" />\r\n        <item itemvalue=\"Gradle.DBGenericDefragTest.testGetTotalNumberOfRows\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"5f884b3e-abe3-43e3-bfb4-28e4ef31545b\" name=\"Changes\" comment=\"\" />\r\n      <created>1656088691627</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1656088691627</updated>\r\n      <workItem from=\"1656088693126\" duration=\"3592000\" />\r\n      <workItem from=\"1656152967174\" duration=\"6583000\" />\r\n      <workItem from=\"1656160824640\" duration=\"7129000\" />\r\n      <workItem from=\"1656318016127\" duration=\"22374000\" />\r\n      <workItem from=\"1656403085119\" duration=\"14242000\" />\r\n      <workItem from=\"1656479261069\" duration=\"1108000\" />\r\n      <workItem from=\"1656480395136\" duration=\"27035000\" />\r\n      <workItem from=\"1656569252494\" duration=\"26434000\" />\r\n      <workItem from=\"1656611970973\" duration=\"6591000\" />\r\n      <workItem from=\"1656618746952\" duration=\"1008000\" />\r\n      <workItem from=\"1656757508796\" duration=\"16962000\" />\r\n      <workItem from=\"1656853438325\" duration=\"19464000\" />\r\n      <workItem from=\"1657003404292\" duration=\"16396000\" />\r\n      <workItem from=\"1657092811732\" duration=\"16043000\" />\r\n      <workItem from=\"1657183530782\" duration=\"37586000\" />\r\n      <workItem from=\"1657520798740\" duration=\"11705000\" />\r\n      <workItem from=\"1657613645815\" duration=\"14624000\" />\r\n      <workItem from=\"1657688202982\" duration=\"5056000\" />\r\n      <workItem from=\"1657731324308\" duration=\"9744000\" />\r\n      <workItem from=\"1657815780618\" duration=\"9943000\" />\r\n      <workItem from=\"1657868368651\" duration=\"20422000\" />\r\n      <workItem from=\"1658172908153\" duration=\"3582000\" />\r\n      <workItem from=\"1658217744044\" duration=\"53036000\" />\r\n      <workItem from=\"1658564794075\" duration=\"2376000\" />\r\n      <workItem from=\"1659012045217\" duration=\"1818000\" />\r\n      <workItem from=\"1659158905457\" duration=\"12679000\" />\r\n      <workItem from=\"1659368403751\" duration=\"170000\" />\r\n      <workItem from=\"1659368593529\" duration=\"39850000\" />\r\n      <workItem from=\"1660072669903\" duration=\"5873000\" />\r\n      <workItem from=\"1660078618918\" duration=\"200000\" />\r\n      <workItem from=\"1660113448778\" duration=\"8482000\" />\r\n      <workItem from=\"1660198614900\" duration=\"27863000\" />\r\n      <workItem from=\"1660250304098\" duration=\"464000\" />\r\n      <workItem from=\"1660251285900\" duration=\"1558000\" />\r\n      <workItem from=\"1660252880992\" duration=\"1327000\" />\r\n      <workItem from=\"1660285340553\" duration=\"21297000\" />\r\n      <workItem from=\"1660480326045\" duration=\"1360000\" />\r\n      <workItem from=\"1660718624141\" duration=\"14022000\" />\r\n      <workItem from=\"1660745007848\" duration=\"219000\" />\r\n      <workItem from=\"1660745250090\" duration=\"194000\" />\r\n      <workItem from=\"1660745465932\" duration=\"12081000\" />\r\n      <workItem from=\"1660896924661\" duration=\"14330000\" />\r\n      <workItem from=\"1661411351266\" duration=\"756000\" />\r\n      <workItem from=\"1661760617103\" duration=\"23153000\" />\r\n      <workItem from=\"1661840513632\" duration=\"18777000\" />\r\n      <workItem from=\"1661927660755\" duration=\"7749000\" />\r\n      <workItem from=\"1662009471571\" duration=\"21463000\" />\r\n      <workItem from=\"1662119581485\" duration=\"1770000\" />\r\n      <workItem from=\"1662449602437\" duration=\"30000\" />\r\n      <workItem from=\"1663072627432\" duration=\"4802000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"origin/transactions\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_FILTERS\">\r\n      <map>\r\n        <entry key=\"Branch\">\r\n          <value>\r\n            <list>\r\n              <RecentGroup>\r\n                <option name=\"FILTER_VALUES\">\r\n                  <option value=\"transactions\" />\r\n                </option>\r\n              </RecentGroup>\r\n            </list>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <breakpoint enabled=\"true\" log-message=\"true\" log-stack=\"true\" type=\"java-exception\">\r\n          <properties class=\"java.lang.StackOverflowError\" package=\"java.lang\" />\r\n          <option name=\"timeStamp\" value=\"16\" />\r\n        </breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n    <pin-to-top-manager>\r\n      <pinned-members>\r\n        <PinnedItemInfo parentTag=\"java.io.FileNotFoundException\" memberName=\"backtrace\" />\r\n      </pinned-members>\r\n    </pin-to-top-manager>\r\n    <watches-manager>\r\n      <configuration name=\"GradleRunConfiguration\">\r\n        <watch expression=\"tableInUse\" language=\"JAVA\" />\r\n        <watch expression=\"testDefragmentationAfterDelete();\" language=\"JAVA\" />\r\n        <watch expression=\"index\" language=\"JAVA\" />\r\n        <watch expression=\"testDefragmentationEmptyTransactionBehaviour();\" language=\"JAVA\" />\r\n        <watch expression=\"testDefragAfterRollback_Add();\" language=\"JAVA\" />\r\n        <watch expression=\"oldDBName\" language=\"JAVA\" />\r\n        <watch expression=\"dbFile\" language=\"JAVA\" />\r\n        <watch expression=\"dbFileName\" language=\"JAVA\" />\r\n        <watch expression=\"db\" language=\"JAVA\" />\r\n        <watch expression=\"dbFileName = &quot;&quot;\" language=\"JAVA\" />\r\n      </configuration>\r\n    </watches-manager>\r\n  </component>\r\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\r\n    <expand />\r\n    <select />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision fc5d4724054a7cc99035a2c9da9bb2eb891529ac)
++++ b/.idea/workspace.xml	(date 1724771611828)
+@@ -5,13 +5,26 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="5f884b3e-abe3-43e3-bfb4-28e4ef31545b" name="Changes" comment="">
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/checksums/checksums.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/checksums/md5-checksums.bin" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/checksums/sha1-checksums.bin" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/build/reports/tests/test/css/base-style.css" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/css/base-style.css" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/build/reports/tests/test/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/css/style.css" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/build/reports/tests/test/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/index.html" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/build/reports/tests/test/js/report.js" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/tests/test/js/report.js" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/output.bin.idx" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/test-results/test/binary/results.bin" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/fun/madeby/generic_server/defrag/DBGenericDefragTest.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/fun/madeby/testapp/TestApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fun/madeby/testapp/TestApp.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -124,6 +137,18 @@
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
++  <component name="GitHubPullRequestSearchHistory">{
++  &quot;lastFilter&quot;: {
++    &quot;state&quot;: &quot;OPEN&quot;,
++    &quot;assignee&quot;: &quot;gra-m&quot;
++  }
++}</component>
++  <component name="GithubPullRequestsUISettings">{
++  &quot;selectedUrlAndAccountId&quot;: {
++    &quot;url&quot;: &quot;https://github.com/gra-m/DBServer.git&quot;,
++    &quot;accountId&quot;: &quot;9e51a78b-18b8-41b7-90be-32dab75aaae8&quot;
++  }
++}</component>
+   <component name="HighlightingSettingsPerFile">
+     <setting file="file://$PROJECT_DIR$/config.properties" root0="SKIP_INSPECTION" />
+   </component>
+@@ -133,6 +158,9 @@
+   <component name="ProblemsViewState">
+     <option name="selectedTabId" value="CurrentFile" />
+   </component>
++  <component name="ProjectColorInfo">{
++  &quot;associatedIndex&quot;: 3
++}</component>
+   <component name="ProjectId" id="2B2057x8zanlrtsq53MNYHv90HF" />
+   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+     <ConfirmationsSetting value="2" id="Add" />
+@@ -143,28 +171,39 @@
+     <option name="showMembers" value="true" />
+     <option name="showVisibilityIcons" value="true" />
+     <option name="sortByType" value="true" />
++    <option name="sortKey" value="BY_TYPE" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+-    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Gra_m/Documents/JAVA/001_Examples/DBServer&quot;,
+-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+-    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
+-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "Gradle.DB_SERVER [:fun.madeby.resttestapp.RESTTestApp.main()].executor": "Run",
++    "Gradle.DB_SERVER [:fun.madeby.server.RESTServer.main()].executor": "Run",
++    "Gradle.DB_SERVER [:fun.madeby.testapp.TestApp.main()].executor": "Run",
++    "Gradle.DB_SERVER [build].executor": "Run",
++    "Gradle.DB_SERVER [testClasses].executor": "Run",
++    "RunOnceActivity.OpenProjectViewOnStart": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "WebServerToolWindowFactoryState": "false",
++    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
++    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
++    "extract.method.default.visibility": "private",
++    "git-widget-placeholder": "main",
++    "ignore.virus.scanning.warn.message": "true",
++    "ignore_missing_gitignore": "true",
++    "kotlin-language-version-configured": "true",
++    "last_opened_file_path": "C:/Users/Gram/IdeaProjects/ToFilm/DB_SERVER",
++    "node.js.detected.package.eslint": "true",
++    "node.js.detected.package.tslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "nodejs_package_manager_path": "npm",
++    "project.structure.last.edited": "Problems",
++    "project.structure.proportion": "0.0",
++    "project.structure.side.proportion": "0.2",
++    "run.code.analysis.last.selected.profile": "pProject Default",
++    "settings.editor.selected.configurable": "preferences.pluginManager",
++    "vue.rearranger.settings.migration": "true"
+   }
+-}</component>
++}]]></component>
+   <component name="RecentsManager">
+     <key name="CreateClassDialog.RecentsKey">
+       <recent name="fun.madeby.generic" />
+@@ -196,7 +235,33 @@
+       <recent name="fun.madeby.generic" />
+     </key>
+   </component>
+-  <component name="RunManager" selected="Gradle.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag">
++  <component name="RunManager" selected="Application.TestApp">
++    <configuration name="RESTServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="fun.madeby.server.RESTServer" />
++      <module name="DBServer.main" />
++      <extension name="coverage">
++        <pattern>
++          <option name="PATTERN" value="fun.madeby.server.*" />
++          <option name="ENABLED" value="true" />
++        </pattern>
++      </extension>
++      <method v="2">
++        <option name="Make" enabled="true" />
++      </method>
++    </configuration>
++    <configuration name="RESTTestApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="fun.madeby.resttestapp.RESTTestApp" />
++      <module name="DBServer.main" />
++      <extension name="coverage">
++        <pattern>
++          <option name="PATTERN" value="fun.madeby.resttestapp.*" />
++          <option name="ENABLED" value="true" />
++        </pattern>
++      </extension>
++      <method v="2">
++        <option name="Make" enabled="true" />
++      </method>
++    </configuration>
+     <configuration name="TestApp" type="Application" factoryName="Application" nameIsGenerated="true">
+       <option name="MAIN_CLASS_NAME" value="fun.madeby.testapp.TestApp" />
+       <module name="DBServer.main" />
+@@ -231,110 +296,71 @@
+       <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+       <DebugAllEnabled>false</DebugAllEnabled>
++      <RunAsTest>true</RunAsTest>
+       <method v="2" />
+     </configuration>
+-    <configuration name="DBGenericDefragTest.testDefragmentationAfterDelete" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
++    <configuration name="DB_SERVER [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+       <ExternalSystemSettings>
+         <option name="executionName" />
+         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+         <option name="externalSystemIdString" value="GRADLE" />
+-        <option name="scriptParameters" value="" />
++        <option name="scriptParameters" />
+         <option name="taskDescriptions">
+           <list />
+         </option>
+         <option name="taskNames">
+           <list>
+-            <option value=":test" />
+-            <option value="--tests" />
+-            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testDefragmentationAfterDelete&quot;" />
++            <option value="build" />
+           </list>
+         </option>
+         <option name="vmOptions" />
+       </ExternalSystemSettings>
+-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
++      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+       <DebugAllEnabled>false</DebugAllEnabled>
++      <RunAsTest>false</RunAsTest>
+       <method v="2" />
+     </configuration>
+-    <configuration name="DBGenericDefragTest.testGetRowsWithDebugInfo" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
++    <configuration name="DB_SERVER [testClasses]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+       <ExternalSystemSettings>
+         <option name="executionName" />
+         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+         <option name="externalSystemIdString" value="GRADLE" />
+-        <option name="scriptParameters" value="" />
++        <option name="scriptParameters" />
+         <option name="taskDescriptions">
+           <list />
+         </option>
+         <option name="taskNames">
+           <list>
+-            <option value=":test" />
+-            <option value="--tests" />
+-            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetRowsWithDebugInfo&quot;" />
++            <option value="testClasses" />
+           </list>
+         </option>
+         <option name="vmOptions" />
+       </ExternalSystemSettings>
+-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
++      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+       <DebugAllEnabled>false</DebugAllEnabled>
+-      <method v="2" />
+-    </configuration>
+-    <configuration name="DBGenericDefragTest.testGetTotalNumberOfRows" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+-      <ExternalSystemSettings>
+-        <option name="executionName" />
+-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+-        <option name="externalSystemIdString" value="GRADLE" />
+-        <option name="scriptParameters" value="" />
+-        <option name="taskDescriptions">
+-          <list />
+-        </option>
+-        <option name="taskNames">
+-          <list>
+-            <option value=":test" />
+-            <option value="--tests" />
+-            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetTotalNumberOfRows&quot;" />
+-          </list>
+-        </option>
+-        <option name="vmOptions" />
+-      </ExternalSystemSettings>
+-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+-      <DebugAllEnabled>false</DebugAllEnabled>
+-      <method v="2" />
+-    </configuration>
+-    <configuration name="DBGenericDefragTest.testGetTotalRecordAmount" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+-      <ExternalSystemSettings>
+-        <option name="executionName" />
+-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+-        <option name="externalSystemIdString" value="GRADLE" />
+-        <option name="scriptParameters" value="" />
+-        <option name="taskDescriptions">
+-          <list />
+-        </option>
+-        <option name="taskNames">
+-          <list>
+-            <option value=":test" />
+-            <option value="--tests" />
+-            <option value="&quot;fun.madeby.generic_server.defrag.DBGenericDefragTest.testGetTotalRecordAmount&quot;" />
+-          </list>
+-        </option>
+-        <option name="vmOptions" />
+-      </ExternalSystemSettings>
+-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+-      <DebugAllEnabled>false</DebugAllEnabled>
++      <RunAsTest>false</RunAsTest>
+       <method v="2" />
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Application.RESTServer" />
++        <item itemvalue="Application.RESTTestApp" />
++        <item itemvalue="Gradle.DB_SERVER [testClasses]" />
++        <item itemvalue="Gradle.DB_SERVER [build]" />
+         <item itemvalue="Gradle.DBGenericDefragTest.testDebugInfoRowsAfterDeleteAndDefrag" />
+-        <item itemvalue="Gradle.DBGenericDefragTest.testDefragmentationAfterDelete" />
+-        <item itemvalue="Gradle.DBGenericDefragTest.testGetTotalRecordAmount" />
+-        <item itemvalue="Gradle.DBGenericDefragTest.testGetRowsWithDebugInfo" />
+-        <item itemvalue="Gradle.DBGenericDefragTest.testGetTotalNumberOfRows" />
+       </list>
+     </recent_temporary>
+   </component>
++  <component name="SharedIndexes">
++    <attachedChunks>
++      <set>
++        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.419" />
++        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.419" />
++      </set>
++    </attachedChunks>
++  </component>
+   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+   <component name="TaskManager">
+     <task active="true" id="Default" summary="Default task">
+@@ -393,6 +419,10 @@
+       <workItem from="1662119581485" duration="1770000" />
+       <workItem from="1662449602437" duration="30000" />
+       <workItem from="1663072627432" duration="4802000" />
++      <workItem from="1724680819295" duration="7000" />
++      <workItem from="1724680908241" duration="137000" />
++      <workItem from="1724681060200" duration="1187000" />
++      <workItem from="1724684784170" duration="5329000" />
+     </task>
+     <servers />
+   </component>
+@@ -400,6 +430,26 @@
+     <option name="version" value="3" />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
++    <option name="RECENT_FILTERS">
++      <map>
++        <entry key="Branch">
++          <value>
++            <list>
++              <RecentGroup>
++                <option name="FILTER_VALUES">
++                  <option value="HEAD" />
++                </option>
++              </RecentGroup>
++              <RecentGroup>
++                <option name="FILTER_VALUES">
++                  <option value="transactions" />
++                </option>
++              </RecentGroup>
++            </list>
++          </value>
++        </entry>
++      </map>
++    </option>
+     <option name="TAB_STATES">
+       <map>
+         <entry key="MAIN">
+@@ -410,28 +460,13 @@
+                   <entry key="branch">
+                     <value>
+                       <list>
+-                        <option value="origin/transactions" />
++                        <option value="HEAD" />
+                       </list>
+                     </value>
+                   </entry>
+                 </map>
+               </option>
+             </State>
+-          </value>
+-        </entry>
+-      </map>
+-    </option>
+-    <option name="RECENT_FILTERS">
+-      <map>
+-        <entry key="Branch">
+-          <value>
+-            <list>
+-              <RecentGroup>
+-                <option name="FILTER_VALUES">
+-                  <option value="transactions" />
+-                </option>
+-              </RecentGroup>
+-            </list>
+           </value>
+         </entry>
+       </map>
+Index: build/reports/tests/test/index.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><!DOCTYPE html>\r\n<html>\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\r\n<meta http-equiv=\"x-ua-compatible\" content=\"IE=edge\"/>\r\n<title>Test results - Test Summary</title>\r\n<link href=\"css/base-style.css\" rel=\"stylesheet\" type=\"text/css\"/>\r\n<link href=\"css/style.css\" rel=\"stylesheet\" type=\"text/css\"/>\r\n<script src=\"js/report.js\" type=\"text/javascript\"></script>\r\n</head>\r\n<body>\r\n<div id=\"content\">\r\n<h1>Test Summary</h1>\r\n<div id=\"summary\">\r\n<table>\r\n<tr>\r\n<td>\r\n<div class=\"summaryGroup\">\r\n<table>\r\n<tr>\r\n<td>\r\n<div class=\"infoBox\" id=\"tests\">\r\n<div class=\"counter\">98</div>\r\n<p>tests</p>\r\n</div>\r\n</td>\r\n<td>\r\n<div class=\"infoBox\" id=\"failures\">\r\n<div class=\"counter\">0</div>\r\n<p>failures</p>\r\n</div>\r\n</td>\r\n<td>\r\n<div class=\"infoBox\" id=\"ignored\">\r\n<div class=\"counter\">0</div>\r\n<p>ignored</p>\r\n</div>\r\n</td>\r\n<td>\r\n<div class=\"infoBox\" id=\"duration\">\r\n<div class=\"counter\">1.501s</div>\r\n<p>duration</p>\r\n</div>\r\n</td>\r\n</tr>\r\n</table>\r\n</div>\r\n</td>\r\n<td>\r\n<div class=\"infoBox success\" id=\"successRate\">\r\n<div class=\"percent\">100%</div>\r\n<p>successful</p>\r\n</div>\r\n</td>\r\n</tr>\r\n</table>\r\n</div>\r\n<div id=\"tabs\">\r\n<ul class=\"tabLinks\">\r\n<li>\r\n<a href=\"#tab0\">Packages</a>\r\n</li>\r\n<li>\r\n<a href=\"#tab1\">Classes</a>\r\n</li>\r\n</ul>\r\n<div id=\"tab0\" class=\"tab\">\r\n<h2>Packages</h2>\r\n<table>\r\n<thead>\r\n<tr>\r\n<th>Package</th>\r\n<th>Tests</th>\r\n<th>Failures</th>\r\n<th>Ignored</th>\r\n<th>Duration</th>\r\n<th>Success rate</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"packages/fun.madeby.html\">fun.madeby</a>\r\n</td>\r\n<td>8</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.043s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"packages/fun.madeby.generic_server.html\">fun.madeby.generic_server</a>\r\n</td>\r\n<td>42</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.433s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"packages/fun.madeby.generic_server.defrag.html\">fun.madeby.generic_server.defrag</a>\r\n</td>\r\n<td>12</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.728s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"packages/fun.madeby.specific_server.html\">fun.madeby.specific_server</a>\r\n</td>\r\n<td>30</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.218s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"packages/fun.madeby.specific_server.defrag.html\">fun.madeby.specific_server.defrag</a>\r\n</td>\r\n<td>6</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.079s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n</div>\r\n<div id=\"tab1\" class=\"tab\">\r\n<h2>Classes</h2>\r\n<table>\r\n<thead>\r\n<tr>\r\n<th>Class</th>\r\n<th>Tests</th>\r\n<th>Failures</th>\r\n<th>Ignored</th>\r\n<th>Duration</th>\r\n<th>Success rate</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"classes/fun.madeby.LevenshteinTest.html\">fun.madeby.LevenshteinTest</a>\r\n</td>\r\n<td>8</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.043s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"classes/fun.madeby.generic_server.DBGenericTest.html\">fun.madeby.generic_server.DBGenericTest</a>\r\n</td>\r\n<td>42</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.433s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"classes/fun.madeby.generic_server.defrag.DBGenericDefragTest.html\">fun.madeby.generic_server.defrag.DBGenericDefragTest</a>\r\n</td>\r\n<td>12</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.728s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"classes/fun.madeby.specific_server.DBSpecificTest.html\">fun.madeby.specific_server.DBSpecificTest</a>\r\n</td>\r\n<td>30</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.218s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n<tr>\r\n<td class=\"success\">\r\n<a href=\"classes/fun.madeby.specific_server.defrag.DBSpecificDefragTest.html\">fun.madeby.specific_server.defrag.DBSpecificDefragTest</a>\r\n</td>\r\n<td>6</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0.079s</td>\r\n<td class=\"success\">100%</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n</div>\r\n</div>\r\n<div id=\"footer\">\r\n<p>\r\n<div>\r\n<label class=\"hidden\" id=\"label-for-line-wrapping-toggle\" for=\"line-wrapping-toggle\">Wrap lines\r\n<input id=\"line-wrapping-toggle\" type=\"checkbox\" autocomplete=\"off\"/>\r\n</label>\r\n</div>Generated by \r\n<a href=\"http://www.gradle.org\">Gradle 7.4.2</a> at 13 Sept 2022, 15:51:23</p>\r\n</div>\r\n</div>\r\n</body>\r\n</html>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build/reports/tests/test/index.html b/build/reports/tests/test/index.html
+--- a/build/reports/tests/test/index.html	(revision fc5d4724054a7cc99035a2c9da9bb2eb891529ac)
++++ b/build/reports/tests/test/index.html	(date 1724682059609)
+@@ -38,7 +38,7 @@
+ </td>
+ <td>
+ <div class="infoBox" id="duration">
+-<div class="counter">1.501s</div>
++<div class="counter">0.724s</div>
+ <p>duration</p>
+ </div>
+ </td>
+@@ -85,7 +85,7 @@
+ <td>8</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.043s</td>
++<td>0.007s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -95,7 +95,7 @@
+ <td>42</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.433s</td>
++<td>0.223s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -105,7 +105,7 @@
+ <td>12</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.728s</td>
++<td>0.356s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -115,7 +115,7 @@
+ <td>30</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.218s</td>
++<td>0.101s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -125,7 +125,7 @@
+ <td>6</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.079s</td>
++<td>0.037s</td>
+ <td class="success">100%</td>
+ </tr>
+ </tbody>
+@@ -152,7 +152,7 @@
+ <td>8</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.043s</td>
++<td>0.007s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -162,7 +162,7 @@
+ <td>42</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.433s</td>
++<td>0.223s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -172,7 +172,7 @@
+ <td>12</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.728s</td>
++<td>0.356s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -182,7 +182,7 @@
+ <td>30</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.218s</td>
++<td>0.101s</td>
+ <td class="success">100%</td>
+ </tr>
+ <tr>
+@@ -192,7 +192,7 @@
+ <td>6</td>
+ <td>0</td>
+ <td>0</td>
+-<td>0.079s</td>
++<td>0.037s</td>
+ <td class="success">100%</td>
+ </tr>
+ </tbody>
+@@ -206,7 +206,7 @@
+ <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+ </label>
+ </div>Generated by 
+-<a href="http://www.gradle.org">Gradle 7.4.2</a> at 13 Sept 2022, 15:51:23</p>
++<a href="http://www.gradle.org">Gradle 7.4</a> at Aug 26, 2024, 4:20:59 PM</p>
+ </div>
+ </div>
+ </body>

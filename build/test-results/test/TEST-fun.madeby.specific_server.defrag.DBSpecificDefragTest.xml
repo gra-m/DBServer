@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fun.madeby.specific_server.defrag.DBSpecificDefragTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2024-08-26T14:20:59" hostname="LAPTOP-4GCIIFMG" time="0.229">
+  <properties/>
+  <testcase name="@testSpecificDefragEmptyTransactionBehaviour() -&gt; 0 rows no exceptions" classname="fun.madeby.specific_server.defrag.DBSpecificDefragTest" time="0.009"/>
+  <testcase name="testGenericDefragAfterRollback_Add totalRows added 3-&gt; rolled back -&gt; 0 total no rows &amp;&amp; 1 rows with debug info defrag -&gt; 0 rows" classname="fun.madeby.specific_server.defrag.DBSpecificDefragTest" time="0.006"/>
+  <testcase name="@testSpecificDefragAfterDelete(): totalRows 2rows-&gt;1rows-&gt;defrag" classname="fun.madeby.specific_server.defrag.DBSpecificDefragTest" time="0.007"/>
+  <testcase name="@testSpecificDefragEmptyTransactionBehaviour() -&gt; 0 rows no exceptions" classname="fun.madeby.specific_server.defrag.DBSpecificDefragTest" time="0.004"/>
+  <testcase name="testGenericDefragAfterRollback_Add totalRows added 3-&gt; rolled back -&gt; 0 total no rows &amp;&amp; 1 rows with debug info defrag -&gt; 0 rows" classname="fun.madeby.specific_server.defrag.DBSpecificDefragTest" time="0.005"/>
+  <testcase name="@testSpecificDefragAfterDelete(): totalRows 2rows-&gt;1rows-&gt;defrag" classname="fun.madeby.specific_server.defrag.DBSpecificDefragTest" time="0.006"/>
+  <system-out><![CDATA[File successfully deleted
+File successfully deleted
+File successfully deleted
+BFH: PopulateIndex(): total rows - 1 | total deleted - 0 | total - temporary - 0 
+File successfully deleted
+File successfully deleted
+File successfully deleted
+BFH: PopulateIndex(): total rows - 1 | total deleted - 0 | total - temporary - 0 
+]]></system-out>
+  <system-err><![CDATA[java.nio.file.NoSuchFileException: .\testSpecificDefrag.db
+	at java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:85)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)
+	at java.base/sun.nio.fs.WindowsFileSystemProvider.newByteChannel(WindowsFileSystemProvider.java:236)
+	at java.base/java.nio.file.spi.FileSystemProvider.newOutputStream(FileSystemProvider.java:484)
+	at java.base/java.nio.file.Files.newOutputStream(Files.java:228)
+	at java.base/java.nio.file.Files.newBufferedWriter(Files.java:3008)
+	at java.base/java.nio.file.Files.newBufferedWriter(Files.java:3056)
+	at fun.madeby.specific_server.defrag.DBSpecificDefragTest.clearDataInExistingFile(DBSpecificDefragTest.java:58)
+	at fun.madeby.specific_server.defrag.DBSpecificDefragTest.setUp(DBSpecificDefragTest.java:38)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:727)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptLifecycleMethod(TimeoutExtension.java:128)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptBeforeEachMethod(TimeoutExtension.java:78)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.invokeMethodInExtensionContext(ClassBasedTestDescriptor.java:520)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$synthesizeBeforeEachMethodAdapter$23(ClassBasedTestDescriptor.java:505)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeBeforeEachMethods$3(TestMethodTestDescriptor.java:174)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeBeforeMethodsOrCallbacksUntilExceptionOccurs$6(TestMethodTestDescriptor.java:202)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeBeforeMethodsOrCallbacksUntilExceptionOccurs(TestMethodTestDescriptor.java:202)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeBeforeEachMethods(TestMethodTestDescriptor.java:171)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:134)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:147)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:127)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:90)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:73)
+	at org.junit.platform.suite.engine.SuiteLauncher.execute(SuiteLauncher.java:63)
+	at org.junit.platform.suite.engine.SuiteTestDescriptor.execute(SuiteTestDescriptor.java:150)
+	at org.junit.platform.suite.engine.SuiteTestEngine.lambda$execute$0(SuiteTestEngine.java:73)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:183)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.Iterator.forEachRemaining(Iterator.java:133)
+	at java.base/java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1845)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:150)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:173)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:596)
+	at org.junit.platform.suite.engine.SuiteTestEngine.execute(SuiteTestEngine.java:73)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:147)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:127)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:90)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:55)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:102)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:54)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:86)
+	at org.junit.platform.launcher.core.DefaultLauncherSession$DelegatingLauncher.execute(DefaultLauncherSession.java:86)
+	at org.junit.platform.launcher.core.SessionPerRequestLauncher.execute(SessionPerRequestLauncher.java:53)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.processAllTestClasses(JUnitPlatformTestClassProcessor.java:99)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.access$000(JUnitPlatformTestClassProcessor.java:79)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor.stop(JUnitPlatformTestClassProcessor.java:75)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.stop(SuiteTestClassProcessor.java:61)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at jdk.proxy2/jdk.proxy2.$Proxy5.stop(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$3.run(TestWorker.java:193)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:129)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:100)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:60)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:133)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:71)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer commit
+INFO: @DBSpecificServer commit() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer close
+SEVERE: @DBSpecificServer closing()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer rollback
+INFO: @DBSpecificServer rollback() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer close
+SEVERE: @DBSpecificServer closing()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer commit
+INFO: @DBSpecificServer commit() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer commit
+INFO: @DBSpecificServer commit() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer close
+SEVERE: @DBSpecificServer closing()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer commit
+INFO: @DBSpecificServer commit() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer close
+SEVERE: @DBSpecificServer closing()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer rollback
+INFO: @DBSpecificServer rollback() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer close
+SEVERE: @DBSpecificServer closing()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler isExistingData
+SEVERE: @BFH/isExistingData: populateIndex -> isExistingData() no existing data, nothing to index.
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer commit
+INFO: @DBSpecificServer commit() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer commit
+INFO: @DBSpecificServer commit() completed
+Aug 26, 2024 4:20:59 PM fun.madeby.specific.BaseFileHandler populateIndex
+SEVERE: @BFH PopulateIndex()
+Aug 26, 2024 4:20:59 PM fun.madeby.db.specific_server.DBSpecificServer close
+SEVERE: @DBSpecificServer closing()
+]]></system-err>
+</testsuite>
